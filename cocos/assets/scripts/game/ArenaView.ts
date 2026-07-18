@@ -73,6 +73,10 @@ function solidSpriteFrame(): SpriteFrame {
   texture.image = image;
   const frame = new SpriteFrame();
   frame.texture = texture;
+  // 运行时用 Uint8Array 造的贴图没有 HTMLImageElement 之类的图像源,
+  // 若让它进动态图集,copyTexImagesToTexture 会以图像源重载去调 texSubImage2D 而抛异常,
+  // 且是逐帧抛 —— 表现为除性能面板外什么都画不出来。
+  frame.packable = false;
   return frame;
 }
 
@@ -133,8 +137,10 @@ export class ArenaView {
       () => this.makeBlock(this.armyLayer, C.bird),
       (n) => { n.active = true; },
       (n) => { n.active = false; },
-      tuning.nRender,
     );
+    // 不预热:ObjectPool 的 prewarm 参数会把 create() 的产物直接塞进空闲表、不经过 onPut,
+    // 节点停在 active=true,实测 n=10 时仍有 nRender 个节点参与渲染遍历。
+    // 池本身按需增长且 get/put 全程维护 active,省掉预热即可保证「在用数 == 当前兵力」。
     this.enemyPool = new ObjectPool<Node>(
       () => this.makeBlock(this.enemyLayer, C.enemy),
       (n) => { n.active = true; },

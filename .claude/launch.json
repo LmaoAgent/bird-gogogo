@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8099"],
       "port": 8099
+    },
+    {
+      "name": "cocos-web",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8098", "--directory", "cocos/build/web-mobile"],
+      "port": 8098
     }
   ]
 }

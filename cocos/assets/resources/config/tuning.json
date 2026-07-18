@@ -1,0 +1,24 @@
+{
+  "startArmy": 10,
+  "forwardSpeed": 9,
+  "dragSensitivity": 1.0,
+  "followSmooth": 0.15,
+  "formationRadiusK": 0.6,
+  "nRender": 130,
+  "combat": {
+    "dps": 6,
+    "tMin": 0.6,
+    "tMax": 2.5
+  },
+  "fx": {
+    "smashShakeAmp": 8,
+    "smashShakeDuration": 0.2,
+    "bossHitStop": 0.06
+  },
+  "track": {
+    "width": 16,
+    "laneX": { "left": -5, "center": 0, "right": 5 },
+    "gateHalfWidth": 2.2
+  },
+  "star": { "3": 0.95, "2": 0.75 }
+}

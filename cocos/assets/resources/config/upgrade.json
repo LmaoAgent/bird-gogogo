@@ -1,0 +1,39 @@
+{
+  "note": "局外轻养成(PRD §5)。首发单货币＝金币,无钻石。曲线 level 1 即 tuning 基线(startArmy=10 / combat.dps=6),未升级时与 tuning 完全一致;cost＝升到该级所需金币,level 从 1 连续升序。",
+  "rewards": {
+    "note": "通关结算金币 = coinBase × 关卡 + starBonus[星级];失败不结算。重复通关照给,越后面的关越值钱。",
+    "coinBase": 8,
+    "starBonus": { "1": 0, "2": 15, "3": 40 }
+  },
+  "curves": {
+    "startArmy": {
+      "note": "起始兵力 N0(§2)。上限 40:一个门不吃只过得了教学关 1-4(关5 要 62.5、关10 要 227,20 关大 BOSS 更高),不可能靠升级跳过门通关。副作用:满级后一路 center 会白吃中路门,关4-6 因此可无操作通过(老关变简单＝成长的预期收益),关7 起仍须走位。",
+      "levels": [
+        { "level": 1, "value": 10, "cost": 0 },
+        { "level": 2, "value": 13, "cost": 100 },
+        { "level": 3, "value": 16, "cost": 180 },
+        { "level": 4, "value": 19, "cost": 300 },
+        { "level": 5, "value": 22, "cost": 460 },
+        { "level": 6, "value": 25, "cost": 660 },
+        { "level": 7, "value": 28, "cost": 900 },
+        { "level": 8, "value": 31, "cost": 1200 },
+        { "level": 9, "value": 34, "cost": 1600 },
+        { "level": 10, "value": 37, "cost": 2100 },
+        { "level": 11, "value": 40, "cost": 2700 }
+      ]
+    },
+    "unitPower": {
+      "note": "单兵 DPS d(§4.2)。d 只进对撞演出时长 T=clamp(H/(N·d),tMin,tMax),不进胜负判定,所以这条线永远不会破坏关卡抉择——买的是节奏,故比 N0 便宜。",
+      "levels": [
+        { "level": 1, "value": 6, "cost": 0 },
+        { "level": 2, "value": 8, "cost": 80 },
+        { "level": 3, "value": 10, "cost": 150 },
+        { "level": 4, "value": 12, "cost": 260 },
+        { "level": 5, "value": 14, "cost": 420 },
+        { "level": 6, "value": 16, "cost": 650 },
+        { "level": 7, "value": 18, "cost": 950 },
+        { "level": 8, "value": 20, "cost": 1350 }
+      ]
+    }
+  }
+}

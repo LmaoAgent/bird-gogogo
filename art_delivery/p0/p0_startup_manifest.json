@@ -1,0 +1,71 @@
+{
+  "limit_bytes": 4194304,
+  "total_bytes": 2769229,
+  "within_limit": true,
+  "files": [
+    {
+      "path": "atlases/p0_characters_atlas.png",
+      "bytes": 1046698
+    },
+    {
+      "path": "atlases/p0_ui_atlas.png",
+      "bytes": 289905
+    },
+    {
+      "path": "atlases/p0_world_atlas.png",
+      "bytes": 750144
+    },
+    {
+      "path": "atlases/p0_characters_atlas.json",
+      "bytes": 10351
+    },
+    {
+      "path": "atlases/p0_ui_atlas.json",
+      "bytes": 5235
+    },
+    {
+      "path": "atlases/p0_world_atlas.json",
+      "bytes": 11111
+    },
+    {
+      "path": "atlases/p0_characters_atlas.plist",
+      "bytes": 8445
+    },
+    {
+      "path": "atlases/p0_ui_atlas.plist",
+      "bytes": 4437
+    },
+    {
+      "path": "atlases/p0_world_atlas.plist",
+      "bytes": 9014
+    },
+    {
+      "path": "assets/fonts/font_gate_bonus_01.fnt",
+      "bytes": 1533
+    },
+    {
+      "path": "assets/fonts/font_gate_bonus_01.png",
+      "bytes": 102923
+    },
+    {
+      "path": "assets/fonts/font_gate_trap_01.fnt",
+      "bytes": 1532
+    },
+    {
+      "path": "assets/fonts/font_gate_trap_01.png",
+      "bytes": 105606
+    },
+    {
+      "path": "assets/scene/scene_marketbridge_background_runtime_01.png",
+      "bytes": 213247
+    },
+    {
+      "path": "assets/scene/scene_marketbridge_track_tile_runtime_01.png",
+      "bytes": 147954
+    },
+    {
+      "path": "assets/branding/brand_logo_runtime_01.png",
+      "bytes": 61094
+    }
+  ]
+}

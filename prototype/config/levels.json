@@ -1,0 +1,156 @@
+[
+  {
+    "level": 1,
+    "note": "教学·蓝+1连排。N_min=3,怎么走都过",
+    "trackLength": 260,
+    "k": 5.0,
+    "targetN": 30,
+    "gates": [
+      { "id": "l1_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 50, "repeat": { "count": 10, "stepZ": 7 } },
+      { "id": "l1_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 145, "repeat": { "count": 10, "stepZ": 7 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 15, "posZ": 240 } ],
+    "boss": null
+  },
+  {
+    "level": 2,
+    "note": "教学·三段连排穿梭。N_min=6,必过",
+    "trackLength": 300,
+    "k": 5.0,
+    "targetN": 45,
+    "gates": [
+      { "id": "l2_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 40, "repeat": { "count": 12, "stepZ": 6 } },
+      { "id": "l2_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 130, "repeat": { "count": 12, "stepZ": 6 } },
+      { "id": "l2_blue_c", "type": "add", "value": 1, "side": "right", "posZ": 210, "repeat": { "count": 12, "stepZ": 5 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 30, "posZ": 280 } ],
+    "boss": null
+  },
+  {
+    "level": 3,
+    "note": "引入黄大门·引导贴门绕路。连排放 center 保证不操作也过(N_min=12)",
+    "trackLength": 300,
+    "k": 5.0,
+    "targetN": 60,
+    "gates": [
+      { "id": "l3_blue_a", "type": "add", "value": 1, "side": "center", "posZ": 50, "repeat": { "count": 10, "stepZ": 6 } },
+      { "id": "l3_gold", "type": "add", "value": 40, "side": "right", "posZ": 190 }
+    ],
+    "enemies": [ { "type": "moldling", "H": 60, "posZ": 280 } ],
+    "boss": null
+  },
+  {
+    "level": 4,
+    "note": "引入乘法×2·教『晚吃乘法』。跳过连排只吃×2 = 20 < 27 必败",
+    "trackLength": 330,
+    "k": 4.5,
+    "targetN": 80,
+    "gates": [
+      { "id": "l4_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 40, "repeat": { "count": 15, "stepZ": 5 } },
+      { "id": "l4_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 150, "repeat": { "count": 15, "stepZ": 5 } },
+      { "id": "l4_mul", "type": "mul", "value": 2, "side": "center", "posZ": 270 }
+    ],
+    "enemies": [ { "type": "moldling", "H": 120, "posZ": 310 } ],
+    "boss": null
+  },
+  {
+    "level": 5,
+    "note": "小BOSS·第一个坎。漏黄门 = 30×2 = 60 < 63 必败",
+    "trackLength": 360,
+    "k": 4.0,
+    "targetN": 110,
+    "gates": [
+      { "id": "l5_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 20, "stepZ": 4.5 } },
+      { "id": "l5_gold", "type": "add", "value": 25, "side": "right", "posZ": 180 },
+      { "id": "l5_mul", "type": "mul", "value": 2, "side": "center", "posZ": 290 }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic_elite", "phases": [ 250 ], "posZ": 340 }
+  },
+  {
+    "level": 6,
+    "note": "分叉路·路线选择。right +60 为最优(120),left ×2 亦可过(90)",
+    "trackLength": 380,
+    "k": 4.0,
+    "targetN": 120,
+    "gates": [
+      { "id": "l6_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 20, "stepZ": 4.5 } },
+      { "id": "l6_fork", "type": "pick", "posZ": 190, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 60, "side": "right" }
+      ] },
+      { "id": "l6_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 240, "repeat": { "count": 30, "stepZ": 3.5 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 200, "posZ": 360 } ],
+    "boss": null
+  },
+  {
+    "level": 7,
+    "note": "引入陷阱-50·学会避坑。陷阱与黄门同在 right,吃完黄门须临时闪开再回来;踩坑 = 60 < 75 必败",
+    "trackLength": 400,
+    "k": 4.0,
+    "targetN": 110,
+    "gates": [
+      { "id": "l7_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 25, "stepZ": 4 } },
+      { "id": "l7_gold", "type": "add", "value": 45, "side": "right", "posZ": 180 },
+      { "id": "l7_trap", "type": "sub", "value": 50, "side": "right", "posZ": 250 },
+      { "id": "l7_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 300, "repeat": { "count": 30, "stepZ": 2.5 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 300, "posZ": 380 } ],
+    "boss": null
+  },
+  {
+    "level": 8,
+    "note": "双选门核心抉择。选×2 = 110 < 115 必败,选+80 = 150 过",
+    "trackLength": 420,
+    "k": 3.5,
+    "targetN": 150,
+    "gates": [
+      { "id": "l8_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 30, "stepZ": 4 } },
+      { "id": "l8_pick", "type": "pick", "posZ": 220, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 80, "side": "right" }
+      ] },
+      { "id": "l8_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 280, "repeat": { "count": 30, "stepZ": 3.5 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 400, "posZ": 400 } ],
+    "boss": null
+  },
+  {
+    "level": 9,
+    "note": "双选+陷阱综合。÷2 紧跟在黄门后同 lane,吃完必须闪开;踩坑 = 94 < 158 必败。×2路 189 略优于 +40路 184",
+    "trackLength": 440,
+    "k": 3.5,
+    "targetN": 190,
+    "gates": [
+      { "id": "l9_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 35, "stepZ": 3.5 } },
+      { "id": "l9_pick", "type": "pick", "posZ": 200, "options": [
+        { "type": "add", "value": 40, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l9_gold", "type": "add", "value": 99, "side": "center", "posZ": 280 },
+      { "id": "l9_trap", "type": "div", "value": 2, "side": "center", "posZ": 350 }
+    ],
+    "enemies": [ { "type": "moldling", "H": 550, "posZ": 420 } ],
+    "boss": null
+  },
+  {
+    "level": 10,
+    "note": "章节BOSS烂蒜魔王·3阶段 250×3。+80路 259 稳过,×2路 229 险过(N_min=227),踩陷阱必败",
+    "trackLength": 470,
+    "k": 3.3,
+    "targetN": 260,
+    "gates": [
+      { "id": "l10_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 40, "stepZ": 3 } },
+      { "id": "l10_trap", "type": "sub", "value": 60, "side": "center", "posZ": 200 },
+      { "id": "l10_pick", "type": "pick", "posZ": 270, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 80, "side": "right" }
+      ] },
+      { "id": "l10_gold", "type": "add", "value": 99, "side": "right", "posZ": 340 },
+      { "id": "l10_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 380, "repeat": { "count": 30, "stepZ": 2 } }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic", "phases": [ 250, 250, 250 ], "posZ": 450 }
+  }
+]

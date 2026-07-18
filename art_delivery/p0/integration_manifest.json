@@ -1,0 +1,87 @@
+{
+  "version": "p0-1.0",
+  "design_resolution": {
+    "width": 1080,
+    "height": 1920,
+    "orientation": "portrait"
+  },
+  "pixel_density": "@2x",
+  "texture_format": "PNG RGBA",
+  "atlases": [
+    "atlases/p0_characters_atlas",
+    "atlases/p0_world_atlas",
+    "atlases/p0_ui_atlas"
+  ],
+  "animations": {
+    "hero_garlicbird_run": {
+      "frames": ["hero_garlicbird_run_01.png"],
+      "loop": true,
+      "note": "P0 静态关键帧；后续可替换为 Spine/DragonBones 动画"
+    },
+    "hero_garlicbird_cheer": {
+      "frames": ["hero_garlicbird_cheer_01.png"],
+      "loop": true,
+      "note": "P0 静态关键帧"
+    },
+    "hero_garlicbird_panic": {
+      "frames": ["hero_garlicbird_panic_01.png"],
+      "loop": false,
+      "note": "P0 静态关键帧"
+    },
+    "enemy_moldling_flow": {
+      "pattern": "enemy_moldling_flow_*.png",
+      "fps": 8,
+      "loop": true
+    },
+    "enemy_moldling_die": {
+      "pattern": "enemy_moldling_die_*.png",
+      "fps": 12,
+      "loop": false
+    },
+    "fx_gateflash_play": {
+      "pattern": "fx_gateflash_play_*.png",
+      "fps": 16,
+      "loop": false,
+      "blend": "additive"
+    },
+    "fx_impact_garlic": {
+      "pattern": "fx_impact_garlic_*.png",
+      "fps": 16,
+      "loop": false
+    },
+    "fx_impact_mold": {
+      "pattern": "fx_impact_mold_*.png",
+      "fps": 16,
+      "loop": false
+    }
+  },
+  "nine_slice_insets_px_at_2x": {
+    "gate_bonus_blue_base_01.png": [72, 128, 72, 72],
+    "gate_reward_gold_base_01.png": [72, 128, 72, 72],
+    "gate_multiplier_purple_base_01.png": [72, 128, 72, 72],
+    "gate_trap_red_base_01.png": [72, 128, 72, 72],
+    "ui_button_start_base_01.png": [72, 64, 72, 64],
+    "ui_button_reward_base_01.png": [72, 64, 72, 64],
+    "ui_button_restart_base_01.png": [72, 64, 72, 64],
+    "ui_panel_common_base_01.png": [96, 96, 96, 96],
+    "ui_bar_boss_base_01.png": [88, 48, 88, 48],
+    "ui_bar_progress_base_01.png": [88, 44, 88, 44]
+  },
+  "pivots": {
+    "characters": [0.5, 0.08],
+    "enemies": [0.5, 0.08],
+    "boss": [0.5, 0.08],
+    "gates": [0.5, 0.0],
+    "fx": [0.5, 0.5],
+    "ui": [0.5, 0.5]
+  },
+  "cluster_rendering": {
+    "base_sprite": "hero_garlicbird_run_01.png",
+    "max_render_instances": 130,
+    "variation": {
+      "scale": [0.92, 1.08],
+      "tint_strength": 0.06,
+      "phase_offset": true
+    }
+  }
+}

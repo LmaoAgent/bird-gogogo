@@ -1,0 +1,11 @@
+.DS_Store
+
+# 美术打包产物（源文件都在 art_delivery/p0/ 里）
+art_delivery/dist/
+
+# Cocos Creator 工程缓存与构建产物（T4 建工程后生效）
+cocos/library/
+cocos/temp/
+cocos/build/
+cocos/profiles/
+node_modules/

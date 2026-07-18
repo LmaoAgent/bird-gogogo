@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "P0 必需资源覆盖",
+      "passed": true,
+      "detail": "30 个关键入口均存在"
+    },
+    {
+      "name": "命名规范",
+      "passed": true,
+      "detail": "全部为小写下划线"
+    },
+    {
+      "name": "PNG RGBA 模式",
+      "passed": true,
+      "detail": "79 张 PNG 均为 RGBA"
+    },
+    {
+      "name": "@2x 偶数像素基准",
+      "passed": true,
+      "detail": "所有最终 PNG 宽高均为偶数"
+    },
+    {
+      "name": "透明通道有效",
+      "passed": true,
+      "detail": "精灵与图集均含透明像素"
+    },
+    {
+      "name": "设计分辨率与图标尺寸",
+      "passed": true,
+      "detail": "竖屏基准 1080x1920，图标 1024x1024"
+    },
+    {
+      "name": "图集无溢出与无重叠",
+      "passed": true,
+      "detail": "p0_characters_atlas.png:24 帧/2048x2048; p0_ui_atlas.png:12 帧/2048x2048; p0_world_atlas.png:26 帧/2048x2048"
+    },
+    {
+      "name": "赛道纵向循环接缝",
+      "passed": true,
+      "detail": "首尾行平均 RGB 差值 1.182（阈值 < 3.0）"
+    },
+    {
+      "name": "位图数字字体字形",
+      "passed": true,
+      "detail": "两套字体均含 0-9、+、-、×、÷"
+    },
+    {
+      "name": "首包体积",
+      "passed": true,
+      "detail": "2769229 / 4194304 字节（2.64 MiB）"
+    }
+  ]
+}

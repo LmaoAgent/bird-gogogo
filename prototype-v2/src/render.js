@@ -14,7 +14,9 @@ const GARLIC_DARK = '#D8CDB6';
 const MOLD = '#5E8C2B';
 const MOLD_DARK = '#3C5C1B';
 const THICK = '#7A5C2B';
-const BULLET = '#FFF3B0';
+const BULLET = '#FFFFFF';
+const BULLET_TRAIL = '#FF9A2E';
+const HIT = '#FFF3B0';
 const INK = '#2B2420';
 
 // 维度配色(《v2》§4)
@@ -106,6 +108,14 @@ export class Renderer {
       const ev = waveKills[i];
       this.fx.push({ x: ev.x, rel: ev.z - game.z, t: 0, life: 0.5, kind: 'kill', type: 'wave' });
     }
+
+    // 命中闪光:原本只有"怪凭空消失",打闸门时更是几秒钟一点反馈都没有。
+    // 射速拉高后一帧能命中十几发,全画会连成一张白饼 —— 同 maxWaveFx 的抽样口径,每帧只补 maxHitFx 朵。
+    const hits = game.bulletHits;
+    const hitStride = Math.ceil(hits.length / 2 / this.tuning.maxHitFx) || 1;
+    for (let i = 0; i < hits.length; i += 2 * hitStride) {
+      this.fx.push({ x: hits[i], rel: hits[i + 1] - game.z, t: 0, life: 0.13, kind: 'hit' });
+    }
   }
 
   draw(game, dt) {
@@ -126,8 +136,10 @@ export class Renderer {
     this.#enemies(game);
     if (game.barrier) this.#barrier(game);
     if (game.bossActive && game.boss) this.#boss(game);
-    this.#army(game, dt);
+    // 子弹画在大军之前:弹丸从队伍中间(rel 1.5)出膛,画在后面就有一半白弹体压在奶油色的兵身上,
+    // 两者同色糊成一团。让兵挡住膛口,只有冲出队伍的那一截可见,才是"火力从人群里喷出来"。
     this.#bullets(game);
+    this.#army(game, dt);
     this.#effects(dt);
     this.#waves(game, dt);   // 画在死亡特效之上,否则冲击环会被那片爆开的粒子埋掉
     g.restore();
@@ -304,7 +316,9 @@ export class Renderer {
     const n = game.stats.N;
     if (n <= 0) return;
     const shown = Math.min(n, this.tuning.nRender);
-    const R = this.tuning.formationRadiusK * Math.sqrt(n);
+    // 半径封顶:R 按 √N 无限长,画出来的却始终只有 nRender 个 —— N=200 时 60 个兵摊在 8.8 单位的盘上,
+    // 间距 99px 而个头只有 51px,兵越多反而越稀,还溢出赛道两侧。封顶后多出来的兵力改由 over 放大个头体现。
+    const R = Math.min(this.tuning.formationRadiusK * Math.sqrt(n), this.tuning.formationRadiusMax);
     const over = n > this.tuning.nRender ? 1 + Math.log10(n / this.tuning.nRender) * 0.3 : 1;
     const blink = game.shieldT > 0 && Math.floor(game.time * 12) % 2 === 0;
     const boost = game.boostT > 0;   // 冲刺期镀金,和速度线一起把"无敌冲出去"讲清楚
@@ -324,32 +338,53 @@ export class Renderer {
       u.vx -= (u.ox * SPRING + u.vx * DAMP) * dt;   // 弹簧拉回原位,阻尼收住余震
       u.vz -= (u.oz * SPRING + u.vz * DAMP) * dt;
       u.ox += u.vx * dt; u.oz += u.vz * dt;
-      slots.push({ x: x + u.ox, rel: 1.2 + s.z * R * 0.5 + u.oz, i });
+      slots.push({ x: x + u.ox, rel: 1.2 + s.z * R * this.tuning.formationDepthK + u.oz, i });
     }
     slots.sort((a, b) => b.rel - a.rel);
+    // 透视把纵深压掉七成(z 方向 14px/单位 vs x 方向 46px/单位),队形在屏幕上是个扁盘,
+    // 兵一挤密就糊成一张奶油饼 —— 同色方块互相盖住,只剩最前排看得见轮廓。描边是让它读成"一群"而不是"一坨"的关键。
+    g.strokeStyle = INK;
+    g.lineWidth = Math.max(1.5, this.tuning.unitSize * over * 0.05);
     for (const s of slots) {
       const p = proj(s.x, s.rel);
-      const size = 44 * p.d * over;
+      const size = this.tuning.unitSize * p.d * over;
       const bob = Math.sin(game.time * 10 + s.i) * size * 0.06;
+      const top = p.sy - size + bob;
       g.fillStyle = blink ? '#FFFFFF' : boost ? '#FFF3C4' : GARLIC;
-      g.fillRect(p.sx - size / 2, p.sy - size + bob, size, size);
+      g.fillRect(p.sx - size / 2, top, size, size);
       g.fillStyle = blink ? '#FFE9E9' : boost ? '#E8CE7A' : GARLIC_DARK;
       g.fillRect(p.sx - size / 2, p.sy - size * 0.3 + bob, size, size * 0.3);
       g.fillStyle = '#F2A83B';   // 嘴
       g.fillRect(p.sx - size * 0.08, p.sy - size * 0.62 + bob, size * 0.16, size * 0.12);
+      g.strokeRect(p.sx - size / 2, top, size, size);
     }
   }
 
+  /**
+   * 曳光弹:细长拖尾 + 粗亮弹芯,分两遍画。
+   * 分遍是为了省状态切换 —— 同屏 300 发时逐发切 fillStyle/globalAlpha 是 600 次状态变更,
+   * 分成两趟只要 2 次。淡黄弹丸在浅灰路面上糊成一片(和冲击环、冲刺线踩过同一个坑),
+   * 拖尾走橙、弹芯走白才压得住底。
+   */
   #bullets(game) {
     const g = this.ctx;
-    g.fillStyle = BULLET;
-    for (const b of game.bullets) {
-      const rel = b.z - game.z;
-      if (rel > 62 || rel < -2) continue;
-      const p = proj(b.x, rel);
-      const s = Math.max(4, 24 * p.d);
-      g.fillRect(p.sx - s / 2, p.sy - s * 2.0, s, s * 2.0);
-    }
+    const { bulletSize, bulletTrailK } = this.tuning;
+    const pass = (color, alpha, wk, hk) => {
+      g.globalAlpha = alpha;
+      g.fillStyle = color;
+      for (const b of game.bullets) {
+        const rel = b.z - game.z;
+        if (rel > 62 || rel < -2) continue;
+        const p = proj(b.x, rel);
+        const s = Math.max(4, bulletSize * p.d);
+        const len = s * bulletTrailK;
+        g.fillRect(p.sx - s * wk / 2, p.sy - len, s * wk, len * hk);
+      }
+      g.globalAlpha = 1;
+    };
+    // 弹体要比兵窄一大截:同屏上百发时,和兵一样宽的白方块会跟大军糊成一片,分不清谁是谁
+    pass(BULLET_TRAIL, 0.7, 0.34, 1);      // 拖尾:细、长、半透
+    pass(BULLET, 1, 0.62, 0.5);            // 弹芯:短、亮,压在拖尾顶端
   }
 
   /** 突破冲击波:贴地的扩散环,以闸门位置为圆心沿赛道铺开(逻辑范围就是 game 里的 breakWaveRange)。 */
@@ -403,10 +438,18 @@ export class Renderer {
       f.t += dt;
       const k = f.t / f.life;
       const p = proj(f.x, f.rel);
-      const s = (f.type === 'boss' ? 90 : f.type === 'wave' ? 62 : 46) * p.d * (1 + k * 1.6);
       g.globalAlpha = Math.max(0, 1 - k);
-      g.fillStyle = f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E' : '#DFF5A8';
-      g.fillRect(p.sx - s / 2, p.sy - s / 2, s, s);
+      if (f.kind === 'hit') {
+        // 十字火星:同样大小下比方块更像"打上去了",两条细长条比画个圆便宜
+        const s = this.tuning.bulletSize * p.d * (1 + k * 1.4), w = s * 0.22;
+        g.fillStyle = HIT;
+        g.fillRect(p.sx - s / 2, p.sy - w / 2, s, w);
+        g.fillRect(p.sx - w / 2, p.sy - s / 2, w, s);
+      } else {
+        const s = (f.type === 'boss' ? 90 : f.type === 'wave' ? 62 : 46) * p.d * (1 + k * 1.6);
+        g.fillStyle = f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E' : '#DFF5A8';
+        g.fillRect(p.sx - s / 2, p.sy - s / 2, s, s);
+      }
       g.globalAlpha = 1;
     }
     this.fx = this.fx.filter(f => f.t < f.life);

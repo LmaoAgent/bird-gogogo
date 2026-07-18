@@ -48,6 +48,7 @@ export class Game {
 
     this.spawnAcc = {};       // 每段怪流的生成累加器
     this.fireAcc = 0;         // 视觉子弹节奏
+    this.bulletHits = [];     // 本帧子弹命中点(x,z 交替存),给表现层补命中闪光;纯视觉
     this.leakAcc = 0;         // 漏怪累积:每 enemiesPerLoss 只才掉 1 兵(§7 宽容度的唯一旋钮)
     this.shieldT = 0;         // 掉兵后的红闪计时,纯视觉,不免疫伤害
     this.boostT = 0;          // 突破冲刺:加速前进 + 撞上来的怪只碾不掉兵
@@ -83,6 +84,7 @@ export class Game {
 
   update(dt) {
     this.events.length = 0;
+    this.bulletHits.length = 0;
     if (this.state === 'win' || this.state === 'fail') return;
     this.time += dt;
     if (this.shieldT > 0) this.shieldT -= dt;
@@ -346,23 +348,42 @@ export class Game {
     // 集火单体(闸门/BOSS)时把弹道视觉铺开 —— 否则 L 小的时候只有两条线打在门上,太寒酸。
     // 纯表现,不影响伤害(伤害始终由 F / 单目标DPS 决定)。
     const focus = this.barrier || this.bossActive;
-    const lanes = Math.min(focus ? Math.max(this.stats.L, 6) : this.stats.L, this.tuning.maxBulletLanes);
+    const lanes = Math.min(
+      focus ? Math.max(this.stats.L, this.tuning.focusLanesMin) : this.stats.L,
+      this.tuning.maxBulletLanes,
+    );
+    // 起点按固定总宽铺开(而不是固定间距):L=2 时也是左右两翼开火,而不是挤在正中一条缝里。
+    const fan = this.tuning.bulletFanW * (focus ? this.tuning.focusFanMul : 1);
+
+    // 目标沿纵深铺开:只锁最近那几只的话,弹道全挤在大军脸前 80px 的一段里,寿命 50ms ——
+    // 射速再高也只是原地闪,堆不出"流"。取 bulletTargetDepth 之内的前排均匀分配目标,
+    // 弹幕才会拉成贯穿画面的一片。深度封顶是因为子弹瞄的是发射瞬间的坐标:打太远怪已经走开,
+    // 闪光会落在空地上。
+    let hi = 0;
+    if (!focus) {
+      const zMax = this.z + this.tuning.bulletTargetDepth;   // enemies 已由 #shoot 按 z 升序排好
+      while (hi < this.enemies.length && this.enemies[hi].z <= zMax) hi++;
+      // 整群都在深度之外时(刚刷出来那一下)也要打最近那只:否则一边看得见怪、一边对着空地开火
+      if (hi === 0 && this.enemies.length) hi = 1;
+    }
     while (this.fireAcc >= 1) {
       this.fireAcc -= 1;
-      const targets = this.barrier
-        ? [{ x: 0, z: this.barrier.posZ }]
-        : this.bossActive
-          ? [{ x: 0, z: this.z + this.tuning.bossStandZ }]
-          : this.enemies.slice(0, lanes);
       for (let i = 0; i < lanes; i++) {
         if (this.bullets.length >= this.tuning.maxBullets) break;
-        const tgt = targets[i] || targets[0];
-        const spread = (i - (lanes - 1) / 2) * 0.9;
-        this.bullets.push({
-          x: this.centerX + spread, z: this.z + 1.5,
-          tx: tgt ? tgt.x : this.centerX + spread,
-          tz: tgt ? tgt.z : this.z + 40,
-        });
+        const x = this.centerX + (lanes > 1 ? (i / (lanes - 1) - 0.5) * fan : 0);
+        let tx, tz;
+        if (this.barrier) {
+          tx = x; tz = this.barrier.posZ;                    // 门横跨赛道,各打各的正前方 → 一整排撞击
+        } else if (this.bossActive) {
+          // BOSS 是单体,弹道收拢到它身上;留两成散布,免得全打同一个点烧成一坨白斑
+          tx = x * 0.2; tz = this.z + this.tuning.bossStandZ;
+        } else if (hi > 0) {
+          const e = this.enemies[Math.min(hi - 1, (i * hi / lanes) | 0)];
+          tx = e.x; tz = e.z;
+        } else {
+          tx = x; tz = this.z + 40;                          // 场上没怪也照打,免得空窗期画面死掉
+        }
+        this.bullets.push({ x, z: this.z + 1.5, tx, tz });
       }
     }
     const sp = this.tuning.bulletSpeed * dt;
@@ -371,7 +392,8 @@ export class Game {
       const d = Math.hypot(dx, dz) || 1;
       b.z += (dz / d) * sp;
       b.x += (dx / d) * sp;
-      if (d < 1.2 || b.z > this.z + this.tuning.spawnAhead + 8) b.done = true;
+      if (d < 1.2) { b.done = true; this.bulletHits.push(b.tx, b.tz); }   // 命中点给表现层补闪光
+      else if (b.z > this.z + this.tuning.spawnAhead + 8) b.done = true;
     }
     if (this.bullets.some(b => b.done)) this.bullets = this.bullets.filter(b => !b.done);
   }

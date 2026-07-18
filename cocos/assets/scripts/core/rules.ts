@@ -97,6 +97,19 @@ export function starRating(nPeak: number, targetN: number, thresholds: StarThres
   return 1;
 }
 
+// —— §7 复活 ——
+
+/**
+ * 复活兵力:max(当前波 N_min, N_peak×0.5)。
+ * N_min 取"突破线再加 1 兵":穿透后剩 N-H/k,恰好卡在突破线会被 game.ts 的
+ * "N≤0 判负"再杀一次,就不成其为复活了(§7 要保证复活后有机会过当前波)。
+ * wave 为 null(波次已清完、纯陷阱扣光)时只吃 N_peak×0.5。
+ */
+export function reviveArmy(nPeak: number, wave: Wave | null, k: number): number {
+  const nMin = wave ? Math.ceil(wave.H / k) + 1 : 0;
+  return Math.max(nMin, Math.floor(nPeak * 0.5));
+}
+
 // —— §2 队形 ——
 
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));

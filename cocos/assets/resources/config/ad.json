@@ -1,0 +1,11 @@
+{
+  "note": "广告位配置(广告接入spec.md §2/§4)。unitMap 留空＝该位未配置,AdManager.canShow 恒 false、按钮置灰;流量主开通后把正式 adUnitId 填进来即可点亮,联调期先填测试位。quota＝每局发奖上限,只数真发出去的奖(中途退出不占次数)。",
+  "unitMap": {
+    "revive": "",
+    "double": ""
+  },
+  "quota": {
+    "revive": 2,
+    "double": 1
+  }
+}

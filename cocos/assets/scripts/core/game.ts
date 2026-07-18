@@ -8,7 +8,7 @@
 
 import {
   clamp, applyGateEffect, inLane, resolvePick, expandGates,
-  resolveSmash, smashDuration, buildWaves, starRating,
+  resolveSmash, smashDuration, buildWaves, starRating, reviveArmy,
 } from './rules';
 import type {
   GameEvent, GateConfig, LevelConfig, LevelResult, SmashState, TrackTuning, Tuning, Wave,
@@ -98,6 +98,21 @@ export class Game {
     if (wave && this.z >= wave.posZ) { this.#beginSmash(wave); return; }
 
     if (!wave && this.z >= this.level.trackLength) this.#win();
+  }
+
+  /**
+   * 复活续冲(§7)：在倒下位置按 reviveArmy 恢复兵力,原地接着打当前波。
+   * 返回恢复到的兵力;不在 fail 态时什么都不做、返回 0(复活次数上限归 AdManager 频控管)。
+   * nPeak 有意不动：星级看的是本局峰值,不能靠看广告买上去。
+   */
+  revive(): number {
+    if (this.state !== 'fail') return 0;
+    this.n = reviveArmy(this.nPeak, this.currentWave, this.level.k);
+    this.state = 'running';
+    this.smash = null;
+    this.smashTimer = 0;
+    this.result = null;
+    return this.n;
   }
 
   #triggerGate(gate: GateConfig): void {

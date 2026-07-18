@@ -161,10 +161,18 @@ export interface UpgradeConfig {
   curves: Record<UpgradeKind, UpgradeCurve>;
 }
 
+/** 一份奖励。签到 / 每日任务 / 分享共用,发放走 Progress.grant(见 systems/)。 */
+export interface Reward {
+  coin?: number;
+  skinFrag?: number;
+}
+
 export interface SaveData {
   version: number;
   maxLevel: number;
   coins: number;
+  /** 皮肤碎片:签到第 7 天与部分每日任务的奖励(设计文档 §1/§2);皮肤本体是后续需求。 */
+  skinFrag: number;
   upgrades: Record<UpgradeKind, number>;
   stars: Record<string, number>;
 }
@@ -173,4 +181,23 @@ export interface SaveData {
 export interface StorageAdapter {
   load(): unknown;
   save(data: SaveData): void;
+}
+
+// —— 广告(《广告接入spec.md》§2/§3) ——
+
+export type AdScene = 'revive' | 'double' | 'boost' | 'freebox' | 'inter_level';
+
+export interface AdResult {
+  ended: boolean;
+  /** 没播成的原因,只进埋点与排查,不参与发奖判定。 */
+  error?: string;
+}
+
+/** config/ad.json:广告位 ID 与频控上限,代码里一个都不写死(spec §0/§4)。 */
+export interface AdConfig {
+  note?: string;
+  /** scene → adUnitId;留空＝该位未配置,canShow 恒 false(按钮置灰)。 */
+  unitMap: Partial<Record<AdScene, string>>;
+  /** scene → 每局发奖上限。P0:revive 2 次 / double 1 次;缺省＝0＝该位不开。 */
+  quota: Partial<Record<AdScene, number>>;
 }

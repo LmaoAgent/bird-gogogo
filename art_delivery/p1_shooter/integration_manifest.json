@@ -1,0 +1,126 @@
+{
+  "version": "p1_shooter-1.0",
+  "design_resolution": {
+    "width": 1080,
+    "height": 1920,
+    "orientation": "portrait"
+  },
+  "pixel_density": "@2x",
+  "texture_format": "PNG RGBA",
+  "asset_count": 55,
+  "atlases": [
+    "atlases/p1_shooter_units_atlas",
+    "atlases/p1_shooter_world_atlas",
+    "atlases/p1_shooter_fx_atlas"
+  ],
+  "animations": {
+    "enemy_swarm_mold_flow": {
+      "pattern": "enemy_swarm_mold_flow_*.png",
+      "fps": 8,
+      "loop": true,
+      "facing": "toward_screen_bottom",
+      "camera": "35deg_top_down_front_threequarter"
+    },
+    "enemy_swarm_die": {
+      "pattern": "enemy_swarm_die_*.png",
+      "fps": 14,
+      "loop": false
+    },
+    "enemy_thick_flow": {
+      "pattern": "enemy_thick_flow_*.png",
+      "fps": 6,
+      "loop": true,
+      "facing": "toward_screen_bottom"
+    },
+    "enemy_thick_die": {
+      "pattern": "enemy_thick_die_*.png",
+      "fps": 10,
+      "loop": false
+    },
+    "fx_muzzle_spit": {
+      "pattern": "fx_muzzle_spit_*.png",
+      "fps": 18,
+      "loop": false,
+      "blend": "additive"
+    },
+    "fx_hit_spark": {
+      "pattern": "fx_hit_spark_*.png",
+      "fps": 20,
+      "loop": false,
+      "blend": "additive"
+    },
+    "fx_barrier_break": {
+      "pattern": "fx_barrier_break_*.png",
+      "fps": 14,
+      "loop": false
+    },
+    "fx_shockwave": {
+      "pattern": "fx_shockwave_*.png",
+      "fps": 16,
+      "loop": false,
+      "blend": "additive"
+    },
+    "obstacle_roller": {
+      "pattern": "obstacle_roller_*.png",
+      "fps": 8,
+      "loop": true
+    },
+    "fx_barrel_break": {
+      "pattern": "fx_barrel_break_*.png",
+      "fps": 14,
+      "loop": false
+    }
+  },
+  "bullet_sizes_px_at_2x": {
+    "fx_bullet_garlic_small_01.png": [24, 36],
+    "fx_bullet_garlic_medium_01.png": [28, 42],
+    "fx_bullet_garlic_large_01.png": [32, 48]
+  },
+  "nine_slice_insets_px_at_2x": {
+    "gate_barrier_body_base_01.png": [96, 64, 96, 64],
+    "gate_dim_troop_base_01.png": [48, 40, 48, 40],
+    "gate_dim_lane_base_01.png": [48, 40, 48, 40],
+    "gate_dim_rate_base_01.png": [48, 40, 48, 40],
+    "gate_dim_damage_base_01.png": [48, 40, 48, 40],
+    "gate_dim_trap_base_01.png": [48, 40, 48, 40]
+  },
+  "tileable": {
+    "gate_barrier_stripe_tile_01.png": {
+      "axis": "x",
+      "wrap_mode": "repeat"
+    }
+  },
+  "pivots": {
+    "bullets": [0.5, 0.5],
+    "enemies": [0.5, 0.06],
+    "thick_enemies": [0.5, 0.06],
+    "dimension_gates": [0.5, 0.0],
+    "barrier": [0.5, 0.0],
+    "obstacles": [0.5, 0.0],
+    "barrels": [0.5, 0.0],
+    "fx": [0.5, 0.5]
+  },
+  "runtime_scale_reference": {
+    "garlicbird_height_px": 52,
+    "near_swarm_enemy_height_px": 40,
+    "far_swarm_enemy_height_px": 20,
+    "near_thick_enemy_height_px": 72,
+    "bullet_width_px": [10, 18],
+    "dimension_gate_near_height_px": 72,
+    "dimension_gate_far_height_px": 24,
+    "dimension_gates_per_wall": 16,
+    "camera": "player_bottom_back_view_enemies_charge_toward_screen_bottom"
+  },
+  "visual_language": {
+    "dimension_gate_geometry": "low_solid_value_board_no_arch_no_opening",
+    "dimension_colors": {
+      "troop": "#3E8FE0",
+      "lane": "#9B5DE5",
+      "rate": "#F49D1A",
+      "damage": "#E5484D",
+      "trap": "#3A2B2B"
+    },
+    "hazard": "low_wide_angular_black_red_yellow",
+    "reward_barrel": "tall_rounded_turquoise_white_gold"
+  }
+}

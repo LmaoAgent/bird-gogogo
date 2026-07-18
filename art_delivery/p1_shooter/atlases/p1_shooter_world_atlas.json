@@ -1,0 +1,423 @@
+{
+  "frames": {
+    "barrel_body_base_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 320
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 320
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 320
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "barrel_crack_01.png": {
+      "frame": {
+        "x": 260,
+        "y": 0,
+        "w": 256,
+        "h": 320
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 320
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 320
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "barrel_crack_02.png": {
+      "frame": {
+        "x": 520,
+        "y": 0,
+        "w": 256,
+        "h": 320
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 320
+      },
+      "sourceSize": {
+        "w": 256,
+        "h": 320
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_barrier_pillar_base_01.png": {
+      "frame": {
+        "x": 780,
+        "y": 0,
+        "w": 192,
+        "h": 320
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 192,
+        "h": 320
+      },
+      "sourceSize": {
+        "w": 192,
+        "h": 320
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_barrier_body_base_01.png": {
+      "frame": {
+        "x": 976,
+        "y": 0,
+        "w": 768,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 768,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_barrier_crack_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 324,
+        "w": 768,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 768,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_barrier_crack_02.png": {
+      "frame": {
+        "x": 772,
+        "y": 324,
+        "w": 768,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 768,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_barrier_crack_03.png": {
+      "frame": {
+        "x": 0,
+        "y": 584,
+        "w": 768,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 768,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_dim_damage_base_01.png": {
+      "frame": {
+        "x": 772,
+        "y": 584,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_dim_lane_base_01.png": {
+      "frame": {
+        "x": 1160,
+        "y": 584,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_dim_rate_base_01.png": {
+      "frame": {
+        "x": 1548,
+        "y": 584,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_dim_trap_base_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 844,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_dim_troop_base_01.png": {
+      "frame": {
+        "x": 388,
+        "y": 844,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "obstacle_roller_01.png": {
+      "frame": {
+        "x": 776,
+        "y": 844,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "obstacle_roller_02.png": {
+      "frame": {
+        "x": 1164,
+        "y": 844,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "obstacle_spike_base_01.png": {
+      "frame": {
+        "x": 1552,
+        "y": 844,
+        "w": 384,
+        "h": 256
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "gate_barrier_stripe_tile_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 1104,
+        "w": 512,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "codex-built-in-imagegen+pillow",
+    "version": "1.0",
+    "image": "p1_shooter_world_atlas.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2048,
+      "h": 2048
+    },
+    "scale": "1"
+  }
+}

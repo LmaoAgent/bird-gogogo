@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "资源覆盖",
+      "passed": true,
+      "detail": "55/55 张射击玩法资源齐全"
+    },
+    {
+      "name": "命名规范",
+      "passed": true,
+      "detail": "全部为小写下划线"
+    },
+    {
+      "name": "PNG RGBA",
+      "passed": true,
+      "detail": "55 张最终 PNG 均为 RGBA"
+    },
+    {
+      "name": "@2x 偶数尺寸",
+      "passed": true,
+      "detail": "所有画布宽高为偶数"
+    },
+    {
+      "name": "透明通道",
+      "passed": true,
+      "detail": "所有精灵均含透明与不透明像素"
+    },
+    {
+      "name": "40px 小怪剪影",
+      "passed": true,
+      "detail": "缩放后 29x40，实心覆盖率 71.47%"
+    },
+    {
+      "name": "24px 子弹辨识",
+      "passed": true,
+      "detail": "缩放后 24x64，实心覆盖率 42.97%"
+    },
+    {
+      "name": "维度门颜色与实心低板几何",
+      "passed": true,
+      "detail": "最小主色距离 89.3；宽高比 troop:1.51, lane:1.50, rate:1.49, damage:1.47, trap:1.49"
+    },
+    {
+      "name": "障碍与油桶一眼区分",
+      "passed": true,
+      "detail": "尖刺宽高比 2.01，油桶宽高比 0.85，平均色距离 95.1"
+    },
+    {
+      "name": "图集无溢出与无重叠",
+      "passed": true,
+      "detail": "p1_shooter_fx_atlas.png:27 帧/2048x2048; p1_shooter_units_atlas.png:11 帧/2048x256; p1_shooter_world_atlas.png:17 帧/2048x2048"
+    },
+    {
+      "name": "integration_manifest",
+      "passed": true,
+      "detail": "动画、九宫格、pivot、实机比例与视觉语言已登记"
+    },
+    {
+      "name": "真实玩法密排预览",
+      "passed": true,
+      "detail": "128 怪 / 80 弹 / 每侧 16 门 / 蒜鸟 52px > 小怪 40px"
+    },
+    {
+      "name": "三套射击图集体积",
+      "passed": true,
+      "detail": "1393457 字节（1.33 MiB）"
+    }
+  ]
+}

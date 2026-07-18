@@ -1,0 +1,13 @@
+{
+  "enemy_swarm_count": 128,
+  "bullet_count": 80,
+  "garlicbird_count": 24,
+  "gates_per_wall": 16,
+  "near_enemy_height_px": 40,
+  "garlicbird_height_px": 52,
+  "bullet_width_px_range": [
+    10,
+    18
+  ],
+  "camera": "35deg_top_down_player_bottom_enemies_charge_down"
+}

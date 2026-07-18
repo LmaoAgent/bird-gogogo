@@ -42,6 +42,7 @@ export class Game {
     this.fireAcc = 0;         // 视觉子弹节奏
     this.leakAcc = 0;         // 漏怪累积:每 enemiesPerLoss 只才掉 1 兵(§7 宽容度的唯一旋钮)
     this.shieldT = 0;         // 掉兵后的红闪计时,纯视觉,不免疫伤害
+    this.boostT = 0;          // 突破冲刺:加速前进 + 撞上来的怪只碾不掉兵
     this.killCount = 0;
     this.leakCount = 0;
 
@@ -77,6 +78,7 @@ export class Game {
     if (this.state === 'win' || this.state === 'fail') return;
     this.time += dt;
     if (this.shieldT > 0) this.shieldT -= dt;
+    if (this.boostT > 0) this.boostT -= dt;
 
     // 跟手平滑(帧率无关)
     const t = 1 - Math.pow(1 - this.tuning.followSmooth, dt * 60);
@@ -84,7 +86,8 @@ export class Game {
 
     // 闸门与 BOSS 都会把大军钉在原地,但怪流照常涌来 —— 卡住越久越危险
     if (this.state !== 'boss' && this.state !== 'barrier') {
-      this.z += this.tuning.forwardSpeed * dt;
+      const boost = this.boostT > 0 ? this.tuning.breakBoostSpeedMul : 1;
+      this.z += this.tuning.forwardSpeed * boost * dt;
       this.#triggerGates();
     }
     if (this.state !== 'boss') this.#spawnWaves(dt);
@@ -156,10 +159,51 @@ export class Game {
     }
   }
 
-  // 闸门立着时把怪拦在门后堆积(素材里那片被拦住的红色海洋),打穿瞬间一起涌出 —— 张力全在这一下。
+  /**
+   * 突破冲击波 —— 门被打穿的力道沿赛道向前炸开,清掉门后堆积的怪。
+   *
+   * 没有它的时候:堆在门后的 260 只(maxEnemies 上限)同时恢复前进,0.4 秒内全部撞进大军,
+   * 按「每 3 只掉 1 兵」直接扣光兵力。堆得越久死得越惨 —— 惩罚了认真打门的玩家,方向是反的。
+   *
+   * 伤害随距离线性衰减:门口秒杀、边缘重伤。关键是与 maxHp 挂钩的是**杀伤半径**而不是杀伤总量 ——
+   * 堆 20 只还是 260 只,贴门那一片同样被清空,「拖延 = 必死」的正反馈就此断掉(验收③)。
+   */
+  #breakthrough(b) {
+    const { breakWaveRange: range, breakWaveDamage, releaseBatchInterval, releaseBatchSize } = this.tuning;
+    const peak = b.maxHp * breakWaveDamage;
+
+    const survivors = [];
+    for (const e of this.enemies) {
+      const d = Math.max(0, e.z - b.posZ);
+      if (d > range) { survivors.push(e); continue; }
+      e.hp -= peak * (1 - d / range);
+      if (e.hp <= 0) {
+        e.dead = true;
+        this.events.push({ kind: 'kill', x: e.x, z: e.z, type: e.type, by: 'wave' });
+      } else {
+        survivors.push(e);
+      }
+    }
+    const before = this.enemies.length;
+    this.enemies = this.enemies.filter(e => !e.dead);
+    const killed = before - this.enemies.length;
+    this.killCount += killed;
+
+    // 冲击波没清掉的(含波及范围外那一堆积压):近的先走,每 releaseBatchInterval 放一批。
+    // 这一步不是装饰 —— 把到达速率压到大军啃得动的量级,火力 46% 档的破门损失从 23% 掉到 2%。
+    // 冻住的怪照样能被打、被撞,只是不再一起压上来,所以不会变成"免费时间"。
+    survivors.sort((p, q) => p.z - q.z);
+    survivors.forEach((e, i) => { e.holdT = Math.floor(i / releaseBatchSize) * releaseBatchInterval; });
+
+    this.boostT = this.tuning.breakBoostS;
+    this.events.push({ kind: 'breakWave', z: b.posZ, range, killed, held: survivors.length });
+  }
+
+  // 闸门立着时把怪拦在门后堆积(素材里那片被拦住的红色海洋),打穿后按批放行 —— 张力全在这一下。
   #moveEnemies(dt) {
     const bz = this.barrier ? this.barrier.posZ : null;
     for (const e of this.enemies) {
+      if (e.holdT > 0) { e.holdT -= dt; continue; }   // 突破后分批放行,见 #breakthrough
       const next = e.z - e.speed * dt;
       e.z = bz !== null && next < bz ? bz : next;
     }
@@ -173,6 +217,7 @@ export class Game {
       this.barrier.hp -= this.F * dt;
       if (this.barrier.hp <= 0) {
         this.events.push({ kind: 'barrierDown', barrier: this.barrier });
+        this.#breakthrough(this.barrier);
         this.barrier = null;
         this.barrierIndex++;
         this.state = 'running';
@@ -256,17 +301,24 @@ export class Game {
     }
     if (hit) {
       this.enemies = this.enemies.filter(e => !e.dead);
-      this.leakCount += hit;
-      // 掉兵与漏怪数成正比。早期版本用「掉兵后无敌 N 秒」,结果护盾期漏掉的怪全免费,
-      // 漏 400 只只掉十几兵 —— 压力被吃干净,故改为累积模型。
-      this.leakAcc += hit;
-      let loss = 0;
-      while (this.leakAcc >= this.tuning.enemiesPerLoss) { this.leakAcc -= this.tuning.enemiesPerLoss; loss++; }
-      if (loss) {
-        this.stats = clampStats({ ...this.stats, N: this.stats.N - loss });
-        this.shieldT = this.tuning.hitFlashS;
-        this.events.push({ kind: 'leak', count: hit, loss });
-        if (this.stats.N <= 0) this.#fail('overrun');
+      // 突破冲刺期:撞上来的怪被碾碎而不是撞掉兵。打穿门的奖励是"冲出去",不是"被埋住"。
+      // 这里是无敌窗口而非全局宽容,所以不会重蹈「护盾期漏怪全免费」的覆辙。
+      if (this.boostT > 0) {
+        this.killCount += hit;
+        this.events.push({ kind: 'trample', count: hit });
+      } else {
+        this.leakCount += hit;
+        // 掉兵与漏怪数成正比。早期版本用「掉兵后无敌 N 秒」,结果护盾期漏掉的怪全免费,
+        // 漏 400 只只掉十几兵 —— 压力被吃干净,故改为累积模型。
+        this.leakAcc += hit;
+        let loss = 0;
+        while (this.leakAcc >= this.tuning.enemiesPerLoss) { this.leakAcc -= this.tuning.enemiesPerLoss; loss++; }
+        if (loss) {
+          this.stats = clampStats({ ...this.stats, N: this.stats.N - loss });
+          this.shieldT = this.tuning.hitFlashS;
+          this.events.push({ kind: 'leak', count: hit, loss });
+          if (this.stats.N <= 0) this.#fail('overrun');
+        }
       }
     }
     // BOSS 压迫:BOSS 战期间持续掉兵,逼玩家靠 DPS 速杀

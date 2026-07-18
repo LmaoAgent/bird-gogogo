@@ -35,5 +35,12 @@
   "enemiesPerLoss": 3,
   "hitFlashS": 0.25,
   "bulletRateMul": 3,
-  "barrierStopZ": 9
+  "barrierStopZ": 9,
+  "breakWaveRange": 18,
+  "breakWaveDamage": 0.1,
+  "releaseBatchInterval": 0.15,
+  "releaseBatchSize": 6,
+  "breakBoostS": 1.0,
+  "breakBoostSpeedMul": 1.5,
+  "maxWaveFx": 30
 }

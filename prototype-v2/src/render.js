@@ -40,14 +40,22 @@ export class Renderer {
     this.tuning = tuning;
     this.fx = [];        // 击杀/穿门的一次性特效
     this.floats = [];    // 飘字
+    this.waves = [];     // 突破冲击波的扩散环
     this.shake = 0;
-    this.flash = 0;      // 掉兵红闪
+    this.flash = 0;      // 全屏闪:掉兵红 / 突破金
+    this.flashRGB = '229,72,77';
   }
 
   consume(game) {
+    const waveKills = [];
     for (const ev of game.events) {
       if (ev.kind === 'kill') {
+        if (ev.by === 'wave') { waveKills.push(ev); continue; }
         this.fx.push({ x: ev.x, rel: ev.z - game.z, t: 0, life: 0.25, kind: 'kill', type: ev.type });
+      } else if (ev.kind === 'trample') {
+        for (let i = 0; i < Math.min(ev.count, 6); i++) {
+          this.fx.push({ x: (Math.random() * 2 - 1) * 5, rel: this.tuning.contactZ, t: 0, life: 0.3, kind: 'kill', type: 'wave' });
+        }
       } else if (ev.kind === 'gate') {
         const e = ev.effect;
         const txt = `${e.dim}${e.op === 'mul' ? '×' : '+'}${e.value}`;
@@ -55,16 +63,22 @@ export class Renderer {
         this.shake = Math.max(this.shake, isBuff(e) ? 0.18 : 0.3);
       } else if (ev.kind === 'leak') {
         this.flash = 0.35;
+        this.flashRGB = '229,72,77';
         this.shake = Math.max(this.shake, 0.35);
         this.floats.push({ x: 0, rel: 1, t: 0, life: 0.8, txt: `-${ev.loss}`, color: '#E5484D' });
       } else if (ev.kind === 'barrierIn') {
         this.shake = 0.4;
       } else if (ev.kind === 'barrierDown') {
-        // 打穿瞬间:炸裂 + 强震,紧接着堆在门后的怪会一起涌出
-        this.shake = 0.75;
+        // 门体碎裂的残片(冲击波本身由下面的 breakWave 画)
         for (let i = 0; i < 26; i++) {
           this.fx.push({ x: (Math.random() * 2 - 1) * 8, rel: ev.barrier.posZ - game.z, t: 0, life: 0.45, kind: 'kill', type: 'boss' });
         }
+      } else if (ev.kind === 'breakWave') {
+        // 扩散环 + 金闪 + 强震:素材里打穿闸门就是一片炸开,飘个字远远不够
+        this.shake = 1.0;
+        this.flash = 0.55;
+        this.flashRGB = '255,236,170';
+        this.waves.push({ z: ev.z, range: ev.range, t: 0, life: 0.5 });
         this.floats.push({ x: 0, rel: 2, t: 0, life: 0.8, txt: '突破!', color: '#E8B93A' });
       } else if (ev.kind === 'bossIn') {
         this.shake = 0.5;
@@ -74,6 +88,14 @@ export class Renderer {
           this.fx.push({ x: (Math.random() * 2 - 1) * 5, rel: this.tuning.bossStandZ, t: 0, life: 0.5, kind: 'kill', type: 'boss' });
         }
       }
+    }
+
+    // 冲击波一击能扫倒上百只,逐只画特效会糊成一张白饼、把冲击环整个盖住。
+    // 按《v2》§2.3「逻辑击杀与视觉击杀解耦」抽样播放:死多少只由 core 说了算,画几朵是表现层的事。
+    const stride = Math.ceil(waveKills.length / this.tuning.maxWaveFx) || 1;
+    for (let i = 0; i < waveKills.length; i += stride) {
+      const ev = waveKills[i];
+      this.fx.push({ x: ev.x, rel: ev.z - game.z, t: 0, life: 0.5, kind: 'kill', type: 'wave' });
     }
   }
 
@@ -90,6 +112,7 @@ export class Renderer {
 
     this.#sky();
     this.#road(game);
+    if (game.boostT > 0) this.#boostStreaks(game);
     this.#gates(game);
     this.#enemies(game);
     if (game.barrier) this.#barrier(game);
@@ -97,10 +120,11 @@ export class Renderer {
     this.#army(game);
     this.#bullets(game);
     this.#effects(dt);
+    this.#waves(game, dt);   // 画在死亡特效之上,否则冲击环会被那片爆开的粒子埋掉
     g.restore();
 
     if (this.flash > 0) {
-      g.fillStyle = `rgba(229,72,77,${this.flash * 0.5})`;
+      g.fillStyle = `rgba(${this.flashRGB},${this.flash * 0.5})`;
       g.fillRect(0, 0, W, H);
     }
     this.#hud(game);
@@ -267,6 +291,7 @@ export class Renderer {
     const R = this.tuning.formationRadiusK * Math.sqrt(n);
     const over = n > this.tuning.nRender ? 1 + Math.log10(n / this.tuning.nRender) * 0.3 : 1;
     const blink = game.shieldT > 0 && Math.floor(game.time * 12) % 2 === 0;
+    const boost = game.boostT > 0;   // 冲刺期镀金,和速度线一起把"无敌冲出去"讲清楚
 
     const slots = [];
     for (let i = 0; i < shown; i++) {
@@ -278,9 +303,9 @@ export class Renderer {
       const p = proj(s.x, s.rel);
       const size = 44 * p.d * over;
       const bob = Math.sin(game.time * 10 + s.i) * size * 0.06;
-      g.fillStyle = blink ? '#FFFFFF' : GARLIC;
+      g.fillStyle = blink ? '#FFFFFF' : boost ? '#FFF3C4' : GARLIC;
       g.fillRect(p.sx - size / 2, p.sy - size + bob, size, size);
-      g.fillStyle = blink ? '#FFE9E9' : GARLIC_DARK;
+      g.fillStyle = blink ? '#FFE9E9' : boost ? '#E8CE7A' : GARLIC_DARK;
       g.fillRect(p.sx - size / 2, p.sy - size * 0.3 + bob, size, size * 0.3);
       g.fillStyle = '#F2A83B';   // 嘴
       g.fillRect(p.sx - size * 0.08, p.sy - size * 0.62 + bob, size * 0.16, size * 0.12);
@@ -299,15 +324,60 @@ export class Renderer {
     }
   }
 
+  /** 突破冲击波:贴地的扩散环,以闸门位置为圆心沿赛道铺开(逻辑范围就是 game 里的 breakWaveRange)。 */
+  #waves(game, dt) {
+    const g = this.ctx;
+    for (const w of this.waves) {
+      w.t += dt;
+      const k = w.t / w.life;
+      const R = w.range * k;
+      const rel = w.z - game.z;
+      const ring = (rad, width, alpha, color) => {
+        g.globalAlpha = alpha;
+        g.lineWidth = width;
+        g.strokeStyle = color;
+        g.beginPath();
+        for (let i = 0; i <= 28; i++) {
+          const a = (i / 28) * Math.PI * 2;
+          const p = proj(Math.sin(a) * rad, rel + Math.cos(a) * rad);
+          i === 0 ? g.moveTo(p.sx, p.sy) : g.lineTo(p.sx, p.sy);
+        }
+        g.closePath(); g.stroke();
+      };
+      // 路面是浅灰的,金色环会糊在背景里 —— 用橙红外焰 + 白芯才压得住
+      const fade = Math.max(0, 1 - k);
+      ring(R, Math.max(6, 46 * (1 - k)), fade * 0.55, '#FF6A1A');   // 外焰
+      ring(R, Math.max(3, 18 * (1 - k)), fade, '#FFFFFF');          // 芯
+      ring(R * 0.55, Math.max(2, 10 * (1 - k)), fade * 0.45, '#FFC23A');
+      g.globalAlpha = 1;
+    }
+    this.waves = this.waves.filter(w => w.t < w.life);
+  }
+
+  /** 突破后的冲刺:地面拉出速度线,让"冲出去"看得见。 */
+  #boostStreaks(game) {
+    const g = this.ctx;
+    const half = this.tuning.track.width / 2;
+    g.globalAlpha = Math.min(1, game.boostT / this.tuning.breakBoostS) * 0.5;
+    g.fillStyle = '#FF9A2E';   // 浅灰路面上淡黄看不见,冲刺线要用橙的
+    for (let i = 0; i < 18; i++) {
+      const x = (Math.random() * 2 - 1) * half;
+      const rel = Math.random() * 55;
+      const a = proj(x, rel), b = proj(x, rel + 9);
+      g.fillRect(a.sx - 7 * a.d, b.sy, Math.max(3, 14 * a.d), a.sy - b.sy);
+    }
+    g.globalAlpha = 1;
+  }
+
   #effects(dt) {
     const g = this.ctx;
     for (const f of this.fx) {
       f.t += dt;
       const k = f.t / f.life;
       const p = proj(f.x, f.rel);
-      const s = (f.type === 'boss' ? 90 : 46) * p.d * (1 + k * 1.6);
+      const s = (f.type === 'boss' ? 90 : f.type === 'wave' ? 62 : 46) * p.d * (1 + k * 1.6);
       g.globalAlpha = Math.max(0, 1 - k);
-      g.fillStyle = f.type === 'thick' ? '#C9A227' : '#DFF5A8';
+      g.fillStyle = f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E' : '#DFF5A8';
       g.fillRect(p.sx - s / 2, p.sy - s / 2, s, s);
       g.globalAlpha = 1;
     }

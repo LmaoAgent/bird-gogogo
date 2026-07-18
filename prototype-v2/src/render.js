@@ -57,6 +57,15 @@ export class Renderer {
         this.flash = 0.35;
         this.shake = Math.max(this.shake, 0.35);
         this.floats.push({ x: 0, rel: 1, t: 0, life: 0.8, txt: `-${ev.loss}`, color: '#E5484D' });
+      } else if (ev.kind === 'barrierIn') {
+        this.shake = 0.4;
+      } else if (ev.kind === 'barrierDown') {
+        // 打穿瞬间:炸裂 + 强震,紧接着堆在门后的怪会一起涌出
+        this.shake = 0.75;
+        for (let i = 0; i < 26; i++) {
+          this.fx.push({ x: (Math.random() * 2 - 1) * 8, rel: ev.barrier.posZ - game.z, t: 0, life: 0.45, kind: 'kill', type: 'boss' });
+        }
+        this.floats.push({ x: 0, rel: 2, t: 0, life: 0.8, txt: '突破!', color: '#E8B93A' });
       } else if (ev.kind === 'bossIn') {
         this.shake = 0.5;
       } else if (ev.kind === 'bossDown') {
@@ -83,6 +92,7 @@ export class Renderer {
     this.#road(game);
     this.#gates(game);
     this.#enemies(game);
+    if (game.barrier) this.#barrier(game);
     if (game.bossActive && game.boss) this.#boss(game);
     this.#army(game);
     this.#bullets(game);
@@ -186,6 +196,48 @@ export class Renderer {
         g.fillRect(p.sx - s / 2, p.sy - s, s * (1 - e.hp / e.maxHp), s * 0.16);
       }
     }
+  }
+
+  /** 闸门:横跨赛道的金属门 + 黄黑警示条 + 剩余血量大数字(照素材里的 621)。 */
+  #barrier(game) {
+    const g = this.ctx;
+    const b = game.barrier;
+    const rel = b.posZ - game.z;
+    const half = this.tuning.track.width / 2;
+    const a = proj(-half - 1.2, rel), c = proj(half + 1.2, rel);
+    const h = 210 * a.d;
+    const top = a.sy - h;
+    const w = c.sx - a.sx;
+
+    g.fillStyle = '#6E7478';                       // 门体
+    g.fillRect(a.sx, top, w, h);
+    g.fillStyle = '#565C60';
+    g.fillRect(a.sx, top + h * 0.55, w, h * 0.45);
+    // 黄黑警示条
+    const bh = Math.max(4, h * 0.13);
+    g.fillStyle = '#E8B93A'; g.fillRect(a.sx, top, w, bh);
+    g.fillStyle = '#2B2420';
+    for (let i = 0; i < w; i += bh * 1.6) g.fillRect(a.sx + i, top, bh * 0.8, bh);
+    // 门柱
+    g.fillStyle = '#4A5054';
+    g.fillRect(a.sx - 10 * a.d, top, 22 * a.d, h);
+    g.fillRect(c.sx - 12 * a.d, top, 22 * a.d, h);
+
+    // 剩余血量大数字
+    const fs = Math.max(26, 130 * a.d);
+    g.font = `900 ${fs}px system-ui, sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = Math.max(3, fs * 0.16); g.strokeStyle = INK;
+    const txt = String(Math.max(0, Math.ceil(b.hp)));
+    g.strokeText(txt, (a.sx + c.sx) / 2, top + h * 0.55);
+    g.fillStyle = '#FFF';
+    g.fillText(txt, (a.sx + c.sx) / 2, top + h * 0.55);
+
+    // 顶部进度条:一眼看出还要打多久
+    const pw = W * 0.5, px = W / 2 - pw / 2, py = H * 0.19;
+    g.fillStyle = 'rgba(0,0,0,0.5)'; g.fillRect(px - 5, py - 5, pw + 10, 32);
+    g.fillStyle = '#E8B93A';
+    g.fillRect(px, py, pw * Math.max(0, b.hp / b.maxHp), 22);
   }
 
   #boss(game) {

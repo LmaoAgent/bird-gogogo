@@ -29,6 +29,11 @@ export class Game {
     this.boss = level.boss ? { ...level.boss, hp: level.boss.hp, maxHp: level.boss.hp, phase: 1 } : null;
     this.bossActive = false;
 
+    // 闸门(参考素材里横在路上写着 621 的那道):必须用火力打空才能通过,纯火力检验点
+    this.barriers = (level.barriers || []).map(b => ({ ...b, maxHp: b.hp }));
+    this.barrierIndex = 0;
+    this.barrier = null;
+
     this.z = 0;
     this.centerX = 0;
     this.targetX = 0;
@@ -77,11 +82,13 @@ export class Game {
     const t = 1 - Math.pow(1 - this.tuning.followSmooth, dt * 60);
     this.centerX += (this.targetX - this.centerX) * t;
 
-    if (this.state !== 'boss') {
+    // 闸门与 BOSS 都会把大军钉在原地,但怪流照常涌来 —— 卡住越久越危险
+    if (this.state !== 'boss' && this.state !== 'barrier') {
       this.z += this.tuning.forwardSpeed * dt;
       this.#triggerGates();
-      this.#spawnWaves(dt);
     }
+    if (this.state !== 'boss') this.#spawnWaves(dt);
+    this.#checkBarrier();
 
     this.#moveEnemies(dt);
     this.#shoot(dt);
@@ -112,33 +119,66 @@ export class Game {
     }
   }
 
-  // —— 怪流生成(§3.1 按 λ 只/秒) ——
+  // —— 怪流生成(§3.1 按 λ 排/秒,每排 rowSize 只) ——
+  // 参考素材:敌军是铺满赛道的一排排,不是零散个体。按排生成才有"红色海洋"的压迫感。
   #spawnWaves(dt) {
     for (const w of this.activeWaves) {
       const key = `${w.from}_${w.type}`;
+      const rowSize = w.rowSize || 1;
       this.spawnAcc[key] = (this.spawnAcc[key] || 0) + w.lambda * dt;
       while (this.spawnAcc[key] >= 1) {
         this.spawnAcc[key] -= 1;
-        if (this.enemies.length >= this.tuning.maxEnemies) break;
         const half = this.track.width / 2 - 1;
-        this.enemies.push({
-          id: ++uid,
-          x: (Math.random() * 2 - 1) * half,
-          z: this.z + this.tuning.spawnAhead,
-          hp: w.hp, maxHp: w.hp,
-          type: w.type,
-          speed: this.tuning.enemySpeed * (w.speedMul || 1),
-        });
+        for (let k = 0; k < rowSize; k++) {
+          if (this.enemies.length >= this.tuning.maxEnemies) break;
+          const t = rowSize === 1 ? Math.random() * 2 - 1 : (k / (rowSize - 1)) * 2 - 1;
+          this.enemies.push({
+            id: ++uid,
+            x: t * half + (Math.random() - 0.5) * 0.7,      // 轻微抖动,免得排得像尺子
+            z: this.z + this.tuning.spawnAhead + (Math.random() - 0.5) * 2.5,
+            hp: w.hp, maxHp: w.hp,
+            type: w.type,
+            speed: this.tuning.enemySpeed * (w.speedMul || 1),
+          });
+        }
       }
     }
   }
 
+  /** 到达闸门就钉住,火力全部转移到闸门上(§参考素材的 621 闸门)。 */
+  #checkBarrier() {
+    if (this.barrier || this.state === 'boss') return;
+    const b = this.barriers[this.barrierIndex];
+    if (b && this.z >= b.posZ - this.tuning.barrierStopZ) {
+      this.barrier = b;
+      this.state = 'barrier';
+      this.events.push({ kind: 'barrierIn', barrier: b });
+    }
+  }
+
+  // 闸门立着时把怪拦在门后堆积(素材里那片被拦住的红色海洋),打穿瞬间一起涌出 —— 张力全在这一下。
   #moveEnemies(dt) {
-    for (const e of this.enemies) e.z -= e.speed * dt;
+    const bz = this.barrier ? this.barrier.posZ : null;
+    for (const e of this.enemies) {
+      const next = e.z - e.speed * dt;
+      e.z = bz !== null && next < bz ? bz : next;
+    }
   }
 
   // —— 射击结算(§2.2)：L 条弹道各锁一个目标,每个目标每秒吃 单目标DPS ——
   #shoot(dt) {
+    // 闸门是横跨赛道的单一大目标,L 条弹道全打得上 → 吃总火力 F。
+    // 打闸门期间不清怪,怪会堆积 —— 火力不够就会被卡在门前淹掉,这就是它作为检验点的意义。
+    if (this.barrier) {
+      this.barrier.hp -= this.F * dt;
+      if (this.barrier.hp <= 0) {
+        this.events.push({ kind: 'barrierDown', barrier: this.barrier });
+        this.barrier = null;
+        this.barrierIndex++;
+        this.state = 'running';
+      }
+      return;
+    }
     if (this.bossActive && this.boss) {
       this.boss.hp -= this.dpsSingle * dt;   // BOSS 是单体,L 不起作用
       if (this.boss.hp <= 0) {
@@ -174,12 +214,17 @@ export class Game {
   // —— 视觉子弹(纯表现,不参与伤害) ——
   #updateBullets(dt) {
     this.fireAcc += this.stats.R * (this.tuning.bulletRateMul || 1) * dt;
-    const lanes = Math.min(this.stats.L, this.tuning.maxBulletLanes);
+    // 集火单体(闸门/BOSS)时把弹道视觉铺开 —— 否则 L 小的时候只有两条线打在门上,太寒酸。
+    // 纯表现,不影响伤害(伤害始终由 F / 单目标DPS 决定)。
+    const focus = this.barrier || this.bossActive;
+    const lanes = Math.min(focus ? Math.max(this.stats.L, 6) : this.stats.L, this.tuning.maxBulletLanes);
     while (this.fireAcc >= 1) {
       this.fireAcc -= 1;
-      const targets = this.bossActive
-        ? [{ x: 0, z: this.z + this.tuning.bossStandZ }]
-        : this.enemies.slice(0, lanes);
+      const targets = this.barrier
+        ? [{ x: 0, z: this.barrier.posZ }]
+        : this.bossActive
+          ? [{ x: 0, z: this.z + this.tuning.bossStandZ }]
+          : this.enemies.slice(0, lanes);
       for (let i = 0; i < lanes; i++) {
         if (this.bullets.length >= this.tuning.maxBullets) break;
         const tgt = targets[i] || targets[0];

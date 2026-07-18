@@ -61,13 +61,19 @@ export function inLane(centerX, side, track) {
 
 // —— §3 怪流 ——
 
-/** 该段所需火力(§3.1)：F ≥ λ×h 才不漏怪。关卡设计的核心校验量。 */
-export function fMin(wave) { return wave.lambda * wave.hp; }
+/**
+ * 该段所需火力(§3.1)：F ≥ λ×rowSize×h 才不漏怪。关卡设计的核心校验量。
+ * rowSize = 每排几只(参考素材:敌军是铺满赛道的一排排,不是零散个体)。
+ */
+export function fMin(wave) { return wave.lambda * (wave.rowSize || 1) * wave.hp; }
 
 /** 漏网速率(只/秒)：火力不足时每秒漏多少只。 */
 export function leakRate(wave, F) {
-  return Math.max(0, wave.lambda - F / wave.hp);
+  return Math.max(0, wave.lambda * (wave.rowSize || 1) - F / wave.hp);
 }
+
+/** 闸门(射击门)打穿耗时(秒)：总火力全打在这个单一大目标上。 */
+export function barrierTime(hp, F) { return hp / Math.max(F, 1); }
 
 // —— §8 星级 ——
 

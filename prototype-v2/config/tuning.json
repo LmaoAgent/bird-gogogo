@@ -16,7 +16,7 @@
   "maxBulletLanes": 10,
   "enemySpeed": 7,
   "spawnAhead": 44,
-  "maxEnemies": 160,
+  "maxEnemies": 260,
   "contactZ": 3.0,
   "bossStandZ": 14,
   "track": {
@@ -34,5 +34,6 @@
   },
   "enemiesPerLoss": 3,
   "hitFlashS": 0.25,
-  "bulletRateMul": 3
+  "bulletRateMul": 3,
+  "barrierStopZ": 9
 }

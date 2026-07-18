@@ -1,62 +1,80 @@
 [
   {
     "level": 1,
-    "note": "教学·兵力门 + 一道弹道门。F_min 峰值 80 vs 最优 228(2.8x 宽松),不动也能过——只有这关允许",
-    "trackLength": 270,
-    "targetF": 387,
+    "note": "教学·左侧 N+2 长龙墙 vs 右侧 L+1。中段一道闸门,火力够就撕开",
+    "trackLength": 245,
+    "targetF": 504,
     "gates": [
       {
-        "id": "l1_n_a",
+        "id": "l1_wall_l",
         "dim": "N",
         "op": "add",
         "value": 2,
         "side": "left",
-        "posZ": 30,
+        "posZ": 28,
         "repeat": {
-          "count": 8,
-          "stepZ": 7
+          "count": 14,
+          "stepZ": 4
         }
       },
       {
-        "id": "l1_l",
+        "id": "l1_r",
         "dim": "L",
         "op": "add",
         "value": 1,
         "side": "right",
-        "posZ": 150
+        "posZ": 40
       },
       {
-        "id": "l1_n_b",
+        "id": "l1_wall_l2",
         "dim": "N",
         "op": "add",
         "value": 2,
-        "side": "center",
-        "posZ": 190,
+        "side": "left",
+        "posZ": 168,
         "repeat": {
-          "count": 6,
-          "stepZ": 8
+          "count": 10,
+          "stepZ": 4.5
         }
+      },
+      {
+        "id": "l1_r2",
+        "dim": "R",
+        "op": "add",
+        "value": 1,
+        "side": "right",
+        "posZ": 180
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l1_b1",
+        "posZ": 128,
+        "hp": 645
       }
     ],
     "waves": [
       {
-        "from": 27,
-        "to": 103,
-        "lambda": 8.1,
+        "from": 25,
+        "to": 93,
+        "lambda": 1.33,
+        "rowSize": 7,
         "hp": 10,
         "type": "moldling"
       },
       {
-        "from": 113,
-        "to": 184,
-        "lambda": 9.3,
+        "from": 103,
+        "to": 167,
+        "lambda": 1.84,
+        "rowSize": 7,
         "hp": 10,
         "type": "moldling"
       },
       {
-        "from": 189,
-        "to": 265,
-        "lambda": 18.4,
+        "from": 172,
+        "to": 240,
+        "lambda": 3.49,
+        "rowSize": 7,
         "hp": 10,
         "type": "moldling"
       }
@@ -65,70 +83,85 @@
   },
   {
     "level": 2,
-    "note": "弹道门×2 首秀·弹幕肉眼翻倍。前段 F_min=48 已高于起手 30 → 不吃门立刻开始漏怪",
-    "trackLength": 270,
-    "targetF": 900,
+    "note": "弹道墙首秀·右侧 L×2 与左侧 N 长龙二选一。两道闸门,中间那道逼你先把火力堆起来",
+    "trackLength": 240,
+    "targetF": 1328,
     "gates": [
       {
-        "id": "l2_n_a",
+        "id": "l2_wall_l",
         "dim": "N",
         "op": "add",
         "value": 2,
         "side": "left",
         "posZ": 25,
         "repeat": {
-          "count": 10,
-          "stepZ": 6
+          "count": 16,
+          "stepZ": 3.5
         }
       },
       {
-        "id": "l2_l1",
-        "dim": "L",
-        "op": "add",
-        "value": 1,
-        "side": "center",
-        "posZ": 110
-      },
-      {
-        "id": "l2_l2",
+        "id": "l2_r",
         "dim": "L",
         "op": "mul",
         "value": 2,
         "side": "right",
-        "posZ": 175
+        "posZ": 34
       },
       {
-        "id": "l2_n_b",
+        "id": "l2_c",
+        "dim": "R",
+        "op": "add",
+        "value": 1,
+        "side": "center",
+        "posZ": 150
+      },
+      {
+        "id": "l2_wall_r",
         "dim": "N",
         "op": "add",
         "value": 3,
         "side": "right",
-        "posZ": 205,
+        "posZ": 185,
         "repeat": {
-          "count": 5,
-          "stepZ": 8
+          "count": 12,
+          "stepZ": 4
         }
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l2_b1",
+        "posZ": 118,
+        "hp": 1410
+      },
+      {
+        "id": "l2_b2",
+        "posZ": 248,
+        "hp": 3320
       }
     ],
     "waves": [
       {
-        "from": 27,
-        "to": 103,
-        "lambda": 7.8,
+        "from": 24,
+        "to": 91,
+        "lambda": 2.36,
+        "rowSize": 8,
         "hp": 16,
         "type": "moldling"
       },
       {
-        "from": 113,
-        "to": 184,
-        "lambda": 14.2,
+        "from": 101,
+        "to": 163,
+        "lambda": 3.17,
+        "rowSize": 8,
         "hp": 16,
         "type": "moldling"
       },
       {
-        "from": 189,
-        "to": 265,
-        "lambda": 35.6,
+        "from": 168,
+        "to": 235,
+        "lambda": 5.58,
+        "rowSize": 8,
         "hp": 16,
         "type": "moldling"
       }
@@ -137,20 +170,20 @@
   },
   {
     "level": 3,
-    "note": "射速门·弹幕变密。右侧陷阱 N×0.5 与左侧 L×2 同排,贪快走右边直接崩",
-    "trackLength": 280,
-    "targetF": 1242,
+    "note": "射速墙 + 同排陷阱·左 L×2 右 N×0.5 并排,贪快走右边直接崩",
+    "trackLength": 250,
+    "targetF": 1818,
     "gates": [
       {
-        "id": "l3_n_a",
+        "id": "l3_wall_l",
         "dim": "N",
         "op": "add",
         "value": 3,
         "side": "left",
         "posZ": 25,
         "repeat": {
-          "count": 10,
-          "stepZ": 6
+          "count": 16,
+          "stepZ": 3.5
         }
       },
       {
@@ -158,16 +191,16 @@
         "dim": "R",
         "op": "mul",
         "value": 1.5,
-        "side": "center",
-        "posZ": 105
+        "side": "right",
+        "posZ": 34
       },
       {
-        "id": "l3_l",
+        "id": "l3_l2",
         "dim": "L",
         "op": "mul",
         "value": 2,
         "side": "left",
-        "posZ": 160
+        "posZ": 170
       },
       {
         "id": "l3_trap",
@@ -175,40 +208,50 @@
         "op": "mul",
         "value": 0.5,
         "side": "right",
-        "posZ": 160
+        "posZ": 170
       },
       {
-        "id": "l3_n_b",
+        "id": "l3_wall_c",
         "dim": "N",
         "op": "add",
         "value": 4,
         "side": "center",
-        "posZ": 200,
+        "posZ": 205,
         "repeat": {
-          "count": 6,
-          "stepZ": 7
+          "count": 10,
+          "stepZ": 4
         }
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l3_b1",
+        "posZ": 125,
+        "hp": 1418
       }
     ],
     "waves": [
       {
-        "from": 28,
-        "to": 106,
-        "lambda": 9.4,
+        "from": 25,
+        "to": 95,
+        "lambda": 1.8,
+        "rowSize": 9,
         "hp": 22,
         "type": "moldling"
       },
       {
-        "from": 118,
-        "to": 190,
-        "lambda": 16.2,
+        "from": 105,
+        "to": 170,
+        "lambda": 2.52,
+        "rowSize": 9,
         "hp": 22,
         "type": "moldling"
       },
       {
-        "from": 196,
-        "to": 274,
-        "lambda": 49.7,
+        "from": 175,
+        "to": 245,
+        "lambda": 5.68,
+        "rowSize": 9,
         "hp": 22,
         "type": "moldling"
       }
@@ -217,37 +260,40 @@
   },
   {
     "level": 4,
-    "note": "厚皮怪(hp40)登场·教「L 高 D 低会卡住」。末段 F_min=500,是全关生死点",
-    "trackLength": 285,
-    "targetF": 1760,
+    "note": "厚皮怪登场·pick 门 L+2 vs D×2,只堆弹道打不穿厚皮",
+    "trackLength": 255,
+    "targetF": 2080,
     "gates": [
       {
-        "id": "l4_n_a",
+        "id": "l4_wall_c",
         "dim": "N",
         "op": "add",
         "value": 4,
         "side": "center",
         "posZ": 25,
         "repeat": {
-          "count": 10,
-          "stepZ": 6
+          "count": 16,
+          "stepZ": 3.5
         }
       },
       {
-        "id": "l4_d",
-        "dim": "D",
-        "op": "mul",
-        "value": 2,
-        "side": "left",
-        "posZ": 110
-      },
-      {
-        "id": "l4_l",
-        "dim": "L",
-        "op": "add",
-        "value": 2,
-        "side": "right",
-        "posZ": 110
+        "id": "l4_pick",
+        "type": "pick",
+        "posZ": 120,
+        "options": [
+          {
+            "dim": "L",
+            "op": "add",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "D",
+            "op": "mul",
+            "value": 2,
+            "side": "right"
+          }
+        ]
       },
       {
         "id": "l4_r",
@@ -255,37 +301,51 @@
         "op": "add",
         "value": 1,
         "side": "center",
-        "posZ": 175
+        "posZ": 185
       },
       {
-        "id": "l4_n_b",
+        "id": "l4_wall_l",
         "dim": "N",
-        "op": "mul",
-        "value": 2,
+        "op": "add",
+        "value": 5,
         "side": "left",
-        "posZ": 225
+        "posZ": 215,
+        "repeat": {
+          "count": 12,
+          "stepZ": 4
+        }
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l4_b1",
+        "posZ": 155,
+        "hp": 2370
       }
     ],
     "waves": [
       {
-        "from": 29,
-        "to": 108,
-        "lambda": 9.2,
+        "from": 26,
+        "to": 97,
+        "lambda": 1.16,
+        "rowSize": 10,
         "hp": 30,
         "type": "moldling"
       },
       {
-        "from": 120,
-        "to": 194,
-        "lambda": 7.2,
+        "from": 107,
+        "to": 173,
+        "lambda": 1.03,
+        "rowSize": 10,
         "hp": 90,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 200,
-        "to": 279,
-        "lambda": 57.5,
+        "from": 179,
+        "to": 250,
+        "lambda": 4.13,
+        "rowSize": 10,
         "hp": 30,
         "type": "moldling"
       }
@@ -294,20 +354,20 @@
   },
   {
     "level": 5,
-    "note": "小BOSS·L 完全失效,只看单目标 DPS(N×D×R)。BOSS 每秒压掉 2 兵,拖久必崩",
-    "trackLength": 300,
-    "targetF": 2268,
+    "note": "小BOSS·闸门吃总火力、BOSS 只吃单目标 DPS,两种检验连着来",
+    "trackLength": 265,
+    "targetF": 3132,
     "gates": [
       {
-        "id": "l5_n_a",
+        "id": "l5_wall_l",
         "dim": "N",
         "op": "add",
         "value": 4,
         "side": "left",
         "posZ": 25,
         "repeat": {
-          "count": 12,
-          "stepZ": 6
+          "count": 18,
+          "stepZ": 3.5
         }
       },
       {
@@ -315,16 +375,16 @@
         "dim": "D",
         "op": "mul",
         "value": 2,
-        "side": "center",
-        "posZ": 115
+        "side": "right",
+        "posZ": 34
       },
       {
         "id": "l5_r",
         "dim": "R",
         "op": "mul",
         "value": 1.5,
-        "side": "right",
-        "posZ": 160
+        "side": "center",
+        "posZ": 165
       },
       {
         "id": "l5_d2",
@@ -332,55 +392,64 @@
         "op": "add",
         "value": 2,
         "side": "left",
-        "posZ": 205
+        "posZ": 210
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l5_b1",
+        "posZ": 125,
+        "hp": 2610
       }
     ],
     "waves": [
       {
-        "from": 30,
-        "to": 126,
-        "lambda": 8.5,
+        "from": 27,
+        "to": 111,
+        "lambda": 2.25,
+        "rowSize": 10,
         "hp": 34,
         "type": "moldling"
       },
       {
-        "from": 138,
-        "to": 240,
-        "lambda": 10.6,
+        "from": 122,
+        "to": 212,
+        "lambda": 1.46,
+        "rowSize": 10,
         "hp": 102,
         "type": "thick",
         "speedMul": 0.7
       }
     ],
     "boss": {
-      "hp": 4536,
-      "posZ": 260,
+      "hp": 6264,
+      "posZ": 268,
       "dps": 2,
       "type": "rotgarlic_elite"
     }
   },
   {
     "level": 6,
-    "note": "双选门·真抉择。末段 λ30×hp35 → F_min=1050,最优 1575 只有 1.5x 余量,选错门必崩",
-    "trackLength": 300,
-    "targetF": 2700,
+    "note": "双 pick 真抉择 + 双闸门·末段是全作最密怪潮,选错门必崩",
+    "trackLength": 255,
+    "targetF": 3564,
     "gates": [
       {
-        "id": "l6_n_a",
+        "id": "l6_wall_c",
         "dim": "N",
         "op": "add",
         "value": 5,
         "side": "center",
         "posZ": 25,
         "repeat": {
-          "count": 12,
-          "stepZ": 5
+          "count": 18,
+          "stepZ": 3.2
         }
       },
       {
         "id": "l6_pick1",
         "type": "pick",
-        "posZ": 110,
+        "posZ": 115,
         "options": [
           {
             "dim": "L",
@@ -402,12 +471,12 @@
         "op": "mul",
         "value": 1.5,
         "side": "center",
-        "posZ": 165
+        "posZ": 175
       },
       {
         "id": "l6_pick2",
         "type": "pick",
-        "posZ": 215,
+        "posZ": 225,
         "options": [
           {
             "dim": "N",
@@ -424,26 +493,41 @@
         ]
       }
     ],
+    "barriers": [
+      {
+        "id": "l6_b1",
+        "posZ": 145,
+        "hp": 3150
+      },
+      {
+        "id": "l6_b2",
+        "posZ": 262,
+        "hp": 9450
+      }
+    ],
     "waves": [
       {
-        "from": 30,
-        "to": 114,
-        "lambda": 10,
+        "from": 26,
+        "to": 97,
+        "lambda": 0.96,
+        "rowSize": 12,
         "hp": 42,
         "type": "moldling"
       },
       {
-        "from": 126,
-        "to": 204,
-        "lambda": 11.6,
+        "from": 107,
+        "to": 173,
+        "lambda": 0.9,
+        "rowSize": 12,
         "hp": 126,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 210,
-        "to": 294,
-        "lambda": 69.4,
+        "from": 179,
+        "to": 250,
+        "lambda": 4.05,
+        "rowSize": 12,
         "hp": 42,
         "type": "moldling"
       }

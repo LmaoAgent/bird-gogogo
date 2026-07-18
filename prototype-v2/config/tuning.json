@@ -1,0 +1,38 @@
+{
+  "note": "v2 手感参数。单局目标 30 秒 → forwardSpeed 9 × 30 ≈ trackLength 270。",
+  "start": {
+    "N": 15,
+    "L": 2,
+    "R": 3,
+    "D": 1
+  },
+  "forwardSpeed": 9,
+  "dragSensitivity": 1.0,
+  "followSmooth": 0.15,
+  "formationRadiusK": 0.62,
+  "nRender": 60,
+  "bulletSpeed": 55,
+  "maxBullets": 140,
+  "maxBulletLanes": 10,
+  "enemySpeed": 7,
+  "spawnAhead": 44,
+  "maxEnemies": 160,
+  "contactZ": 3.0,
+  "bossStandZ": 14,
+  "track": {
+    "width": 16,
+    "laneX": {
+      "left": -5,
+      "center": 0,
+      "right": 5
+    },
+    "gateHalfWidth": 2.2
+  },
+  "star": {
+    "3": 0.95,
+    "2": 0.75
+  },
+  "enemiesPerLoss": 3,
+  "hitFlashS": 0.25,
+  "bulletRateMul": 3
+}

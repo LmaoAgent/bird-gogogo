@@ -1,0 +1,453 @@
+[
+  {
+    "level": 1,
+    "note": "教学·兵力门 + 一道弹道门。F_min 峰值 80 vs 最优 228(2.8x 宽松),不动也能过——只有这关允许",
+    "trackLength": 270,
+    "targetF": 387,
+    "gates": [
+      {
+        "id": "l1_n_a",
+        "dim": "N",
+        "op": "add",
+        "value": 2,
+        "side": "left",
+        "posZ": 30,
+        "repeat": {
+          "count": 8,
+          "stepZ": 7
+        }
+      },
+      {
+        "id": "l1_l",
+        "dim": "L",
+        "op": "add",
+        "value": 1,
+        "side": "right",
+        "posZ": 150
+      },
+      {
+        "id": "l1_n_b",
+        "dim": "N",
+        "op": "add",
+        "value": 2,
+        "side": "center",
+        "posZ": 190,
+        "repeat": {
+          "count": 6,
+          "stepZ": 8
+        }
+      }
+    ],
+    "waves": [
+      {
+        "from": 27,
+        "to": 103,
+        "lambda": 8.1,
+        "hp": 10,
+        "type": "moldling"
+      },
+      {
+        "from": 113,
+        "to": 184,
+        "lambda": 9.3,
+        "hp": 10,
+        "type": "moldling"
+      },
+      {
+        "from": 189,
+        "to": 265,
+        "lambda": 18.4,
+        "hp": 10,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  },
+  {
+    "level": 2,
+    "note": "弹道门×2 首秀·弹幕肉眼翻倍。前段 F_min=48 已高于起手 30 → 不吃门立刻开始漏怪",
+    "trackLength": 270,
+    "targetF": 900,
+    "gates": [
+      {
+        "id": "l2_n_a",
+        "dim": "N",
+        "op": "add",
+        "value": 2,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 10,
+          "stepZ": 6
+        }
+      },
+      {
+        "id": "l2_l1",
+        "dim": "L",
+        "op": "add",
+        "value": 1,
+        "side": "center",
+        "posZ": 110
+      },
+      {
+        "id": "l2_l2",
+        "dim": "L",
+        "op": "mul",
+        "value": 2,
+        "side": "right",
+        "posZ": 175
+      },
+      {
+        "id": "l2_n_b",
+        "dim": "N",
+        "op": "add",
+        "value": 3,
+        "side": "right",
+        "posZ": 205,
+        "repeat": {
+          "count": 5,
+          "stepZ": 8
+        }
+      }
+    ],
+    "waves": [
+      {
+        "from": 27,
+        "to": 103,
+        "lambda": 7.8,
+        "hp": 16,
+        "type": "moldling"
+      },
+      {
+        "from": 113,
+        "to": 184,
+        "lambda": 14.2,
+        "hp": 16,
+        "type": "moldling"
+      },
+      {
+        "from": 189,
+        "to": 265,
+        "lambda": 35.6,
+        "hp": 16,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  },
+  {
+    "level": 3,
+    "note": "射速门·弹幕变密。右侧陷阱 N×0.5 与左侧 L×2 同排,贪快走右边直接崩",
+    "trackLength": 280,
+    "targetF": 1242,
+    "gates": [
+      {
+        "id": "l3_n_a",
+        "dim": "N",
+        "op": "add",
+        "value": 3,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 10,
+          "stepZ": 6
+        }
+      },
+      {
+        "id": "l3_r",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "center",
+        "posZ": 105
+      },
+      {
+        "id": "l3_l",
+        "dim": "L",
+        "op": "mul",
+        "value": 2,
+        "side": "left",
+        "posZ": 160
+      },
+      {
+        "id": "l3_trap",
+        "dim": "N",
+        "op": "mul",
+        "value": 0.5,
+        "side": "right",
+        "posZ": 160
+      },
+      {
+        "id": "l3_n_b",
+        "dim": "N",
+        "op": "add",
+        "value": 4,
+        "side": "center",
+        "posZ": 200,
+        "repeat": {
+          "count": 6,
+          "stepZ": 7
+        }
+      }
+    ],
+    "waves": [
+      {
+        "from": 28,
+        "to": 106,
+        "lambda": 9.4,
+        "hp": 22,
+        "type": "moldling"
+      },
+      {
+        "from": 118,
+        "to": 190,
+        "lambda": 16.2,
+        "hp": 22,
+        "type": "moldling"
+      },
+      {
+        "from": 196,
+        "to": 274,
+        "lambda": 49.7,
+        "hp": 22,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  },
+  {
+    "level": 4,
+    "note": "厚皮怪(hp40)登场·教「L 高 D 低会卡住」。末段 F_min=500,是全关生死点",
+    "trackLength": 285,
+    "targetF": 1760,
+    "gates": [
+      {
+        "id": "l4_n_a",
+        "dim": "N",
+        "op": "add",
+        "value": 4,
+        "side": "center",
+        "posZ": 25,
+        "repeat": {
+          "count": 10,
+          "stepZ": 6
+        }
+      },
+      {
+        "id": "l4_d",
+        "dim": "D",
+        "op": "mul",
+        "value": 2,
+        "side": "left",
+        "posZ": 110
+      },
+      {
+        "id": "l4_l",
+        "dim": "L",
+        "op": "add",
+        "value": 2,
+        "side": "right",
+        "posZ": 110
+      },
+      {
+        "id": "l4_r",
+        "dim": "R",
+        "op": "add",
+        "value": 1,
+        "side": "center",
+        "posZ": 175
+      },
+      {
+        "id": "l4_n_b",
+        "dim": "N",
+        "op": "mul",
+        "value": 2,
+        "side": "left",
+        "posZ": 225
+      }
+    ],
+    "waves": [
+      {
+        "from": 29,
+        "to": 108,
+        "lambda": 9.2,
+        "hp": 30,
+        "type": "moldling"
+      },
+      {
+        "from": 120,
+        "to": 194,
+        "lambda": 7.2,
+        "hp": 90,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 200,
+        "to": 279,
+        "lambda": 57.5,
+        "hp": 30,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  },
+  {
+    "level": 5,
+    "note": "小BOSS·L 完全失效,只看单目标 DPS(N×D×R)。BOSS 每秒压掉 2 兵,拖久必崩",
+    "trackLength": 300,
+    "targetF": 2268,
+    "gates": [
+      {
+        "id": "l5_n_a",
+        "dim": "N",
+        "op": "add",
+        "value": 4,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 12,
+          "stepZ": 6
+        }
+      },
+      {
+        "id": "l5_d1",
+        "dim": "D",
+        "op": "mul",
+        "value": 2,
+        "side": "center",
+        "posZ": 115
+      },
+      {
+        "id": "l5_r",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "right",
+        "posZ": 160
+      },
+      {
+        "id": "l5_d2",
+        "dim": "D",
+        "op": "add",
+        "value": 2,
+        "side": "left",
+        "posZ": 205
+      }
+    ],
+    "waves": [
+      {
+        "from": 30,
+        "to": 126,
+        "lambda": 8.5,
+        "hp": 34,
+        "type": "moldling"
+      },
+      {
+        "from": 138,
+        "to": 240,
+        "lambda": 10.6,
+        "hp": 102,
+        "type": "thick",
+        "speedMul": 0.7
+      }
+    ],
+    "boss": {
+      "hp": 4536,
+      "posZ": 260,
+      "dps": 2,
+      "type": "rotgarlic_elite"
+    }
+  },
+  {
+    "level": 6,
+    "note": "双选门·真抉择。末段 λ30×hp35 → F_min=1050,最优 1575 只有 1.5x 余量,选错门必崩",
+    "trackLength": 300,
+    "targetF": 2700,
+    "gates": [
+      {
+        "id": "l6_n_a",
+        "dim": "N",
+        "op": "add",
+        "value": 5,
+        "side": "center",
+        "posZ": 25,
+        "repeat": {
+          "count": 12,
+          "stepZ": 5
+        }
+      },
+      {
+        "id": "l6_pick1",
+        "type": "pick",
+        "posZ": 110,
+        "options": [
+          {
+            "dim": "L",
+            "op": "mul",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "D",
+            "op": "mul",
+            "value": 2,
+            "side": "right"
+          }
+        ]
+      },
+      {
+        "id": "l6_r",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "center",
+        "posZ": 165
+      },
+      {
+        "id": "l6_pick2",
+        "type": "pick",
+        "posZ": 215,
+        "options": [
+          {
+            "dim": "N",
+            "op": "mul",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "L",
+            "op": "add",
+            "value": 3,
+            "side": "right"
+          }
+        ]
+      }
+    ],
+    "waves": [
+      {
+        "from": 30,
+        "to": 114,
+        "lambda": 10,
+        "hp": 42,
+        "type": "moldling"
+      },
+      {
+        "from": 126,
+        "to": 204,
+        "lambda": 11.6,
+        "hp": 126,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 210,
+        "to": 294,
+        "lambda": 69.4,
+        "hp": 42,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  }
+]

@@ -4,14 +4,36 @@
     {
       "name": "prototype",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8099"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8099"
+      ],
       "port": 8099
     },
     {
       "name": "cocos-web",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8098", "--directory", "cocos/build/web-mobile"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8098",
+        "--directory",
+        "cocos/build/web-mobile"
+      ],
       "port": 8098
+    },
+    {
+      "name": "prototype-v2",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8097",
+        "--directory",
+        "prototype-v2"
+      ],
+      "port": 8097
     }
   ]
 }

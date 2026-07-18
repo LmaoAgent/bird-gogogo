@@ -138,6 +138,90 @@ export function obstacleClearance(level, tuning) {
   });
 }
 
+// —— 油桶(§V5 可摧毁) ——
+
+const BUFF_LABEL = { pierce: '穿透', crit: '暴击' };
+
+/** 桶给的是什么,一句话。渲染的标签、埋点的 rewardDim 都取它,免得两处各写一套对不上。 */
+export function rewardLabel(r) {
+  return r.buff ? BUFF_LABEL[r.buff] : `${r.dim}${r.op === 'mul' ? '×' : '+'}${r.value}`;
+}
+
+/** 埋点用的维度名。限时 buff 没有维度,报 buff 名 —— 字段恒有值,漏斗才对得上。 */
+export function rewardDim(r) { return r.buff || r.dim; }
+
+/**
+ * 这个奖励能把总火力抬多少(比例)。红线「单桶收益 ≤ 15%」量的就是它。
+ *
+ * 限时 buff 恒返回 0:它不进 stats 也就不进 fPeak,星级与关卡校验都看不见它 ——
+ * 这正是 buff 敢给得比属性奖励猛一点的原因(代价是它只在那几秒里有效)。
+ *
+ * 走 applyGate 而不是自己乘一遍,是为了吃到 clampStats 的取整:`L ×1.1` 在 L=4 上会被
+ * Math.round 抹平成 0 收益 —— 这类"配了等于没配"的奖励要在这里就现形,别到实测才发现。
+ */
+export function rewardGain(stats, r) {
+  if (r.buff) return 0;
+  return firepower(applyGate(stats, r)) / Math.max(firepower(stats), 1) - 1;
+}
+
+/** 单桶收益上限(占拾取瞬间的总火力)。与 OBSTACLE_MIN_CLEARANCE 同性质:配置纪律,不是手感旋钮。 */
+export const BARREL_REWARD_CAP = 0.15;
+
+/**
+ * 怪潮压上脸的位置比 `wave.from` 晚多少(以大军推进的纵深计)。
+ *
+ * 怪在 spawnAhead 之外生成,双方相向而行,要 (spawnAhead - contactZ) / (前进 + 怪速) 秒才咬上,
+ * 这段时间大军又推进了 forwardSpeed × 该秒数 —— 当前参数下是 **23 个纵深单位**。
+ *
+ * 为什么必须显式算出来:`[from, from+23]` 这一段是**看得见怪、却还没有人撞上来**的空窗,
+ * 火力在这里分走多少都不疼。桶摆在这一段就是白送 —— 配置上看它明明在怪潮里,实测漏怪却纹丝不动
+ * (V5 第一版四个桶全踩在这上面,窗口内漏怪 0.0 只)。
+ */
+export function arrivalLag(tuning) {
+  return tuning.forwardSpeed * (tuning.spawnAhead - tuning.contactZ) / (tuning.forwardSpeed + tuning.enemySpeed);
+}
+
+/**
+ * 油桶配置校验(供 V6 铺关卡 / V7 配平调用)。三条纪律:
+ *
+ * 1. **不能白送**:桶的**交火窗口**(posZ 前 barrelRangeZ 这一段)必须真的在挨怪 ——
+ *    看的是 `[from+lag, to+lag]` 而不是 `[from, to]`,理由见 arrivalLag。空场上的桶不花任何代价,
+ *    火力分走了也没人漏,那不是取舍是路边捡钱(V5 任务书 §3 点名要的就是这条)。
+ * 2. **不能够不着**:落在闸门停机区(posZ 前 barrierStopZ 之内)的桶永远打不到,
+ *    那几秒火力全钉在门上。配了等于摆个假选项。
+ * 3. **收益不过线**:`mul` 的收益与 stats 无关,静态就能判死;`add` 的收益是 value/dim,
+ *    只能给出「该维至少多大才不过线」的门槛 —— 实际值由 barrelBreak 事件里的 gain 兜底(那是实测的)。
+ *
+ * 打不打得穿不在这里判:它要的是拾取时的 F,静态算不出来,交给仿真。这里只给「窗口内打穿所需火力」。
+ */
+export function barrelCost(level, tuning) {
+  const windowS = tuning.barrelRangeZ / tuning.forwardSpeed;
+  const lag = arrivalLag(tuning);
+  return (level.barrels || []).map(b => {
+    const z0 = b.posZ - tuning.barrelRangeZ;
+    const pressure = (level.waves || [])
+      .filter(w => b.posZ >= w.from + lag && z0 <= w.to + lag)
+      .reduce((s, w) => s + fMin(w), 0);
+    const blocked = (level.barriers || []).some(x => b.posZ > x.posZ - tuning.barrierStopZ && b.posZ <= x.posZ);
+    const fNeed = b.hp / (tuning.barrelShare * windowS);
+    const r = b.reward;
+    const mulGain = r.op === 'mul' ? r.value - 1 : null;
+    const over = mulGain !== null && mulGain > BARREL_REWARD_CAP;
+    return {
+      id: b.id, pressure, blocked, fNeed, ok: pressure > 0 && !blocked && !over,
+      msg: `${b.id}(z=${b.posZ} x=${b.x} hp=${b.hp} → ${rewardLabel(r)}) `
+        + `窗口 z${Math.round(z0)}~${b.posZ} `
+        + (pressure > 0 ? `挨怪压力 ${Math.round(pressure)}` : '**空窗,白送**')
+        + (blocked ? ' **在闸门停机区,够不着**' : '')
+        + ` / 窗口 ${windowS.toFixed(1)}s 内打穿需火力 ${Math.round(fNeed)}`
+        + (mulGain !== null
+          ? ` / 收益恒 ${(mulGain * 100).toFixed(0)}%${over ? ` **超 ${BARREL_REWARD_CAP * 100}% 线**` : ''}`
+          : r.buff ? ' / 限时 buff,不进 fPeak'
+            : ` / 收益 ${r.value}/${r.dim},拾取时 ${r.dim} ≥ ${(r.value / BARREL_REWARD_CAP).toFixed(0)} 才不过线`),
+    };
+  });
+}
+
 // —— §8 星级 ——
 
 /** 星级：峰值总火力 / 该关设计的最优火力。与 v1 同构,只换了分母的量。 */

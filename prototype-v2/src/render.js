@@ -1,7 +1,7 @@
 // v2 表现层 —— 只读 Game 字段 + 消费 events,不含任何玩法规则。
 // 伪 3D 投影沿用 v1 render.js 的做法(手感一致);配色按《v2》§0「明亮大胆降 CPI」。
 
-import { unitFormationSlot, firepower, isBuff } from './core/rules.js';
+import { unitFormationSlot, isBuff, rewardLabel } from './core/rules.js';
 
 export const W = 1080, H = 1920;
 
@@ -28,6 +28,20 @@ const TRAP_COLOR = '#3A2B2B';
 const SPIKE = '#FF3B30';
 const SPIKE_DARK = '#7A1418';
 const ROLLER = '#F5C518';
+
+// 油桶配色(§V5):障碍是威胁、油桶是奖励,一眼要分得开(《美术需求清单v2补充》§5 点名的要求)。
+// 「是不是该打」沿用这一版立住的语法:**有血条的是打的,没血条的是躲的**(闸门有,障碍没有)。
+//
+// 桶体固定走铁锈橙,**不跟着奖励维度换色**:第一版把箍带涂成维度色,结果 N 桶站在 N+5 门墙里
+// 就是一根蓝条混在一片蓝框中间,教学关的新东西反而最看不见。现在分工是 ——
+// 锈色桶身负责"这是个桶"(全场唯一的暖色实心筒),中间那道维度色宽带 + 上方标签负责"它给什么"。
+const BARREL_BODY = '#C4643A';
+const BARREL_BODY_D = '#8F4526';
+const BARREL_CAP = '#DE8B5E';
+const BARREL_HOOP = '#5A3520';
+const BUFF_COLOR = '#FF66C4';   // 限时 buff 没有维度,单给一个别处没用过的品红
+
+const rewardColor = (r) => (r.buff ? BUFF_COLOR : DIM_COLOR[r.dim]);
 
 // 撞击推挤(纯表现):怪撞进大军时把附近的兵顶开,弹簧拉回原位
 const KICK = 7, KICK_R = 2.6, SPRING = 120, DAMP = 13;
@@ -95,6 +109,26 @@ export class Renderer {
         for (let i = 0; i < 8; i++) {
           this.fx.push({ x: ev.x + (Math.random() * 2 - 1) * 2, rel: 1.5, t: 0, life: 0.4, kind: 'kill', type: 'obstacle' });
         }
+      } else if (ev.kind === 'barrelBreak') {
+        // 炸开要比穿门重、比撞障碍轻:它是玩家自己下注赢来的,得给足回报感,但不能盖过突破那一下。
+        // 飘字画在大军头顶(x=0)而不是桶的位置 —— 奖励是落在自己身上的,不是留在原地的。
+        const col = rewardColor(ev.reward);
+        this.shake = Math.max(this.shake, 0.45);
+        this.flash = 0.4;
+        this.flashRGB = '255,236,170';
+        // 桶总是在大军快贴上它的时候才打穿(交火窗口就是那 24 个纵深),所以碎片必然炸在脸前 ——
+        // rel≈0 处透视不缩,一堆整尺寸方块会糊成一整块色板把大军盖掉。碎片要小、要散开纵深。
+        const rel = ev.barrel.posZ - game.z;
+        for (let i = 0; i < 14; i++) {
+          this.fx.push({
+            x: ev.barrel.x + (Math.random() * 2 - 1) * 1.8, rel: rel + (Math.random() * 2 - 1) * 2.5,
+            t: 0, life: 0.45, kind: 'kill', type: 'barrel', color: col,
+          });
+        }
+        this.floats.push({
+          x: 0, rel: 2, t: 0, life: 1.0, color: col,
+          txt: ev.reward.buff ? `${rewardLabel(ev.reward)} ${ev.sec}s` : rewardLabel(ev.reward),
+        });
       } else if (ev.kind === 'barrierIn') {
         this.shake = 0.4;
       } else if (ev.kind === 'barrierDown') {
@@ -150,10 +184,12 @@ export class Renderer {
     this.#sky();
     this.#road(game);
     this.#obstacleGround(game);   // 危险带贴地,压在路面上、所有立体物之下
+    this.#barrelGround(game);     // 对准带同层(它会读 #obstacleGround 写的 aimPip,顺序不能反)
     if (game.boostT > 0) this.#boostStreaks(game);
     this.#gates(game);
     this.#enemies(game);
     this.#obstacles(game);        // 本体压在怪群之上:被密怪埋住就谈不上"提前可见"
+    this.#barrels(game);          // 同理:桶被怪埋住就等于没有
     if (game.barrier) this.#barrier(game);
     if (game.bossActive && game.boss) this.#boss(game);
     // 子弹画在大军之前:弹丸从队伍中间(rel 1.5)出膛,画在后面就有一半白弹体压在奶油色的兵身上,
@@ -251,22 +287,23 @@ export class Renderer {
    * 只画巡逻范围不行 —— amp 一大就铺满整条路,等于说"哪都危险",反而没了信息(验收②要的是可预判)。
    * 呼吸式透明度是为了在浅灰路面上跳出来:静态色块会被路面横纹吃掉。
    */
-  #obstacleGround(game) {
+  /** 贴地的判定区色带(危险带 / 对准带共用)。画的永远是判定宽度,不是本体轮廓。 */
+  #band(x, half, rel, alpha, color) {
     const g = this.ctx;
-    const pulse = 0.22 + 0.1 * Math.sin(game.time * 6);
     const lim = this.tuning.track.width / 2;
-    const band = (x, half, rel, alpha, color) => {
-      const x0 = Math.max(x - half, -lim), x1 = Math.min(x + half, lim);   // 不画到路面外
-      const n0 = proj(x0, rel - 2), n1 = proj(x1, rel - 2);
-      const f0 = proj(x0, rel + 2), f1 = proj(x1, rel + 2);
-      g.globalAlpha = alpha;
-      g.fillStyle = color;
-      g.beginPath();
-      g.moveTo(n0.sx, n0.sy); g.lineTo(f0.sx, f0.sy); g.lineTo(f1.sx, f1.sy); g.lineTo(n1.sx, n1.sy);
-      g.closePath(); g.fill();
-      g.globalAlpha = 1;
-    };
+    const x0 = Math.max(x - half, -lim), x1 = Math.min(x + half, lim);   // 不画到路面外
+    const n0 = proj(x0, rel - 2), n1 = proj(x1, rel - 2);
+    const f0 = proj(x0, rel + 2), f1 = proj(x1, rel + 2);
+    g.globalAlpha = alpha;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(n0.sx, n0.sy); g.lineTo(f0.sx, f0.sy); g.lineTo(f1.sx, f1.sy); g.lineTo(n1.sx, n1.sy);
+    g.closePath(); g.fill();
+    g.globalAlpha = 1;
+  }
 
+  #obstacleGround(game) {
+    const pulse = 0.22 + 0.1 * Math.sin(game.time * 6);
     let near = Infinity;
     for (const o of game.obstacles) {
       const rel = o.posZ - game.z;
@@ -275,14 +312,46 @@ export class Renderer {
       if (rel >= 0) near = Math.min(near, rel);
       const half = o.width / 2 + this.tuning.obstacleHitHalfW;
       if (o.type === 'roller') {
-        band(o.x, half + (o.amp ?? this.tuning.rollerAmp), rel, 0.1, ROLLER);
-        band(o.cx, half, rel, pulse, ROLLER);
+        this.#band(o.x, half + (o.amp ?? this.tuning.rollerAmp), rel, 0.1, ROLLER);
+        this.#band(o.cx, half, rel, pulse, ROLLER);
       } else {
-        band(o.x, half, rel, pulse, SPIKE);
+        this.#band(o.x, half, rel, pulse, SPIKE);
       }
     }
 
     this.aimPip = near <= 34;
+  }
+
+  /**
+   * 油桶的地面对准带 —— 与障碍危险带同一套语法,只是意思相反:那个是"别站这",这个是"站这才打得到"。
+   * 画的同样是**判定宽度**(barrelAimHalfW),不是桶的轮廓 —— 桶画得比判定窄一圈,
+   * 玩家能看出自己有多少余量,而不是去目测桶壁贴没贴上(V4 那条教训对反过来的机制一样成立)。
+   *
+   * 进入射程(barrelRangeZ)才点亮:桶老远就看得见,但"现在打得到"是另一件事,
+   * 不区分的话玩家会在射程外白白站过去。
+   */
+  #barrelGround(game) {
+    const pulse = 0.34 + 0.16 * Math.sin(game.time * 7);
+    const half = this.tuning.barrelAimHalfW;
+    let near = Infinity;
+    for (const b of game.barrels) {
+      if (b.dead) continue;
+      const rel = b.posZ - game.z;
+      if (rel > 62) break;
+      if (rel < -3) continue;
+      const live = rel <= this.tuning.barrelRangeZ;
+      if (live) near = Math.min(near, Math.max(rel, 0));
+      const col = rewardColor(b.reward);
+      this.#band(b.x, half, rel, live ? pulse : 0.1, col);
+      // 正在打的那个,带子铺满整条交火纵深并压白:一眼看清"火力现在正被这个桶吃着"。
+      // 这块面积比桶身大一个量级,比给桶镶白边管用得多。
+      if (game.barrelTarget === b) {
+        this.#band(b.x, half, rel, 0.3, '#FFFFFF');
+        // 只铺到大军跟前(rel ≥ 0)。再往后画会被 proj 的 rel 下限夹住,糊成一块贴在屏幕底的大色块。
+        for (let d = 4; d <= rel; d += 4) this.#band(b.x, half, rel - d, 0.12, col);
+      }
+    }
+    this.aimPip = this.aimPip || near <= 34;   // 中心标:对准桶和躲开障碍要的是同一条线
   }
 
   /**
@@ -358,6 +427,86 @@ export class Renderer {
           g.fill(); g.stroke();                          // 描边:红尖刺压在霉绿怪群上要靠轮廓才分得开
         }
       }
+    }
+  }
+
+  /**
+   * 油桶本体。三样东西必须同时给全,少一样玩家就不敢打:
+   * **血条**(打得动、还剩多少)、**奖励标签**(值不值得打)、**裂纹**(打中了,有进展)。
+   * 裂纹是给血条补的冗余 —— 血条在远处只有几个像素高,裂纹在桶身上占一大片,是远距离唯一读得到的进度。
+   *
+   * 桶身画得比对准带窄:带子是判定,桶是本体,看得见的余量就是"你还能偏多少"。
+   */
+  #barrels(game) {
+    const g = this.ctx;
+    const CRACKS = [
+      [[0.52, 0.06], [0.38, 0.3], [0.56, 0.48], [0.42, 0.72], [0.5, 0.94]],
+      [[0.16, 0.18], [0.33, 0.4], [0.18, 0.58], [0.29, 0.8]],
+      [[0.86, 0.14], [0.7, 0.36], [0.85, 0.62]],
+    ];
+    for (const b of game.barrels) {
+      if (b.dead) continue;
+      const rel = b.posZ - game.z;
+      if (rel > 62) break;
+      if (rel < -3) continue;
+      const col = rewardColor(b.reward);
+      const a = proj(b.x - 1.5, rel), c = proj(b.x + 1.5, rel);
+      const w = c.sx - a.sx, h = 190 * a.d, top = a.sy - h;
+      const engaged = game.barrelTarget === b;
+      const k = Math.max(0, b.hp / b.maxHp);
+
+      // 各段占比是调过的:维度色带一宽,锈色就只剩两条缝,远看又变回"一块彩色方片"。
+      // 锈色至少要占四成,桶才是桶。
+      g.fillStyle = BARREL_BODY;
+      g.fillRect(a.sx, top, w, h);
+      g.fillStyle = BARREL_BODY_D;                                  // 下半身压暗,读出圆筒的体积
+      g.fillRect(a.sx, top + h * 0.76, w, h * 0.24);
+      g.fillStyle = BARREL_CAP;                                     // 顶盖
+      g.fillRect(a.sx, top, w, h * 0.08);
+      g.fillStyle = BARREL_HOOP;                                    // 上下两道箍,把色带夹成"桶"而不是"色块"
+      g.fillRect(a.sx, top + h * 0.36, w, h * 0.04);
+      g.fillRect(a.sx, top + h * 0.6, w, h * 0.04);
+      g.fillStyle = col;                                            // 腰带 = 这桶给什么
+      g.fillRect(a.sx, top + h * 0.4, w, h * 0.2);
+
+      // 裂纹按剩余血量分两段露出(《美术需求清单v2补充》§5 的 barrel_crack_* 两段受损状态)
+      const stage = k <= 0.34 ? 3 : k <= 0.67 ? 1 : 0;
+      if (stage) {
+        g.strokeStyle = INK;
+        g.lineWidth = Math.max(1.5, 7 * a.d);
+        g.lineJoin = 'round';
+        for (let i = 0; i < stage; i++) {
+          g.beginPath();
+          CRACKS[i].forEach(([u, v], j) => {
+            const px = a.sx + u * w, py = top + v * h;
+            j === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+          });
+          g.stroke();
+        }
+        g.lineJoin = 'miter';   // 不还原的话后面所有 strokeRect(门框/大军)的直角都会跟着变圆
+      }
+
+      // 描边一律用 INK:白边看着醒目,但桶在远处只有几十像素,粗白边会把锈色桶身整个吃掉,
+      // 反而糊成一块白片。"正在打哪个"改由地面对准带加亮来说(见 #barrelGround),那块面积大得多。
+      g.lineWidth = Math.max(2, 7 * a.d);
+      g.strokeStyle = INK;
+      g.strokeRect(a.sx, top, w, h);
+
+      // 血条 + 奖励标签(照闸门的语法:血条在上、数字在中,一眼归到"这是打的"那一类)
+      const bh = Math.max(5, 17 * a.d), by = top - bh * 1.9;
+      g.fillStyle = 'rgba(0,0,0,0.5)';
+      g.fillRect(a.sx - 2, by - 2, w + 4, bh + 4);
+      g.fillStyle = col;
+      g.fillRect(a.sx, by, w * k, bh);
+
+      const fs = Math.max(15, 62 * a.d);
+      g.font = `900 ${fs}px system-ui, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.lineWidth = Math.max(2, fs * 0.16); g.strokeStyle = INK;
+      const label = rewardLabel(b.reward);
+      g.strokeText(label, (a.sx + c.sx) / 2, by - fs * 0.7);
+      g.fillStyle = col;
+      g.fillText(label, (a.sx + c.sx) / 2, by - fs * 0.7);
     }
   }
 
@@ -522,7 +671,8 @@ export class Renderer {
       g.globalAlpha = 1;
     };
     // 弹体要比兵窄一大截:同屏上百发时,和兵一样宽的白方块会跟大军糊成一片,分不清谁是谁
-    pass(BULLET_TRAIL, 0.7, 0.34, 1);      // 拖尾:细、长、半透
+    // 限时 buff 期间拖尾换成 buff 色:清怪的时候玩家眼睛在弹幕上不在 HUD 上,弹幕变色才是那 5 秒的即时反馈
+    pass(game.buffMul > 1 ? BUFF_COLOR : BULLET_TRAIL, 0.7, 0.34, 1);   // 拖尾:细、长、半透
     pass(BULLET, 1, 0.62, 0.5);            // 弹芯:短、亮,压在拖尾顶端
   }
 
@@ -585,9 +735,9 @@ export class Renderer {
         g.fillRect(p.sx - s / 2, p.sy - w / 2, s, w);
         g.fillRect(p.sx - w / 2, p.sy - s / 2, w, s);
       } else {
-        const s = (f.type === 'boss' ? 90 : f.type === 'wave' ? 62 : 46) * p.d * (1 + k * 1.6);
-        g.fillStyle = f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E'
-          : f.type === 'obstacle' ? SPIKE : '#DFF5A8';
+        const s = (f.type === 'boss' ? 90 : f.type === 'wave' ? 62 : f.type === 'barrel' ? 28 : 46) * p.d * (1 + k * 1.6);
+        g.fillStyle = f.color || (f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E'
+          : f.type === 'obstacle' ? SPIKE : '#DFF5A8');
         g.fillRect(p.sx - s / 2, p.sy - s / 2, s, s);
       }
       g.globalAlpha = 1;
@@ -613,7 +763,9 @@ export class Renderer {
   #hud(game) {
     const g = this.ctx;
     const s = game.stats;
-    const F = firepower(s);
+    // 取 clearF(真正落在怪身上的那份)而不是总火力 F:打桶分走的、限时 buff 加成的都要当场并进这个数,
+    // 否则"分神是要付账的"永远只存在于文档里 —— 玩家看到的仍是一个稳稳不动的火力值。
+    const F = game.clearF;
     const need = game.demand;
 
     g.font = '900 46px system-ui, sans-serif';
@@ -630,7 +782,8 @@ export class Renderer {
 
     // 火力 vs 需求:红了就是在漏怪
     const short = need > 0 && F < need;
-    line(`火力 ${Math.round(F)}${need > 0 ? ` / 需 ${Math.round(need)}` : ''}`, 40, 240, short ? '#FF6B6B' : '#B6F09C');
+    const tag = game.barrelTarget ? ' ↘打桶' : game.buffMul > 1 ? ' ↗buff' : '';
+    line(`火力 ${Math.round(F)}${need > 0 ? ` / 需 ${Math.round(need)}` : ''}${tag}`, 40, 240, short ? '#FF6B6B' : '#B6F09C');
 
     // 进度条
     const bw = W - 80;

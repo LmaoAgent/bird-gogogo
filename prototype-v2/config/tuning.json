@@ -58,6 +58,13 @@
   "obstacleHitHalfW": 2.0,
   "rollerAmp": 4.5,
   "rollerPeriod": 3.2,
+  "barrelShare": 0.45,
+  "barrelRangeZ": 24,
+  "barrelAimHalfW": 2.2,
+  "buffCritS": 3,
+  "buffCritMul": 1.6,
+  "buffPierceS": 7,
+  "buffPierceFalloff": 0.25,
   "maxWaveFx": 30,
   "maxHitFx": 5
 }

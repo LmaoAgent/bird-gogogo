@@ -6,7 +6,7 @@
 
 import {
   clamp, firepower, singleTargetDps, applyGate, clampStats,
-  expandGates, resolvePick, inLane, fMin, obstacleX, obstacleHit,
+  expandGates, resolvePick, inLane, fMin, obstacleX, obstacleHit, rewardGain,
 } from './rules.js';
 
 let uid = 0;
@@ -39,6 +39,13 @@ export class Game {
     this.obstacles = (level.obstacles || []).map(o => ({ ...o, cx: o.x })).sort((a, b) => a.posZ - b.posZ);
     this.obstacleIndex = 0;
 
+    // 油桶(§V5):打得掉、给奖励,但打它要分走火力 —— 全局唯一「该不该分神」的取舍。
+    // 与闸门的分工:闸门是必经的火力检验点(不打过不去),油桶是可以不打的选项(打了要付账)。
+    this.barrels = (level.barrels || []).map(b => ({ ...b, maxHp: b.hp })).sort((a, b) => a.posZ - b.posZ);
+    this.barrelIndex = 0;
+    this.barrelTarget = null;              // 此刻对准并正在打的桶;null = 火力全在清怪上
+    this.buffs = { pierce: 0, crit: 0 };   // 限时 buff 的剩余秒数(§4「特殊门」的同一套东西)
+
     this.z = 0;
     this.centerX = 0;
     this.targetX = 0;
@@ -70,6 +77,18 @@ export class Game {
   get F() { return firepower(this.stats); }
   get dpsSingle() { return singleTargetDps(this.stats); }
 
+  /** 限时 buff 给清怪火力的加成(只作用于清怪,理由见 #shoot)。穿透按"多打一排、折损后"折算。 */
+  get buffMul() {
+    return (this.buffs.crit > 0 ? this.tuning.buffCritMul : 1)
+      * (this.buffs.pierce > 0 ? 1 + this.tuning.buffPierceFalloff : 1);
+  }
+
+  /**
+   * 真正落在怪身上的火力:打桶时被分走 barrelShare,限时 buff 则加成。
+   * HUD 拿它跟 demand 比而不是拿 F 比 —— 分神的代价必须当场看得见,否则玩家学不到"打桶是要付账的"。
+   */
+  get clearF() { return this.F * (this.barrelTarget ? 1 - this.tuning.barrelShare : 1) * this.buffMul; }
+
   /** 当前所处的怪流段(可能多段重叠)。 */
   get activeWaves() {
     return (this.level.waves || []).filter(w => this.z >= w.from && this.z <= w.to);
@@ -94,6 +113,8 @@ export class Game {
     this.time += dt;
     if (this.shieldT > 0) this.shieldT -= dt;
     if (this.boostT > 0) this.boostT -= dt;
+    if (this.buffs.pierce > 0) this.buffs.pierce -= dt;
+    if (this.buffs.crit > 0) this.buffs.crit -= dt;
 
     // 跟手平滑(帧率无关)
     const t = 1 - Math.pow(1 - this.tuning.followSmooth, dt * 60);
@@ -331,6 +352,7 @@ export class Game {
 
   // —— 射击结算(§2.2)：L 条弹道各锁一个目标,每个目标每秒吃 单目标DPS ——
   #shoot(dt) {
+    const share = this.#fireAtBarrel(dt);   // 先分账:被桶吃掉多少,剩下的才是清怪的
     // 闸门是横跨赛道的单一大目标,L 条弹道全打得上 → 吃总火力 F。
     // 打闸门期间不清怪,怪会堆积 —— 火力不够就会被卡在门前淹掉,这就是它作为检验点的意义。
     if (this.barrier) {
@@ -358,12 +380,18 @@ export class Game {
 
     // 最近的 L 只作为当前目标
     this.enemies.sort((a, b) => a.z - b.z);
-    const lanes = Math.min(this.stats.L, this.enemies.length);
-    const dmg = this.dpsSingle * dt;
+    const n = this.enemies.length;
+    const lanes = Math.min(this.stats.L, n);
+    // 限时 buff 只加成清怪,不碰闸门/BOSS:那两个是火力检验点,而 buff 既不进 stats 也不进 fPeak,
+    // 让它去打检验点等于开一条星级和配平都量不到的暗线 —— 门血量按 F 配的,V7 会对不上账。
+    const dmg = this.dpsSingle * (1 - share) * (this.buffs.crit > 0 ? this.tuning.buffCritMul : 1) * dt;
+    // 穿透:打穿前排后继续伤到它身后那只(折损 buffPierceFalloff)。与暴击是同一份火力预算,
+    // 区别只在铺开还是集中 —— 密怪潮该拿穿透、厚皮该拿暴击,和 L / D 的取舍同构。
+    const reach = this.buffs.pierce > 0 ? Math.min(lanes * 2, n) : lanes;
     let killed = 0;
-    for (let i = 0; i < lanes; i++) {
+    for (let i = 0; i < reach; i++) {
       const e = this.enemies[i];
-      e.hp -= dmg;
+      e.hp -= i < lanes ? dmg : dmg * this.tuning.buffPierceFalloff;
       if (e.hp <= 0) {
         e.dead = true;
         killed++;
@@ -374,6 +402,74 @@ export class Game {
       this.enemies = this.enemies.filter(e => !e.dead);
       this.killCount += killed;
     }
+  }
+
+  /**
+   * —— 油桶开火(§V5)——
+   *
+   * 打桶要**对准**(与门的 inLane 同构:只看大军中心 + 固定半宽 barrelAimHalfW)。
+   * 于是代价是双份的:横向得离开你本来想走的那条道,火力还要分走 barrelShare。两样加起来才叫"值不值"。
+   * 进范围就自动开火是不行的 —— 玩家没得选,那不是取舍,是过路费。
+   *
+   * 分流按比例而不是全占:全占等于把桶做成第二种闸门(打完才能继续清怪),
+   * 中间没有"边打边扛"的档位,决策就退化成二值的打/不打,也就没有"扛得住多少"这层判断。
+   *
+   * 命中盒的口径沿用 V4 的教训:只认大军中心,不按阵型半径 —— 否则兵越多桶越好打,
+   * 又是"玩得越好越占便宜"的假设计。视觉错位由表现层画对准带 + 中心标补(见 render.js #barrelGround)。
+   *
+   * 返回被分走的比例,#shoot 拿它去折清怪伤害。
+   */
+  #fireAtBarrel(dt) {
+    this.barrelTarget = null;
+    // 闸门 / BOSS 期间火力全钉在检验点上,桶够不着(barrelCost 的「停机区」纪律说的就是这一段)。
+    // 这个清零必须每帧都跑到,否则打着桶撞上闸门时 barrelTarget 会留在上一帧的值,HUD 与弹道跟着串。
+    if (this.barrier || this.bossActive) return 0;
+    while (this.barrelIndex < this.barrels.length && this.barrels[this.barrelIndex].posZ < this.z) this.barrelIndex++;
+
+    const { barrelRangeZ, barrelAimHalfW, barrelShare } = this.tuning;
+    let target = null;
+    for (let i = this.barrelIndex; i < this.barrels.length; i++) {
+      const b = this.barrels[i];
+      if (b.posZ - this.z > barrelRangeZ) break;
+      if (b.dead || Math.abs(this.centerX - b.x) > barrelAimHalfW) continue;
+      target = b;   // 同一排两个桶只打得到对准的那个 —— "二选一"就是这么成立的
+      break;
+    }
+    if (!target) return 0;
+
+    this.barrelTarget = target;
+    // barrelHit 每桶只报一次(首次交火),不按帧报:埋点要的是"多少人选择去打"这个漏斗入口,
+    // 逐帧上报既刷爆量又答不了这个问题。打成了没有由 barrelBreak 回答。
+    if (!target.engaged) {
+      target.engaged = true;
+      this.events.push({ kind: 'barrelHit', barrel: target });
+    }
+    target.hp -= this.F * barrelShare * dt;
+    if (target.hp <= 0) {
+      target.dead = true;
+      this.barrelTarget = null;
+      this.#breakBarrel(target);
+    }
+    return barrelShare;
+  }
+
+  /** 桶炸开:属性奖励走门的同一条路(applyGate + 记峰值),限时 buff 只上计时器、不进 stats。 */
+  #breakBarrel(b) {
+    const r = b.reward;
+    const before = { ...this.stats };
+    if (r.buff) {
+      const sec = r.buff === 'pierce' ? this.tuning.buffPierceS : this.tuning.buffCritS;
+      this.buffs[r.buff] = sec;
+      this.events.push({ kind: 'barrelBreak', barrel: b, reward: r, before, after: before, gain: 0, sec });
+      return;
+    }
+    const gain = rewardGain(before, r);   // 红线「单桶收益 ≤ 15%」量的就是它,实测值随事件带出去
+    this.stats = applyGate(this.stats, r);
+    for (const k of ['N', 'L', 'R', 'D']) {
+      if (this.stats[k] > this.statsPeak[k]) this.statsPeak[k] = this.stats[k];
+    }
+    this.fPeak = Math.max(this.fPeak, this.F);
+    this.events.push({ kind: 'barrelBreak', barrel: b, reward: r, before, after: { ...this.stats }, gain });
   }
 
   // —— 视觉子弹(纯表现,不参与伤害) ——
@@ -400,13 +496,20 @@ export class Game {
       // 整群都在深度之外时(刚刷出来那一下)也要打最近那只:否则一边看得见怪、一边对着空地开火
       if (hi === 0 && this.enemies.length) hi = 1;
     }
+    // 分流要看得见:被桶吃掉的那份火力,得有同样比例的弹道真的飞在桶上。
+    // 否则玩家只看到"火力数字掉了"却不知道是自己在分神(纯表现,伤害仍由 #fireAtBarrel 结算)。
+    const bt = this.barrelTarget;
+    const btLanes = bt ? Math.max(1, Math.round(lanes * this.tuning.barrelShare)) : 0;
+
     while (this.fireAcc >= 1) {
       this.fireAcc -= 1;
       for (let i = 0; i < lanes; i++) {
         if (this.bullets.length >= this.tuning.maxBullets) break;
         const x = this.centerX + (lanes > 1 ? (i / (lanes - 1) - 0.5) * fan : 0);
         let tx, tz;
-        if (this.barrier) {
+        if (i < btLanes) {
+          tx = bt.x; tz = bt.posZ;
+        } else if (this.barrier) {
           tx = x; tz = this.barrier.posZ;                    // 门横跨赛道,各打各的正前方 → 一整排撞击
         } else if (this.bossActive) {
           // BOSS 是单体,弹道收拢到它身上;留两成散布,免得全打同一个点烧成一坨白斑

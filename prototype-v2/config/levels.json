@@ -665,5 +665,138 @@
       }
     ],
     "boss": null
+  },
+  {
+    "level": 8,
+    "note": "油桶首秀·打桶得走过去对准,火力当场分走 45%,清怪速率腰斩。教学(z72 就在左墙那条道上,顺路就打穿了)→ 二选一(z150 左 R×1.12 吃长线 / 右 暴击当场兑现,只来得及打一个)→ 真抉择(z240 末段最密处分神换穿透:起始 N=15 该打,漏怪 49→19;N≤12 就别打,56→57 起转负 —— 同一个桶强势该打、弱势是自杀)。最优(该打的都打)fPeak 5197=3★,只走门 4333=0.83=2★,为躲桶连门都不吃 fPeak 1718 全灭",
+    "trackLength": 285,
+    "targetF": 5197,
+    "gates": [
+      {
+        "id": "l8_wall_l",
+        "dim": "N",
+        "op": "add",
+        "value": 5,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 12,
+          "stepZ": 3.5
+        }
+      },
+      {
+        "id": "l8_r1",
+        "dim": "R",
+        "op": "add",
+        "value": 1,
+        "side": "center",
+        "posZ": 95
+      },
+      {
+        "id": "l8_l2",
+        "dim": "L",
+        "op": "mul",
+        "value": 2,
+        "side": "center",
+        "posZ": 158
+      },
+      {
+        "id": "l8_wall_c",
+        "dim": "N",
+        "op": "add",
+        "value": 7,
+        "side": "center",
+        "posZ": 176,
+        "repeat": {
+          "count": 10,
+          "stepZ": 3.6
+        }
+      },
+      {
+        "id": "l8_d1",
+        "dim": "D",
+        "op": "mul",
+        "value": 2,
+        "side": "right",
+        "posZ": 268
+      }
+    ],
+    "barrels": [
+      {
+        "id": "l8_br1",
+        "posZ": 72,
+        "x": -5,
+        "hp": 243,
+        "reward": {
+          "dim": "N",
+          "op": "add",
+          "value": 6
+        }
+      },
+      {
+        "id": "l8_br2",
+        "posZ": 150,
+        "x": -5,
+        "hp": 525,
+        "reward": {
+          "dim": "R",
+          "op": "mul",
+          "value": 1.12
+        }
+      },
+      {
+        "id": "l8_br3",
+        "posZ": 150,
+        "x": 5,
+        "hp": 525,
+        "reward": {
+          "buff": "crit"
+        }
+      },
+      {
+        "id": "l8_br4",
+        "posZ": 240,
+        "x": -5,
+        "hp": 1711,
+        "reward": {
+          "buff": "pierce"
+        }
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l8_b1",
+        "posZ": 118,
+        "hp": 1620
+      }
+    ],
+    "waves": [
+      {
+        "from": 24,
+        "to": 92,
+        "lambda": 0.66,
+        "rowSize": 12,
+        "hp": 50,
+        "type": "moldling"
+      },
+      {
+        "from": 100,
+        "to": 168,
+        "lambda": 0.48,
+        "rowSize": 12,
+        "hp": 150,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 174,
+        "to": 275,
+        "lambda": 4.2,
+        "rowSize": 12,
+        "hp": 50,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
   }
 ]

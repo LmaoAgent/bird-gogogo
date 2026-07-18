@@ -152,5 +152,701 @@
     ],
     "enemies": [],
     "boss": { "type": "rotgarlic", "phases": [ 250, 250, 250 ], "posZ": 450 }
+  },
+  {
+    "level": 11,
+    "note": "双 pick 连续抉择·教『晚吃乘法』。N_min=220;+60→×2 = 245 过,反过来先 ×2 再 +90 = 215 < 220 必败;不操作 35 必败",
+    "trackLength": 480,
+    "k": 3.3,
+    "targetN": 245,
+    "gates": [
+      { "id": "l11_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 40, "stepZ": 3 } },
+      { "id": "l11_pick_a", "type": "pick", "posZ": 200, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 60, "side": "right" }
+      ] },
+      { "id": "l11_pick_b", "type": "pick", "posZ": 280, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 90, "side": "left" }
+      ] },
+      { "id": "l11_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 330, "repeat": { "count": 25, "stepZ": 2.5 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 726, "posZ": 450 } ],
+    "boss": null
+  },
+  {
+    "level": 12,
+    "note": "陷阱贴黄门同 lane 后方·吃完必须立刻闪开。N_min=273;躲坑→×2 = 350 过,踩坑 = 230 必败,pick 选 +130 = 320 险过",
+    "trackLength": 490,
+    "k": 3.3,
+    "targetN": 350,
+    "gates": [
+      { "id": "l12_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 40, "stepZ": 3 } },
+      { "id": "l12_gold", "type": "add", "value": 110, "side": "right", "posZ": 200 },
+      { "id": "l12_trap", "type": "sub", "value": 60, "side": "right", "posZ": 235 },
+      { "id": "l12_pick", "type": "pick", "posZ": 300, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 130, "side": "right" }
+      ] },
+      { "id": "l12_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 350, "repeat": { "count": 30, "stepZ": 2.5 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 900, "posZ": 460 } ],
+    "boss": null
+  },
+  {
+    "level": 13,
+    "note": "÷2 贴在 +120 同 lane 后方·吃完闪出再回来。N_min=340;+120→躲 ÷2→×2 = 380 过,踩 ÷2 = 204 必败,先吃 ×2 路 290 < 340 也必败",
+    "trackLength": 495,
+    "k": 3.2,
+    "targetN": 380,
+    "gates": [
+      { "id": "l13_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 45, "stepZ": 2.8 } },
+      { "id": "l13_pick_a", "type": "pick", "posZ": 200, "options": [
+        { "type": "add", "value": 120, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l13_trap", "type": "div", "value": 2, "side": "left", "posZ": 240 },
+      { "id": "l13_pick_b", "type": "pick", "posZ": 310, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 150, "side": "right" }
+      ] },
+      { "id": "l13_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 360, "repeat": { "count": 30, "stepZ": 2.2 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 1088, "posZ": 465 } ],
+    "boss": null
+  },
+  {
+    "level": 14,
+    "note": "中段连排被后置 ×2 放大·漏一段就差临门一脚。N_min=400;+130→连排→×2 = 465 过,跳过中段连排 = 385 < 400 必败,×2 后踩 ÷2 = 245 惨败",
+    "trackLength": 505,
+    "k": 3.2,
+    "targetN": 465,
+    "gates": [
+      { "id": "l14_blue_a", "type": "add", "value": 1, "side": "right", "posZ": 30, "repeat": { "count": 40, "stepZ": 3 } },
+      { "id": "l14_pick_a", "type": "pick", "posZ": 190, "options": [
+        { "type": "add", "value": 130, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l14_blue_b", "type": "add", "value": 1, "side": "left", "posZ": 240, "repeat": { "count": 40, "stepZ": 2.5 } },
+      { "id": "l14_pick_b", "type": "pick", "posZ": 370, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 170, "side": "right" }
+      ] },
+      { "id": "l14_trap", "type": "div", "value": 2, "side": "left", "posZ": 410 },
+      { "id": "l14_blue_c", "type": "add", "value": 1, "side": "center", "posZ": 440, "repeat": { "count": 25, "stepZ": 1.6 } }
+    ],
+    "enemies": [ { "type": "moldling", "H": 1280, "posZ": 490 } ],
+    "boss": null
+  },
+  {
+    "level": 15,
+    "note": "小 BOSS·引入 ×1.5 与定额加成对赌(兵多才该选乘)。N_min=640;+230→连排→×1.5 = 727 过,踩 -90 坑 = 592 必败,漏黄门 = 502 必败",
+    "trackLength": 520,
+    "k": 3.2,
+    "targetN": 727,
+    "gates": [
+      { "id": "l15_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 50, "stepZ": 2.6 } },
+      { "id": "l15_gold", "type": "add", "value": 150, "side": "right", "posZ": 210 },
+      { "id": "l15_trap", "type": "sub", "value": 90, "side": "right", "posZ": 250 },
+      { "id": "l15_pick_a", "type": "pick", "posZ": 310, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 230, "side": "right" }
+      ] },
+      { "id": "l15_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 355, "repeat": { "count": 45, "stepZ": 2 } },
+      { "id": "l15_pick_b", "type": "pick", "posZ": 460, "options": [
+        { "type": "mul", "value": 1.5, "side": "left" },
+        { "type": "add", "value": 180, "side": "right" }
+      ] }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic_elite", "phases": [ 2048 ], "posZ": 500 }
+  },
+  {
+    "level": 16,
+    "note": "÷2 贴在连排末端同 lane·吃完整段必须闪出。N_min=760;+180→连排→×3 = 870 过,跳过连排 = 720 < 760 必败,踩 ÷2 = 435 惨败",
+    "trackLength": 530,
+    "k": 3.1,
+    "targetN": 870,
+    "gates": [
+      { "id": "l16_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 50, "stepZ": 2.6 } },
+      { "id": "l16_pick_a", "type": "pick", "posZ": 200, "options": [
+        { "type": "add", "value": 180, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l16_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 250, "repeat": { "count": 50, "stepZ": 2.2 } },
+      { "id": "l16_trap", "type": "div", "value": 2, "side": "right", "posZ": 400 },
+      { "id": "l16_pick_b", "type": "pick", "posZ": 440, "options": [
+        { "type": "mul", "value": 3, "side": "left" },
+        { "type": "add", "value": 400, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 2356, "posZ": 490 } ],
+    "boss": null
+  },
+  {
+    "level": 17,
+    "note": "黄门+陷阱+双 pick 综合。N_min=1050;躲坑→+280→连排→×2 = 1190 过,踩 -120 坑 = 950 必败,漏黄门 = 790 必败",
+    "trackLength": 540,
+    "k": 3.1,
+    "targetN": 1190,
+    "gates": [
+      { "id": "l17_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 55, "stepZ": 2.4 } },
+      { "id": "l17_gold", "type": "add", "value": 200, "side": "right", "posZ": 210 },
+      { "id": "l17_trap", "type": "sub", "value": 120, "side": "right", "posZ": 245 },
+      { "id": "l17_pick_a", "type": "pick", "posZ": 300, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 280, "side": "right" }
+      ] },
+      { "id": "l17_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 350, "repeat": { "count": 50, "stepZ": 1.8 } },
+      { "id": "l17_pick_b", "type": "pick", "posZ": 460, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 500, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 3255, "posZ": 500 } ],
+    "boss": null
+  },
+  {
+    "level": 18,
+    "note": "双陷阱前后夹击·两次吃完即闪。N_min=1100;+240→躲 ÷2→连排→黄门→躲 -200→×2 = 1250 过,踩 ÷2 = 944 必败,漏黄门 = 730 必败",
+    "trackLength": 550,
+    "k": 3.1,
+    "targetN": 1250,
+    "gates": [
+      { "id": "l18_blue_a", "type": "add", "value": 1, "side": "right", "posZ": 30, "repeat": { "count": 55, "stepZ": 2.4 } },
+      { "id": "l18_pick_a", "type": "pick", "posZ": 200, "options": [
+        { "type": "add", "value": 240, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l18_trap_a", "type": "div", "value": 2, "side": "left", "posZ": 240 },
+      { "id": "l18_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 290, "repeat": { "count": 60, "stepZ": 1.8 } },
+      { "id": "l18_gold", "type": "add", "value": 260, "side": "right", "posZ": 430 },
+      { "id": "l18_trap_b", "type": "sub", "value": 200, "side": "right", "posZ": 465 },
+      { "id": "l18_pick_b", "type": "pick", "posZ": 500, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 600, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 3410, "posZ": 540 } ],
+    "boss": null
+  },
+  {
+    "level": 19,
+    "note": "center 大陷阱惩罚『吃完连排不走』。N_min=1200;黄门→×2→连排→躲 -250→×2 = 1360 过,漏中段连排 = 1240 险过,踩 center 坑 = 860 必败",
+    "trackLength": 555,
+    "k": 3.0,
+    "targetN": 1360,
+    "gates": [
+      { "id": "l19_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 60, "stepZ": 2.2 } },
+      { "id": "l19_gold", "type": "add", "value": 240, "side": "right", "posZ": 200 },
+      { "id": "l19_pick_a", "type": "pick", "posZ": 260, "options": [
+        { "type": "add", "value": 300, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l19_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 310, "repeat": { "count": 60, "stepZ": 1.6 } },
+      { "id": "l19_trap", "type": "sub", "value": 250, "side": "center", "posZ": 440 },
+      { "id": "l19_pick_b", "type": "pick", "posZ": 480, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 650, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 3600, "posZ": 520 } ],
+    "boss": null
+  },
+  {
+    "level": 20,
+    "note": "章节大 BOSS·烂蒜魔王 1350×3。N_min=1350;黄门躲坑→+360→连排躲 ÷2→+780 = 1530 过,踩首坑 = 1350 卡在第三阶段兵力归零判负,漏黄门 = 1270 必败",
+    "trackLength": 565,
+    "k": 3.0,
+    "targetN": 1530,
+    "gates": [
+      { "id": "l20_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 60, "stepZ": 2.2 } },
+      { "id": "l20_gold", "type": "add", "value": 260, "side": "right", "posZ": 200 },
+      { "id": "l20_trap_a", "type": "sub", "value": 180, "side": "right", "posZ": 235 },
+      { "id": "l20_pick_a", "type": "pick", "posZ": 290, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 360, "side": "right" }
+      ] },
+      { "id": "l20_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 340, "repeat": { "count": 60, "stepZ": 1.6 } },
+      { "id": "l20_trap_b", "type": "div", "value": 2, "side": "center", "posZ": 465 },
+      { "id": "l20_pick_b", "type": "pick", "posZ": 500, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 780, "side": "left" }
+      ] }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic", "phases": [ 1350, 1350, 1350 ], "posZ": 535 }
+  },
+  {
+    "level": 21,
+    "note": "三 pick 连续抉择·先加后连乘。N_min=1450;+280→连排→×2→×2 = 1640 过,漏中段连排 = 1400 < 1450 必败,开局吃 ×2 = 800 必败",
+    "trackLength": 570,
+    "k": 2.9,
+    "targetN": 1640,
+    "gates": [
+      { "id": "l21_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 60, "stepZ": 2.2 } },
+      { "id": "l21_pick_a", "type": "pick", "posZ": 200, "options": [
+        { "type": "add", "value": 280, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l21_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 250, "repeat": { "count": 60, "stepZ": 1.6 } },
+      { "id": "l21_pick_b", "type": "pick", "posZ": 380, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 380, "side": "right" }
+      ] },
+      { "id": "l21_pick_c", "type": "pick", "posZ": 450, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 800, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 4205, "posZ": 510 } ],
+    "boss": null
+  },
+  {
+    "level": 22,
+    "note": "×2 与 ÷2 正面对冲·选乘法就必须在 40z 内闪出同 lane。N_min=1650;+450 路 = 1860 过,×2 躲 ÷2 = 1800 过,×2 后踩 ÷2 = 960 必败,末尾选 +700 = 1630 必败",
+    "trackLength": 575,
+    "k": 2.9,
+    "targetN": 1860,
+    "gates": [
+      { "id": "l22_blue_a", "type": "add", "value": 1, "side": "right", "posZ": 30, "repeat": { "count": 60, "stepZ": 2.2 } },
+      { "id": "l22_gold", "type": "add", "value": 350, "side": "left", "posZ": 200 },
+      { "id": "l22_pick_a", "type": "pick", "posZ": 260, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 450, "side": "right" }
+      ] },
+      { "id": "l22_trap", "type": "div", "value": 2, "side": "left", "posZ": 300 },
+      { "id": "l22_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 350, "repeat": { "count": 60, "stepZ": 1.6 } },
+      { "id": "l22_pick_b", "type": "pick", "posZ": 480, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 700, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 4785, "posZ": 520 } ],
+    "boss": null
+  },
+  {
+    "level": 23,
+    "note": "黄门→大加成→连排→×2 四段滚雪球。N_min=1850;+490→躲 ÷2→连排→×2 = 2050 过,末尾选 +800 = 1825 < 1850 必败,踩 ÷2 = 1104 惨败",
+    "trackLength": 580,
+    "k": 2.9,
+    "targetN": 2050,
+    "gates": [
+      { "id": "l23_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 65, "stepZ": 2 } },
+      { "id": "l23_gold", "type": "add", "value": 380, "side": "right", "posZ": 200 },
+      { "id": "l23_pick_a", "type": "pick", "posZ": 260, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 490, "side": "right" }
+      ] },
+      { "id": "l23_trap", "type": "div", "value": 2, "side": "right", "posZ": 300 },
+      { "id": "l23_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 350, "repeat": { "count": 80, "stepZ": 1.5 } },
+      { "id": "l23_pick_b", "type": "pick", "posZ": 500, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 800, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 5365, "posZ": 540 } ],
+    "boss": null
+  },
+  {
+    "level": 24,
+    "note": "连排末端 -300 坑接大黄门·两次连续走位。N_min=2050;+420→连排→躲坑→+550→×2 = 2250 过,末尾选 +900 = 2025 必败,踩 -300 = 1650 必败",
+    "trackLength": 585,
+    "k": 2.8,
+    "targetN": 2250,
+    "gates": [
+      { "id": "l24_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 65, "stepZ": 2 } },
+      { "id": "l24_pick_a", "type": "pick", "posZ": 200, "options": [
+        { "type": "add", "value": 420, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l24_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 250, "repeat": { "count": 80, "stepZ": 1.5 } },
+      { "id": "l24_trap", "type": "sub", "value": 300, "side": "right", "posZ": 405 },
+      { "id": "l24_gold", "type": "add", "value": 550, "side": "left", "posZ": 445 },
+      { "id": "l24_pick_b", "type": "pick", "posZ": 500, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 900, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 5740, "posZ": 540 } ],
+    "boss": null
+  },
+  {
+    "level": 25,
+    "note": "小 BOSS·首坑 -350、末坑 ÷2 夹住整条最优路线。N_min=2450;+700→连排→躲 ÷2→×2 = 2760 过,pick 选 ×2 = 2520 必败,踩末坑 ÷2 = 1380 惨败",
+    "trackLength": 595,
+    "k": 2.8,
+    "targetN": 2760,
+    "gates": [
+      { "id": "l25_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 70, "stepZ": 1.9 } },
+      { "id": "l25_gold", "type": "add", "value": 500, "side": "right", "posZ": 205 },
+      { "id": "l25_trap_a", "type": "sub", "value": 350, "side": "right", "posZ": 245 },
+      { "id": "l25_pick_a", "type": "pick", "posZ": 300, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 700, "side": "right" }
+      ] },
+      { "id": "l25_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 350, "repeat": { "count": 100, "stepZ": 1.2 } },
+      { "id": "l25_trap_b", "type": "div", "value": 2, "side": "center", "posZ": 500 },
+      { "id": "l25_pick_b", "type": "pick", "posZ": 535, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 1000, "side": "left" }
+      ] }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic_elite", "phases": [ 6860 ], "posZ": 570 }
+  },
+  {
+    "level": 26,
+    "note": "连排末端 ÷2 接大黄门。N_min=2560;+560→连排→躲 ÷2→+700→×2 = 2880 过,末尾选 +1200 = 2640 险过,踩 ÷2 = 2140 必败,漏黄门 = 1480 必败",
+    "trackLength": 600,
+    "k": 2.7,
+    "targetN": 2880,
+    "gates": [
+      { "id": "l26_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 70, "stepZ": 1.9 } },
+      { "id": "l26_pick_a", "type": "pick", "posZ": 205, "options": [
+        { "type": "add", "value": 560, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l26_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 255, "repeat": { "count": 100, "stepZ": 1.2 } },
+      { "id": "l26_trap", "type": "div", "value": 2, "side": "right", "posZ": 410 },
+      { "id": "l26_gold", "type": "add", "value": 700, "side": "left", "posZ": 450 },
+      { "id": "l26_pick_b", "type": "pick", "posZ": 510, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 1200, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 6912, "posZ": 550 } ],
+    "boss": null
+  },
+  {
+    "level": 27,
+    "note": "黄门后紧跟 -480 大坑·吃完立刻闪。N_min=2800;躲坑→+800→连排→×2 = 3170 过,踩 -480 = 2210 必败,漏黄门 = 1970 必败",
+    "trackLength": 605,
+    "k": 2.7,
+    "targetN": 3170,
+    "gates": [
+      { "id": "l27_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 75, "stepZ": 1.8 } },
+      { "id": "l27_gold", "type": "add", "value": 600, "side": "right", "posZ": 210 },
+      { "id": "l27_trap", "type": "sub", "value": 480, "side": "right", "posZ": 250 },
+      { "id": "l27_pick_a", "type": "pick", "posZ": 305, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 800, "side": "right" }
+      ] },
+      { "id": "l27_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 355, "repeat": { "count": 100, "stepZ": 1.2 } },
+      { "id": "l27_pick_b", "type": "pick", "posZ": 510, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 1400, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 7560, "posZ": 550 } ],
+    "boss": null
+  },
+  {
+    "level": 28,
+    "note": "÷2 与 -600 双坑分守两条最优 lane。N_min=3000;+650→躲 ÷2→连排→+850→躲 -600→×2 = 3390 过,末尾选 +1500 = 3195 险过,踩任一坑 = 2654/2190 必败",
+    "trackLength": 610,
+    "k": 2.6,
+    "targetN": 3390,
+    "gates": [
+      { "id": "l28_blue_a", "type": "add", "value": 1, "side": "right", "posZ": 30, "repeat": { "count": 75, "stepZ": 1.8 } },
+      { "id": "l28_pick_a", "type": "pick", "posZ": 210, "options": [
+        { "type": "add", "value": 650, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l28_trap_a", "type": "div", "value": 2, "side": "left", "posZ": 250 },
+      { "id": "l28_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 300, "repeat": { "count": 110, "stepZ": 1.1 } },
+      { "id": "l28_gold", "type": "add", "value": 850, "side": "right", "posZ": 460 },
+      { "id": "l28_trap_b", "type": "sub", "value": 600, "side": "right", "posZ": 500 },
+      { "id": "l28_pick_b", "type": "pick", "posZ": 540, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1500, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 7800, "posZ": 580 } ],
+    "boss": null
+  },
+  {
+    "level": 29,
+    "note": "大加成门后方直接压 ÷2·收益最高的那条 lane 也最危险。N_min=3280;+950→躲 ÷2→连排→×2 = 3700 过,pick 选 ×2 = 3380 险过,踩 ÷2 = 1960 惨败",
+    "trackLength": 615,
+    "k": 2.6,
+    "targetN": 3700,
+    "gates": [
+      { "id": "l29_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 80, "stepZ": 1.7 } },
+      { "id": "l29_gold", "type": "add", "value": 700, "side": "right", "posZ": 210 },
+      { "id": "l29_pick_a", "type": "pick", "posZ": 270, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 950, "side": "right" }
+      ] },
+      { "id": "l29_trap", "type": "div", "value": 2, "side": "right", "posZ": 310 },
+      { "id": "l29_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 360, "repeat": { "count": 110, "stepZ": 1.1 } },
+      { "id": "l29_pick_b", "type": "pick", "posZ": 520, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 1600, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 8528, "posZ": 560 } ],
+    "boss": null
+  },
+  {
+    "level": 30,
+    "note": "小 BOSS·四次连续走位,÷2 与 -700 分别守住连排末端和黄门后方。N_min=3500;+780→连排→躲 ÷2→+1000→躲 -700→×2 = 3960 过,末尾选 +1800 = 3780 险过,踩任一坑 = 2980/2560 必败",
+    "trackLength": 620,
+    "k": 2.5,
+    "targetN": 3960,
+    "gates": [
+      { "id": "l30_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 80, "stepZ": 1.7 } },
+      { "id": "l30_pick_a", "type": "pick", "posZ": 210, "options": [
+        { "type": "add", "value": 780, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l30_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 260, "repeat": { "count": 110, "stepZ": 1.1 } },
+      { "id": "l30_trap_a", "type": "div", "value": 2, "side": "right", "posZ": 420 },
+      { "id": "l30_gold", "type": "add", "value": 1000, "side": "left", "posZ": 460 },
+      { "id": "l30_trap_b", "type": "sub", "value": 700, "side": "left", "posZ": 500 },
+      { "id": "l30_pick_b", "type": "pick", "posZ": 540, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 1800, "side": "left" }
+      ] }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic_elite", "phases": [ 8750 ], "posZ": 580 }
+  },
+  {
+    "level": 31,
+    "note": "黄门后 -550 坑·加成越大坑越深。N_min=3660;躲坑→+1050→连排→×2 = 4130 过,pick 选 ×2 = 3820 险过,踩 -550 = 3030 必败,漏黄门 = 2530 必败",
+    "trackLength": 625,
+    "k": 2.4,
+    "targetN": 4130,
+    "gates": [
+      { "id": "l31_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 85, "stepZ": 1.6 } },
+      { "id": "l31_gold", "type": "add", "value": 800, "side": "right", "posZ": 210 },
+      { "id": "l31_trap", "type": "sub", "value": 550, "side": "right", "posZ": 250 },
+      { "id": "l31_pick_a", "type": "pick", "posZ": 305, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1050, "side": "right" }
+      ] },
+      { "id": "l31_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 355, "repeat": { "count": 120, "stepZ": 1.1 } },
+      { "id": "l31_pick_b", "type": "pick", "posZ": 520, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 1800, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 8784, "posZ": 560 } ],
+    "boss": null
+  },
+  {
+    "level": 32,
+    "note": "÷2 与 -800 双坑分守两条最优 lane。N_min=3920;+900→躲 ÷2→连排→+1100→躲 -800→×2 = 4430 过,末尾选 +2000 = 4215 险过,踩任一坑 = 3434/2830 必败",
+    "trackLength": 630,
+    "k": 2.4,
+    "targetN": 4430,
+    "gates": [
+      { "id": "l32_blue_a", "type": "add", "value": 1, "side": "right", "posZ": 30, "repeat": { "count": 85, "stepZ": 1.6 } },
+      { "id": "l32_pick_a", "type": "pick", "posZ": 210, "options": [
+        { "type": "add", "value": 900, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l32_trap_a", "type": "div", "value": 2, "side": "left", "posZ": 250 },
+      { "id": "l32_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 300, "repeat": { "count": 120, "stepZ": 1.1 } },
+      { "id": "l32_gold", "type": "add", "value": 1100, "side": "right", "posZ": 470 },
+      { "id": "l32_trap_b", "type": "sub", "value": 800, "side": "right", "posZ": 510 },
+      { "id": "l32_pick_b", "type": "pick", "posZ": 550, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 2000, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 9408, "posZ": 590 } ],
+    "boss": null
+  },
+  {
+    "level": 33,
+    "note": "收益最高的 +1150 lane 后方压 ÷2。N_min=4050;+1150→躲 ÷2→连排→×2 = 4560 过,pick 选 ×2 = 4260 险过,踩 ÷2 = 2410 惨败,漏黄门 = 2760 必败",
+    "trackLength": 634,
+    "k": 2.3,
+    "targetN": 4560,
+    "gates": [
+      { "id": "l33_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 90, "stepZ": 1.5 } },
+      { "id": "l33_gold", "type": "add", "value": 900, "side": "right", "posZ": 210 },
+      { "id": "l33_pick_a", "type": "pick", "posZ": 270, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1150, "side": "right" }
+      ] },
+      { "id": "l33_trap", "type": "div", "value": 2, "side": "right", "posZ": 310 },
+      { "id": "l33_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 360, "repeat": { "count": 130, "stepZ": 1.05 } },
+      { "id": "l33_pick_b", "type": "pick", "posZ": 530, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 2000, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 9315, "posZ": 570 } ],
+    "boss": null
+  },
+  {
+    "level": 34,
+    "note": "连排末端 ÷2、黄门后 -900·一条路线两次急闪。N_min=4400;+1000→连排→躲 ÷2→+1250→躲 -900→×2 = 4960 过,末尾选 +2200 = 4680 险过,踩任一坑 = 3730/3160 必败",
+    "trackLength": 638,
+    "k": 2.3,
+    "targetN": 4960,
+    "gates": [
+      { "id": "l34_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 90, "stepZ": 1.5 } },
+      { "id": "l34_pick_a", "type": "pick", "posZ": 210, "options": [
+        { "type": "add", "value": 1000, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l34_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 260, "repeat": { "count": 130, "stepZ": 1.05 } },
+      { "id": "l34_trap_a", "type": "div", "value": 2, "side": "right", "posZ": 430 },
+      { "id": "l34_gold", "type": "add", "value": 1250, "side": "left", "posZ": 470 },
+      { "id": "l34_trap_b", "type": "sub", "value": 900, "side": "left", "posZ": 510 },
+      { "id": "l34_pick_b", "type": "pick", "posZ": 550, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 2200, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 10120, "posZ": 590 } ],
+    "boss": null
+  },
+  {
+    "level": 35,
+    "note": "小 BOSS·首坑 -700、末坑 ÷2 前后夹住最优路线。N_min=4750;躲坑→+1350→连排→躲 ÷2→×2 = 5190 过,pick 选 ×2 = 4700 < 4750 必败,踩末坑 ÷2 = 2594 惨败",
+    "trackLength": 642,
+    "k": 2.2,
+    "targetN": 5190,
+    "gates": [
+      { "id": "l35_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 95, "stepZ": 1.4 } },
+      { "id": "l35_gold", "type": "add", "value": 1000, "side": "right", "posZ": 205 },
+      { "id": "l35_trap_a", "type": "sub", "value": 700, "side": "right", "posZ": 245 },
+      { "id": "l35_pick_a", "type": "pick", "posZ": 300, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1350, "side": "right" }
+      ] },
+      { "id": "l35_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 350, "repeat": { "count": 140, "stepZ": 1.05 } },
+      { "id": "l35_trap_b", "type": "div", "value": 2, "side": "center", "posZ": 525 },
+      { "id": "l35_pick_b", "type": "pick", "posZ": 560, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 2300, "side": "left" }
+      ] }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic_elite", "phases": [ 10450 ], "posZ": 595 }
+  },
+  {
+    "level": 36,
+    "note": "÷2 守 pick 加成 lane、-1000 守黄门 lane。N_min=4950;+1150→躲 ÷2→连排→+1400→躲 -1000→×2 = 5590 过,末尾选 +2500 = 5295 险过,踩任一坑 = 4334/3590 必败",
+    "trackLength": 646,
+    "k": 2.2,
+    "targetN": 5590,
+    "gates": [
+      { "id": "l36_blue_a", "type": "add", "value": 1, "side": "right", "posZ": 30, "repeat": { "count": 95, "stepZ": 1.4 } },
+      { "id": "l36_pick_a", "type": "pick", "posZ": 210, "options": [
+        { "type": "add", "value": 1150, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l36_trap_a", "type": "div", "value": 2, "side": "left", "posZ": 250 },
+      { "id": "l36_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 300, "repeat": { "count": 140, "stepZ": 1.05 } },
+      { "id": "l36_gold", "type": "add", "value": 1400, "side": "right", "posZ": 480 },
+      { "id": "l36_trap_b", "type": "sub", "value": 1000, "side": "right", "posZ": 520 },
+      { "id": "l36_pick_b", "type": "pick", "posZ": 560, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 2500, "side": "right" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 10890, "posZ": 600 } ],
+    "boss": null
+  },
+  {
+    "level": 37,
+    "note": "长连排喂满再收 ×2·中段是全关命脉。N_min=5250;+1500→躲 ÷2→150 连排→×2 = 5920 过,pick 选 ×2 = 5540 险过,踩 ÷2 = 3110 惨败,漏黄门 = 3520 必败",
+    "trackLength": 650,
+    "k": 2.1,
+    "targetN": 5920,
+    "gates": [
+      { "id": "l37_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 100, "stepZ": 1.35 } },
+      { "id": "l37_gold", "type": "add", "value": 1200, "side": "right", "posZ": 210 },
+      { "id": "l37_pick_a", "type": "pick", "posZ": 270, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1500, "side": "right" }
+      ] },
+      { "id": "l37_trap", "type": "div", "value": 2, "side": "right", "posZ": 310 },
+      { "id": "l37_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 360, "repeat": { "count": 150, "stepZ": 1 } },
+      { "id": "l37_pick_b", "type": "pick", "posZ": 545, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 2700, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 11025, "posZ": 585 } ],
+    "boss": null
+  },
+  {
+    "level": 38,
+    "note": "决赛前夜·连排末端 ÷2 接黄门后 -1200。N_min=5600;+1300→连排→躲 ÷2→+1600→躲 -1200→×2 = 6320 过,末尾选 +2900 = 6060 险过,踩任一坑 = 4760/3920 必败",
+    "trackLength": 654,
+    "k": 2.1,
+    "targetN": 6320,
+    "gates": [
+      { "id": "l38_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 100, "stepZ": 1.35 } },
+      { "id": "l38_pick_a", "type": "pick", "posZ": 210, "options": [
+        { "type": "add", "value": 1300, "side": "left" },
+        { "type": "mul", "value": 2, "side": "right" }
+      ] },
+      { "id": "l38_blue_b", "type": "add", "value": 1, "side": "right", "posZ": 260, "repeat": { "count": 150, "stepZ": 1 } },
+      { "id": "l38_trap_a", "type": "div", "value": 2, "side": "right", "posZ": 445 },
+      { "id": "l38_gold", "type": "add", "value": 1600, "side": "left", "posZ": 485 },
+      { "id": "l38_trap_b", "type": "sub", "value": 1200, "side": "left", "posZ": 525 },
+      { "id": "l38_pick_b", "type": "pick", "posZ": 565, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 2900, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 11760, "posZ": 605 } ],
+    "boss": null
+  },
+  {
+    "level": 39,
+    "note": "k 触底 2.0·全套机制合流。N_min=6100;躲 -1000→+1750→连排→躲 ÷2→×2 = 6850 过,pick 选 ×2 = 6380 险过,踩首坑 = 4850 必败,踩末坑 ÷2 = 3424 惨败",
+    "trackLength": 657,
+    "k": 2.0,
+    "targetN": 6850,
+    "gates": [
+      { "id": "l39_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 105, "stepZ": 1.3 } },
+      { "id": "l39_gold", "type": "add", "value": 1400, "side": "right", "posZ": 210 },
+      { "id": "l39_trap_a", "type": "sub", "value": 1000, "side": "right", "posZ": 250 },
+      { "id": "l39_pick_a", "type": "pick", "posZ": 305, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1750, "side": "right" }
+      ] },
+      { "id": "l39_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 355, "repeat": { "count": 160, "stepZ": 1 } },
+      { "id": "l39_trap_b", "type": "div", "value": 2, "side": "center", "posZ": 545 },
+      { "id": "l39_pick_b", "type": "pick", "posZ": 580, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 3100, "side": "left" }
+      ] }
+    ],
+    "enemies": [ { "type": "moldling", "H": 12200, "posZ": 615 } ],
+    "boss": null
+  },
+  {
+    "level": 40,
+    "note": "首发终章·烂蒜魔王 4340×3。N_min=6510;躲 -1100→+1900→连排→躲 ÷2→×2 = 7350 过(三阶段后余 840),踩首坑 = 5150 卡死第三阶段,漏黄门 = 4350 卡死第二阶段,踩末坑 ÷2 = 3674 首阶段即败",
+    "trackLength": 660,
+    "k": 2.0,
+    "targetN": 7350,
+    "gates": [
+      { "id": "l40_blue_a", "type": "add", "value": 1, "side": "left", "posZ": 30, "repeat": { "count": 105, "stepZ": 1.3 } },
+      { "id": "l40_gold", "type": "add", "value": 1500, "side": "right", "posZ": 210 },
+      { "id": "l40_trap_a", "type": "sub", "value": 1100, "side": "right", "posZ": 250 },
+      { "id": "l40_pick_a", "type": "pick", "posZ": 305, "options": [
+        { "type": "mul", "value": 2, "side": "left" },
+        { "type": "add", "value": 1900, "side": "right" }
+      ] },
+      { "id": "l40_blue_b", "type": "add", "value": 1, "side": "center", "posZ": 355, "repeat": { "count": 160, "stepZ": 1 } },
+      { "id": "l40_trap_b", "type": "div", "value": 2, "side": "center", "posZ": 545 },
+      { "id": "l40_pick_b", "type": "pick", "posZ": 580, "options": [
+        { "type": "mul", "value": 2, "side": "right" },
+        { "type": "add", "value": 3400, "side": "left" }
+      ] }
+    ],
+    "enemies": [],
+    "boss": { "type": "rotgarlic", "phases": [ 4340, 4340, 4340 ], "posZ": 620 }
   }
 ]

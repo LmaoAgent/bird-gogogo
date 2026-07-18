@@ -5,7 +5,7 @@
 // 纯函数吃的 save 均为 migrate() 的产物;config 为 upgrade.json 解析后的对象(core 不会自己去读文件)。
 
 import type {
-  LevelResult, SaveData, StorageAdapter, Tuning,
+  LevelResult, Reward, SaveData, StorageAdapter, Tuning,
   UpgradeConfig, UpgradeEntry, UpgradeKind,
 } from '../defs/types';
 
@@ -19,6 +19,7 @@ export function createSave(): SaveData {
     version: SAVE_VERSION,
     maxLevel: 0,
     coins: 0,
+    skinFrag: 0,
     upgrades: { startArmy: 1, unitPower: 1 },
     stars: {},
   };
@@ -37,6 +38,7 @@ export function migrate(raw: any): SaveData {
     version: SAVE_VERSION,
     maxLevel: intAtLeast(raw.maxLevel, 0),
     coins: intAtLeast(raw.coins, 0),
+    skinFrag: intAtLeast(raw.skinFrag, 0),
     upgrades: {
       startArmy: intAtLeast(upgrades.startArmy, 1),
       unitPower: intAtLeast(upgrades.unitPower, 1),
@@ -160,6 +162,19 @@ export class Progress {
 
   get coins(): number { return this.data.coins; }
   get maxLevel(): number { return this.data.maxLevel; }
+  get skinFrag(): number { return this.data.skinFrag; }
+
+  /**
+   * 发一份奖励并落盘。签到 / 每日任务 / 分享的收益都从这里进账 ——
+   * systems/ 不许自己去写存档,免得出现第二处金币真源。
+   */
+  grant(reward: Reward): void {
+    const coin = Math.max(0, Math.floor(reward.coin || 0));
+    const frag = Math.max(0, Math.floor(reward.skinFrag || 0));
+    if (!coin && !frag) return;
+    this.data = { ...this.data, coins: this.data.coins + coin, skinFrag: this.data.skinFrag + frag };
+    this.storage.save(this.data);
+  }
 
   /** 该关历史最佳星级(未通关 0)。 */
   starOf(level: number): number { return this.data.stars[level] || 0; }

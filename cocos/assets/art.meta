@@ -5,5 +5,9 @@
   "uuid": "53ce3949-8c38-4987-ac68-b101e35a2523",
   "files": [],
   "subMetas": {},
-  "userData": {}
+  "userData": {
+    "isBundle": true,
+    "bundleName": "art",
+    "priority": 1
+  }
 }

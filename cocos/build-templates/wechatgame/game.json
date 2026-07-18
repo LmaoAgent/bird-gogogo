@@ -1,3 +1,9 @@
 {
-  "openDataContext": "openData"
+  "openDataContext": "openData",
+  "subpackages": [
+    {
+      "name": "art",
+      "root": "assets/art/"
+    }
+  ]
 }

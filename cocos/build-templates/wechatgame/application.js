@@ -1,18 +1,21 @@
 // 构建模板(Cocos build-templates):构建时覆盖生成的 application.js。
-// 相对引擎默认版本,只在 init() 里多了一段 rAF 兜底,其余逐字保持默认,便于将来跟引擎版本对齐。
+// 与 build-templates/web-mobile/application.js 是同一份改动的两个平台副本,改一个记得改另一个。
 //
-// 为什么需要:Cocos 的资源回调派发链是
+// 相对引擎默认版本,只加了两处:①DEBUG 开关(FPS 面板 + 日志级别);②init() 里的 rAF 兜底。
+//
+// 为什么需要 rAF 兜底:Cocos 的资源回调派发链是
 //     assetManager 完成回调 → utilities.asyncify() → misc.callInNextTick()
 //                           → pal/utils.setTimeoutRAF() → requestAnimationFrame()
 // setTimeoutRAF 在非编辑器环境下没有任何非 rAF 兜底(pal/utils.ts:205)。
-// 浏览器在页面不可见/被遮挡时会把 rAF 降到 ~1Hz 甚至完全停发,于是
+// 宿主在画面不可见/被遮挡时会把 rAF 降到 ~1Hz 甚至完全停发,于是
 // builtinResMgr.loadBuiltinAssets() 的回调永远派发不出去 → game.init() 不 resolve
 // → bundle 一个都注册不上 → 黑屏,且全程零报错(promise 只是挂着,没有 reject)。
-// 编辑器里不暴露是因为 downloader.limited = !EDITOR 且 setTimeoutRAF 在 EDITOR 下走 setTimeout。
+// 微信小游戏同样吃这一发:切后台、跳授权弹窗、播插屏广告时 rAF 都会停,
+// 若恰好卡在启动加载链上就再也醒不过来。
 //
-// 兜底策略:原生 rAF 照常用(页面可见时它总是先到,兜底定时器空转一次即被 fired 挡掉);
-// 页面不可见时原生 rAF 不来,由 setTimeout 接管——被浏览器钳到 ~1s 一次,
-// CPU 开销可忽略,但保证加载链一定能往前走,不会永久悬挂。
+// 装在 init() 里够用:setTimeoutRAF 是每次调用现取 requestAnimationFrame(不缓存),
+// 而 init() 早于 cc.game.init() 的任何一次资源加载。
+// 小游戏里没有独立的 window 对象(web-adapter 把 window 挂成了 GameGlobal),故改打 globalThis。
 
 System.register([], function (_export, _context) {
   "use strict";
@@ -32,22 +35,25 @@ System.register([], function (_export, _context) {
   var DEBUG = false;
 
   // —— rAF 兜底(本工程新增,理由见文件头) ——
-  var RAF_FALLBACK_MS = 250;   // 页面可见时原生 rAF(~16ms)总是先到,这里不会生效
+  var RAF_FALLBACK_MS = 250;   // 画面可见时原生 rAF(~16ms)总是先到,这里不会生效
   function installRafFallback() {
-    var raf = window.requestAnimationFrame;
-    if (!raf || window.__ccRafFallback) return;
-    window.__ccRafFallback = true;
-    window.requestAnimationFrame = function (cb) {
+    var g = globalThis;
+    var raf = g.requestAnimationFrame;
+    if (!raf || g.__ccRafFallback) return;
+    g.__ccRafFallback = true;
+    g.requestAnimationFrame = function (cb) {
       var fired = false;
       function run(t) {
         if (fired) return;
         fired = true;
         cb(t);
       }
-      var id = raf.call(window, run);
+      var id = raf.call(g, run);
       setTimeout(function () { run(performance.now()); }, RAF_FALLBACK_MS);
       return id;
     };
+    // window 通常就是 GameGlobal 本身;万一适配层换了实现,这里保证两条取用路径拿到同一个补丁
+    if (g.window && g.window !== g) g.window.requestAnimationFrame = g.requestAnimationFrame;
   }
 
   return {
@@ -63,7 +69,7 @@ System.register([], function (_export, _context) {
           key: "init",
           value: function init(engine) {
             cc = engine;
-            installRafFallback();   // 必须early于 cc.game.init(),否则加载链已经挂住
+            installRafFallback();   // 必须早于 cc.game.init(),否则加载链已经挂住
             cc.game.onPostBaseInitDelegate.add(this.onPostInitBase.bind(this));
             cc.game.onPostSubsystemInitDelegate.add(this.onPostSystemInit.bind(this));
           }

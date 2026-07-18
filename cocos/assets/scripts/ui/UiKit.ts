@@ -6,6 +6,7 @@ import {
   BlockInputEvents, Button, Color, ImageAsset, Label, Layers, Node,
   Sprite, SpriteFrame, Texture2D, UITransform,
 } from 'cc';
+import type { Reward } from '../defs/types';
 
 export const DESIGN_H = 1920;
 export const HALF_H = DESIGN_H / 2;
@@ -32,6 +33,9 @@ export const UI_C = {
   barBoss: new Color(201, 80, 143, 255),
   starOn: new Color(255, 213, 74, 255),      // ui_icon_star_base_01.png
   starOff: new Color(150, 142, 130, 255),
+  redDot: new Color(226, 60, 60, 255),
+  /** 签到今日格 / 可领任务的高亮底。 */
+  highlight: new Color(255, 236, 176, 255),
 };
 
 /** 1×1 纯白贴图,UI 所有色块共用一张,靠节点 color 染色。 */
@@ -209,6 +213,22 @@ export class Toast {
     this.timer -= dt;
     if (this.timer <= 0) this.node.active = false;
   }
+}
+
+/** 红点:挂在入口按钮右上角,调用方 active 开关。对应 ui_icon_reddot_base_01.png。 */
+export function uiRedDot(parent: Node, x: number, y: number): Node {
+  const dot = uiBlock(parent, 'RedDot', UI_C.redDot, 32, 32);
+  dot.setPosition(x, y, 0);
+  dot.active = false;
+  return dot;
+}
+
+/** 奖励文案:{coin:80,skinFrag:10} → "80 金 + 10 碎"。签到与任务面板共用。 */
+export function rewardText(reward: Reward): string {
+  const parts: string[] = [];
+  if (reward.coin) parts.push(`${reward.coin} 金`);
+  if (reward.skinFrag) parts.push(`${reward.skinFrag} 碎`);
+  return parts.join(' + ');
 }
 
 /** 半透明遮罩 + 居中面板体;遮罩挂 BlockInputEvents,吃掉会漏到赛道上的拖动。 */

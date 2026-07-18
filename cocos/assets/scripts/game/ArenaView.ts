@@ -7,9 +7,10 @@
 // 美术未就绪的这几帧只留天空底色 —— 加载失败时是有色底 + 一行报错,不是黑屏。
 
 import {
-  BitmapFont, Color, ImageAsset, Label, Layers, Node, Rect, resources,
+  assetManager, BitmapFont, Color, ImageAsset, Label, Layers, Node, Rect,
   Sprite, SpriteAtlas, SpriteFrame, Texture2D, UITransform,
 } from 'cc';
+import { loadSubpackage } from './WxApi';
 import { ObjectPool } from '../core/ObjectPool';
 import { unitFormationSlot, clamp } from '../core/rules';
 import type { Game } from '../core/game';
@@ -244,12 +245,20 @@ export class ArenaView {
       raw[key] = asset;
       if (--left === 0) this.onArtReady(raw as Raw);
     };
-    resources.load('art/atlases/p0_characters_atlas', SpriteAtlas, got('chars'));
-    resources.load('art/atlases/p0_world_atlas', SpriteAtlas, got('world'));
-    resources.load('art/scene/scene_marketbridge_background_runtime_01/spriteFrame', SpriteFrame, got('bg'));
-    resources.load('art/scene/scene_marketbridge_track_tile_runtime_01/texture', Texture2D, got('tile'));
-    resources.load('art/fonts/font_gate_bonus_01', BitmapFont, got('fontBonus'));
-    resources.load('art/fonts/font_gate_trap_01', BitmapFont, got('fontTrap'));
+    // T8:美术整体搬出 resources 成了独立 bundle,微信下再声明成分包
+    // (build-templates/wechatgame/game.json),否则 2.67 MiB 的图集顶在主包里必超 4MB。
+    // 分包要现下,到得比 P0 更晚 —— 但 onArtReady 之前本来就是纯色占位,这条链路没变。
+    loadSubpackage('art', () => {
+      assetManager.loadBundle('art', (err, bundle) => {
+        if (err) { console.error('[ArenaView] art bundle 加载失败', err); return; }
+        bundle.load('atlases/p0_characters_atlas', SpriteAtlas, got('chars'));
+        bundle.load('atlases/p0_world_atlas', SpriteAtlas, got('world'));
+        bundle.load('scene/scene_marketbridge_background_runtime_01/spriteFrame', SpriteFrame, got('bg'));
+        bundle.load('scene/scene_marketbridge_track_tile_runtime_01/texture', Texture2D, got('tile'));
+        bundle.load('fonts/font_gate_bonus_01', BitmapFont, got('fontBonus'));
+        bundle.load('fonts/font_gate_trap_01', BitmapFont, got('fontTrap'));
+      });
+    });
   }
 
   private onArtReady(raw: Raw): void {

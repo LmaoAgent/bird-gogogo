@@ -16,6 +16,7 @@ export class HudScreen {
   private readonly lbArmy: Label;
   private readonly lbEnemy: Label;
   private readonly lbEnemyHp: Label;
+  private readonly lbTarget: Label;
   private readonly barProgress: UiBar;
   private readonly barEnemy: UiBar;
   private readonly enemyGroup: Node;
@@ -50,6 +51,18 @@ export class HudScreen {
     army.setPosition(0, -150, 0);
     uiIcon(army, 'Icon', '军', UI_C.secondary, 72).setPosition(-160, 6, 0);
     this.lbArmy = uiLabel(army, 'Value', '0', { size: 128, color: UI_C.textLight, x: 26, outline: true });
+
+    // 挑战局的目标分,压在兵力大字下面 —— 抬眼就能对上"我现在多少 / 要超多少"
+    this.lbTarget = uiLabel(this.node, 'Target', '', {
+      size: 42, color: UI_C.starOn, y: -300, outline: true,
+    });
+    this.lbTarget.node.active = false;
+  }
+
+  /** 挑战局:显示"目标:超过好友的 N"(spec §4.2);传 null 恢复普通闯关。 */
+  setChallenge(invite: { score: number; from: string } | null): void {
+    this.lbTarget.node.active = !!invite;
+    if (invite) this.lbTarget.string = `目标:超过${invite.from}的 ${invite.score}`;
   }
 
   show(): void {

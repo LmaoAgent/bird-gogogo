@@ -2,7 +2,7 @@
 // 展示的数字全部由外部(GameController 取自 T3 的 Progress)喂进来,本层不做任何换算。
 
 import { Color, Label, Node } from 'cc';
-import { UI_C, UiButton, uiBlock, uiIcon, uiLabel, uiNode } from './UiKit';
+import { UI_C, UiButton, uiBlock, uiIcon, uiLabel, uiNode, uiRedDot } from './UiKit';
 
 /** 主界面展示数据,全部是 core 侧的现成值。 */
 export interface HomeData {
@@ -11,10 +11,22 @@ export interface HomeData {
   /** 已通关的最高关(0 = 一关没过)。 */
   maxLevel: number;
   coins: number;
+  /** 今日还没签到 → 签到入口亮红点。 */
+  signRedDot: boolean;
+  /** 有任务能领 or 全清宝箱能开 → 任务入口亮红点。 */
+  taskRedDot: boolean;
 }
 
-/** P1 才接的入口,点了先给"敬请期待"。 */
-const LOCKED = ['皮肤', '排行榜', '签到'];
+export interface HomeButtons {
+  onStart(): void;
+  onLocked(name: string): void;
+  onSign(): void;
+  onTask(): void;
+  onRank(): void;
+}
+
+/** 还没做的入口,点了先给"敬请期待"。签到 / 任务 / 排行榜已经是真的了。 */
+const LOCKED = ['皮肤'];
 
 export class HomeScreen {
   readonly node: Node;
@@ -22,8 +34,10 @@ export class HomeScreen {
   private readonly lbCoins: Label;
   private readonly lbNext: Label;
   private readonly btnStart: UiButton;
+  private readonly dotSign: Node;
+  private readonly dotTask: Node;
 
-  constructor(parent: Node, onStart: () => void, onLocked: (name: string) => void) {
+  constructor(parent: Node, cb: HomeButtons) {
     this.node = uiNode(parent, 'Home');
     uiBlock(this.node, 'Backdrop', UI_C.backdrop, 2400, 2320);
 
@@ -37,16 +51,34 @@ export class HomeScreen {
 
     this.btnStart = new UiButton(this.node, 'Start', {
       text: '开始游戏', w: 520, h: 168, fontSize: 60, y: -90,
-    }, onStart);
+    }, cb.onStart);
 
-    // P1 入口:按钮先做出来,只弹 Toast,免得主界面日后改版
+    // 留存入口(P1 已接):红点由 show() 按 Systems 的判断开关
+    this.dotSign = this.entry('签到', -130, -360, cb.onSign);
+    this.dotTask = this.entry('任务', 130, -360, cb.onTask);
+
+    // 还没做的入口:按钮先做出来,只弹 Toast,免得主界面日后改版
     for (let i = 0; i < LOCKED.length; i++) {
       const name = LOCKED[i];
       new UiButton(this.node, name, {
         text: name, w: 236, h: 120, color: UI_C.secondary, textColor: UI_C.textLight,
-        fontSize: 42, x: (i - 1) * 256, y: -380,
-      }, () => onLocked(name));
+        fontSize: 42, x: (i * 2 - 1) * 130, y: -510,
+      }, () => cb.onLocked(name));
     }
+
+    // 排行榜(T10):榜单本体由开放数据域子域绘制,这里只是入口
+    new UiButton(this.node, '排行榜', {
+      text: '排行榜', w: 236, h: 120, color: UI_C.secondary, textColor: UI_C.textLight,
+      fontSize: 42, x: 130, y: -510,
+    }, cb.onRank);
+  }
+
+  /** 一个带红点的入口按钮,返回红点节点交给 show() 开关。 */
+  private entry(name: string, x: number, y: number, onClick: () => void): Node {
+    const btn = new UiButton(this.node, name, {
+      text: name, w: 236, h: 120, fontSize: 46, x, y,
+    }, onClick);
+    return uiRedDot(btn.node, 100, 44);
   }
 
   /** 图标 + 数值的一格信息条,返回数值 Label。 */
@@ -63,6 +95,8 @@ export class HomeScreen {
     this.lbCoins.string = String(data.coins);
     this.lbNext.string = `即将挑战 第 ${data.nextLevel} 关`;
     this.btnStart.setText(data.maxLevel > 0 ? '继续闯关' : '开始游戏');
+    this.dotSign.active = data.signRedDot;
+    this.dotTask.active = data.taskRedDot;
     this.node.active = true;
   }
 

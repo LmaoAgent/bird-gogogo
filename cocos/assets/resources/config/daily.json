@@ -1,0 +1,39 @@
+{
+  "note": "签到 / 每日任务 / 分享的规则与奖励(《签到任务分享系统设计.md》)。奖励类型只有 coin 与 skinFrag 两种,发放一律走 core/progress.ts 的 Progress.grant,systems 不碰存档。跨日判定用本地日期(spec §5 已知并接受改设备时间刷奖的风险)。首版数值:日均约 700 金币,与一天打 10 关(约 1000)同量级,主控要调只改本文件。",
+  "sign": {
+    "note": "§1 7 天循环,第 7 天大奖。断签重置回第 1 天;补签看激励视频把昨天补回来(每日 makeupPerDay 次),补完再领今日就能续上连签。",
+    "makeupPerDay": 1,
+    "rewards": [
+      { "day": 1, "coin": 80 },
+      { "day": 2, "coin": 120 },
+      { "day": 3, "coin": 160 },
+      { "day": 4, "coin": 200 },
+      { "day": 5, "coin": 240 },
+      { "day": 6, "coin": 300 },
+      { "day": 7, "coin": 500, "skinFrag": 10 }
+    ]
+  },
+  "task": {
+    "note": "§2 每日抽 dailyCount 个:fixed 的必出,其余按日期做确定性洗牌补满(同一天重进抽到的一样)。ev 是埋点事件名;带 field 的按「单局最好成绩」记(取 max),不带的按次数累加。spec 里 field 写作 N_peak,这里对齐代码里 LevelResult 的实际字段名 nPeak。",
+    "dailyCount": 4,
+    "allClearReward": { "coin": 200, "skinFrag": 3 },
+    "pool": [
+      { "id": "clear3", "desc": "通关 3 关", "ev": "level_win", "target": 3, "fixed": true, "reward": { "coin": 150 } },
+      { "id": "troop500", "desc": "单局兵力达 500", "ev": "level_win", "field": "nPeak", "target": 500, "reward": { "coin": 120 } },
+      { "id": "gate50", "desc": "吃门 50 次", "ev": "gate_pick", "target": 50, "reward": { "coin": 100 } },
+      { "id": "ad1", "desc": "看 1 次广告", "ev": "ad_reward", "target": 1, "reward": { "skinFrag": 2 } },
+      { "id": "share1", "desc": "分享 1 次", "ev": "share_click", "target": 1, "reward": { "coin": 80 } },
+      { "id": "star3", "desc": "打出 1 次三星", "ev": "level_win", "field": "star", "target": 3, "reward": { "coin": 120 } }
+    ]
+  },
+  "share": {
+    "note": "§3.2 微信已取消分享成功回调,判断不了分享成没成 → 点击即发,每日首次分享给一次奖励,靠 dailyRewardClaimed 防刷(连点不重复发)。§3.1 四个场景:result 晒战绩 / challenge 挑战好友(T10 排行榜复用)/ revive_help 求复活 / daily 每日分享任务。{lv} {score} 是占位符。",
+    "reward": { "coin": 80 },
+    "scenes": {
+      "result": { "title": "我在蒜鸟冲冲冲打到第 {lv} 关,来比比?" },
+      "challenge": { "title": "我用 {score} 兵力通关第 {lv} 关,敢来挑战吗?" },
+      "revive_help": { "title": "我卡在第 {lv} 关了,来帮我一把!" },
+      "daily": { "title": "蒜鸟冲冲冲——滚雪球撞穿霉烂军团" }
+    }
+  }
+}

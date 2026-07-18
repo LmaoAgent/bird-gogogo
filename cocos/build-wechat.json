@@ -1,0 +1,12 @@
+{
+  "platform": "wechatgame",
+  "debug": false,
+  "packages": {
+    "wechatgame": {
+      "appid": "wx6ac3f5090a6b99c5",
+      "orientation": "portrait",
+      "buildOpenDataContextTemplate": false,
+      "separateEngine": false
+    }
+  }
+}

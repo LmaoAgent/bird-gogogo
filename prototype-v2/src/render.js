@@ -23,8 +23,16 @@ const INK = '#2B2420';
 const DIM_COLOR = { N: '#3E8FE0', L: '#9B5DE5', R: '#F49D1A', D: '#E5484D' };
 const TRAP_COLOR = '#3A2B2B';
 
+// 障碍配色(§V4):门是"要不要走进去",障碍是"必须走开",两者不能长得像 ——
+// 门是半透高框 + 维度字,障碍是实心低矮的红尖刺 / 黄黑滚筒,零文字。
+const SPIKE = '#FF3B30';
+const SPIKE_DARK = '#7A1418';
+const ROLLER = '#F5C518';
+
 // 撞击推挤(纯表现):怪撞进大军时把附近的兵顶开,弹簧拉回原位
 const KICK = 7, KICK_R = 2.6, SPRING = 120, DAMP = 13;
+
+const FAIL_TEXT = { boss: 'BOSS 压垮了你', obstacle: '撞上障碍全灭' };
 
 const HORIZON_Y = H * 0.30;
 const ARMY_Y = H * 0.78;
@@ -50,6 +58,7 @@ export class Renderer {
     this.units = [];     // 大军每个位置的推挤偏移(ox/oz + 速度)
     this.zsort = [];     // 怪的绘制序,复用免得 300 只时每帧新建数组
     this.shake = 0;
+    this.aimPip = false; // 有障碍逼近时才画大军中心标(见 #aimPip)
     this.flash = 0;      // 全屏闪:掉兵红 / 突破金
     this.flashRGB = '229,72,77';
   }
@@ -77,6 +86,15 @@ export class Renderer {
         this.flashRGB = '229,72,77';
         this.shake = Math.max(this.shake, 0.35);
         this.floats.push({ x: 0, rel: 1, t: 0, life: 0.8, txt: `-${ev.loss}`, color: '#E5484D' });
+      } else if (ev.kind === 'obstacleHit') {
+        // 撞障碍比漏怪疼(一下掉一成八),反馈也要比漏怪重一档,否则玩家学不会"该躲"
+        this.flash = 0.55;
+        this.flashRGB = '229,72,77';
+        this.shake = Math.max(this.shake, 0.6);
+        this.floats.push({ x: 0, rel: 1, t: 0, life: 0.9, txt: `-${ev.loss}`, color: '#E5484D' });
+        for (let i = 0; i < 8; i++) {
+          this.fx.push({ x: ev.x + (Math.random() * 2 - 1) * 2, rel: 1.5, t: 0, life: 0.4, kind: 'kill', type: 'obstacle' });
+        }
       } else if (ev.kind === 'barrierIn') {
         this.shake = 0.4;
       } else if (ev.kind === 'barrierDown') {
@@ -131,15 +149,18 @@ export class Renderer {
 
     this.#sky();
     this.#road(game);
+    this.#obstacleGround(game);   // 危险带贴地,压在路面上、所有立体物之下
     if (game.boostT > 0) this.#boostStreaks(game);
     this.#gates(game);
     this.#enemies(game);
+    this.#obstacles(game);        // 本体压在怪群之上:被密怪埋住就谈不上"提前可见"
     if (game.barrier) this.#barrier(game);
     if (game.bossActive && game.boss) this.#boss(game);
     // 子弹画在大军之前:弹丸从队伍中间(rel 1.5)出膛,画在后面就有一半白弹体压在奶油色的兵身上,
     // 两者同色糊成一团。让兵挡住膛口,只有冲出队伍的那一截可见,才是"火力从人群里喷出来"。
     this.#bullets(game);
     this.#army(game, dt);
+    this.#aimPip(game);
     this.#effects(dt);
     this.#waves(game, dt);   // 画在死亡特效之上,否则冲击环会被那片爆开的粒子埋掉
     g.restore();
@@ -220,6 +241,124 @@ export class Renderer {
     g.strokeText(label, (a.sx + b.sx) / 2, top + (a.sy - top) * 0.45);
     g.fillStyle = '#FFF';
     g.fillText(label, (a.sx + b.sx) / 2, top + (a.sy - top) * 0.45);
+  }
+
+  /**
+   * 障碍的地面预告 —— "提前可见"落在这一层。
+   * 画的是**真实命中区**(本体半宽 + obstacleHitHalfW),不是本体轮廓:玩家要对齐的是判定线,
+   * 让他去目测尖刺牙尖到哪是耍赖。
+   * roller 画两条:淡的是整条巡逻范围(告诉你这一段归它管),亮的是**此刻**的命中区、跟着滚筒走。
+   * 只画巡逻范围不行 —— amp 一大就铺满整条路,等于说"哪都危险",反而没了信息(验收②要的是可预判)。
+   * 呼吸式透明度是为了在浅灰路面上跳出来:静态色块会被路面横纹吃掉。
+   */
+  #obstacleGround(game) {
+    const g = this.ctx;
+    const pulse = 0.22 + 0.1 * Math.sin(game.time * 6);
+    const lim = this.tuning.track.width / 2;
+    const band = (x, half, rel, alpha, color) => {
+      const x0 = Math.max(x - half, -lim), x1 = Math.min(x + half, lim);   // 不画到路面外
+      const n0 = proj(x0, rel - 2), n1 = proj(x1, rel - 2);
+      const f0 = proj(x0, rel + 2), f1 = proj(x1, rel + 2);
+      g.globalAlpha = alpha;
+      g.fillStyle = color;
+      g.beginPath();
+      g.moveTo(n0.sx, n0.sy); g.lineTo(f0.sx, f0.sy); g.lineTo(f1.sx, f1.sy); g.lineTo(n1.sx, n1.sy);
+      g.closePath(); g.fill();
+      g.globalAlpha = 1;
+    };
+
+    let near = Infinity;
+    for (const o of game.obstacles) {
+      const rel = o.posZ - game.z;
+      if (rel > 62) break;
+      if (rel < -3) continue;
+      if (rel >= 0) near = Math.min(near, rel);
+      const half = o.width / 2 + this.tuning.obstacleHitHalfW;
+      if (o.type === 'roller') {
+        band(o.x, half + (o.amp ?? this.tuning.rollerAmp), rel, 0.1, ROLLER);
+        band(o.cx, half, rel, pulse, ROLLER);
+      } else {
+        band(o.x, half, rel, pulse, SPIKE);
+      }
+    }
+
+    this.aimPip = near <= 34;
+  }
+
+  /**
+   * 中心标(在大军之后画,否则被队伍盖住)。判定只看大军中心(见 game.js #checkObstacles),
+   * 而队形铺开有十几个单位宽 —— 不把中心标出来,擦身而过看起来就是"压上去了却没掉兵",
+   * 玩家学不到那条线在哪,只会觉得掉不掉兵是随机的。有障碍逼近时才亮,平时不占画面。
+   */
+  #aimPip(game) {
+    if (!this.aimPip) return;
+    const g = this.ctx;
+    const p = proj(game.centerX, 5.5);
+    const s = Math.max(7, 34 * p.d);
+    g.fillStyle = '#FFFFFF';
+    g.strokeStyle = INK;
+    g.lineWidth = Math.max(1.5, s * 0.18);
+    g.beginPath();
+    g.moveTo(p.sx, p.sy + s * 0.5); g.lineTo(p.sx - s * 0.6, p.sy - s * 0.5); g.lineTo(p.sx + s * 0.6, p.sy - s * 0.5);
+    g.closePath(); g.fill(); g.stroke();
+  }
+
+  /**
+   * 障碍本体。不可摧毁,所以**不画血条** —— 闸门有血条有数字("打它"),障碍什么都没有("躲它"),
+   * 玩家不用读说明就能分清这两种横在路上的东西。
+   */
+  #obstacles(game) {
+    const g = this.ctx;
+    for (const o of game.obstacles) {
+      const rel = o.posZ - game.z;
+      if (rel > 62) break;
+      if (rel < -3) continue;
+      const a = proj(o.cx - o.width / 2, rel), b = proj(o.cx + o.width / 2, rel);
+      const w = b.sx - a.sx;
+      g.lineWidth = Math.max(1.5, 7 * a.d);
+      g.strokeStyle = INK;
+      if (o.type === 'roller') {
+        // 高度压在闸门(210)之下、比小怪(58~84)高一截:一眼分得清"打的"和"躲的",又不至于被怪群埋了
+        const h = 150 * a.d, top = a.sy - h;
+        g.fillStyle = ROLLER;
+        g.fillRect(a.sx, top, w, h);
+        // 斜条纹跟着 cx 走:滚筒往哪边挪,条纹就往哪边卷 —— 静止的条纹会读成一块黄板
+        g.save();
+        g.beginPath(); g.rect(a.sx, top, w, h); g.clip();
+        g.fillStyle = INK;
+        const sw = Math.max(6, 26 * a.d), span = sw * 2;
+        const off = ((o.cx * 60 * a.d) % span + span) % span;
+        for (let sx = a.sx - h - off; sx < b.sx + h; sx += span) {
+          g.beginPath();
+          g.moveTo(sx, a.sy); g.lineTo(sx + sw, a.sy); g.lineTo(sx + sw + h, top); g.lineTo(sx + h, top);
+          g.closePath(); g.fill();
+        }
+        g.restore();
+        g.strokeRect(a.sx, top, w, h);
+        g.fillStyle = '#6E7478';   // 两端轴帽:读成滚筒而不是一块牌子
+        g.fillRect(a.sx - 9 * a.d, top, 15 * a.d, h);
+        g.fillRect(b.sx - 6 * a.d, top, 15 * a.d, h);
+      } else {
+        const h = 155 * a.d;
+        g.fillStyle = SPIKE_DARK;                       // 底座
+        g.fillRect(a.sx, a.sy - h * 0.3, w, h * 0.3);
+        g.strokeRect(a.sx, a.sy - h * 0.3, w, h * 0.3);
+        // 牙要少而宽:牙一密,那圈保证轮廓的描边就吃掉整个三角,红色全变成黑的
+        const teeth = Math.max(3, Math.round(o.width * 0.9));
+        const tw = w / teeth;
+        g.lineWidth *= 0.45;
+        g.fillStyle = SPIKE;
+        for (let i = 0; i < teeth; i++) {
+          const cx = a.sx + (i + 0.5) * tw;
+          g.beginPath();
+          g.moveTo(cx - tw * 0.44, a.sy - h * 0.24);
+          g.lineTo(cx, a.sy - h);
+          g.lineTo(cx + tw * 0.44, a.sy - h * 0.24);
+          g.closePath();
+          g.fill(); g.stroke();                          // 描边:红尖刺压在霉绿怪群上要靠轮廓才分得开
+        }
+      }
+    }
   }
 
   #enemies(game) {
@@ -447,7 +586,8 @@ export class Renderer {
         g.fillRect(p.sx - w / 2, p.sy - s / 2, w, s);
       } else {
         const s = (f.type === 'boss' ? 90 : f.type === 'wave' ? 62 : 46) * p.d * (1 + k * 1.6);
-        g.fillStyle = f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E' : '#DFF5A8';
+        g.fillStyle = f.type === 'thick' ? '#C9A227' : f.type === 'wave' ? '#FF9A2E'
+          : f.type === 'obstacle' ? SPIKE : '#DFF5A8';
         g.fillRect(p.sx - s / 2, p.sy - s / 2, s, s);
       }
       g.globalAlpha = 1;
@@ -516,7 +656,7 @@ export class Renderer {
       g.fillText(star, W / 2, H * 0.4);
       g.fillText(`火力峰值 ${Math.round(r.fPeak)} / 目标 ${r.targetF}`, W / 2, H * 0.46);
     } else {
-      g.fillText(r.reason === 'boss' ? 'BOSS 压垮了你' : '被小怪冲垮', W / 2, H * 0.4);
+      g.fillText(FAIL_TEXT[r.reason] || '被小怪冲垮', W / 2, H * 0.4);
       g.fillText(`火力峰值 ${Math.round(r.fPeak)}`, W / 2, H * 0.46);
     }
     g.fillText(`击杀 ${r.kills}   漏怪 ${r.leaks}   ${r.time}s`, W / 2, H * 0.52);

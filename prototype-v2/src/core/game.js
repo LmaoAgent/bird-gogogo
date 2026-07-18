@@ -6,7 +6,7 @@
 
 import {
   clamp, firepower, singleTargetDps, applyGate, clampStats,
-  expandGates, resolvePick, inLane, fMin,
+  expandGates, resolvePick, inLane, fMin, obstacleX, obstacleHit,
 } from './rules.js';
 
 let uid = 0;
@@ -33,6 +33,11 @@ export class Game {
     this.barriers = (level.barriers || []).map(b => ({ ...b, maxHp: b.hp }));
     this.barrierIndex = 0;
     this.barrier = null;
+
+    // 障碍(§V4):不可摧毁、不参与火力结算,唯一解法是走开 —— 走位第一次有生存意义。
+    // cx 是"此刻的中心 x"(roller 每帧刷新),渲染与判定共用同一个值,画在哪就撞在哪。
+    this.obstacles = (level.obstacles || []).map(o => ({ ...o, cx: o.x })).sort((a, b) => a.posZ - b.posZ);
+    this.obstacleIndex = 0;
 
     this.z = 0;
     this.centerX = 0;
@@ -94,11 +99,16 @@ export class Game {
     const t = 1 - Math.pow(1 - this.tuning.followSmooth, dt * 60);
     this.centerX += (this.targetX - this.centerX) * t;
 
+    // roller 的往复只跟时间走,与大军推进无关:卡在闸门前时它照常在荡(玩家能提前读几个来回),
+    // 撞不撞上则只在大军真的越过 posZ 那一刻判。
+    for (const o of this.obstacles) o.cx = obstacleX(o, this.time, this.tuning);
+
     // 闸门与 BOSS 都会把大军钉在原地,但怪流照常涌来 —— 卡住越久越危险
     if (this.state !== 'boss' && this.state !== 'barrier') {
       const boost = this.boostT > 0 ? this.tuning.breakBoostSpeedMul : 1;
       this.z += this.tuning.forwardSpeed * boost * dt;
       this.#triggerGates();
+      this.#checkObstacles();
     }
     if (this.state !== 'boss') this.#spawnWaves(dt);
     this.#checkBarrier();
@@ -130,6 +140,30 @@ export class Game {
       this.events.push({ kind: 'gate', gate, effect, before, after: { ...this.stats } });
 
       if (this.stats.N <= 0) this.#fail('trap');
+    }
+  }
+
+  /**
+   * —— 障碍(§V4)——
+   * 不可摧毁,不进火力结算(红线):打不掉、也不吃火力,唯一的解法是走开。
+   *
+   * 命中盒用固定半宽 obstacleHitHalfW,不用阵型半径。阵型半径按 √N 涨,拿它当命中盒的话
+   * 兵堆得越高越躲不开 —— 那是"玩得越好越该死"的假难度,正是红线要禁的那种。取固定半宽后,
+   * 判定与门的 inLane 同构(都只看大军中心)。**可躲是配置纪律,不是这里的判定逻辑能保证的** ——
+   * 任一相位都得有一条 lane 留得出余量,交给 rules.js 的 obstacleClearance 校验(零余量 = 必中,原因见那里)。
+   *
+   * 掉兵按当前兵力百分比:固定值到后期就是挠痒(N=200 时掉 5 兵没人在乎),百分比才能在 12 关都疼。
+   * 兜底 1 兵,免得开局 N 小时撞了等于没撞。
+   */
+  #checkObstacles() {
+    while (this.obstacleIndex < this.obstacles.length && this.obstacles[this.obstacleIndex].posZ <= this.z) {
+      const o = this.obstacles[this.obstacleIndex++];
+      if (!obstacleHit(this.centerX, o.cx, o.width, this.tuning.obstacleHitHalfW)) continue;
+      const loss = Math.max(1, Math.ceil(this.stats.N * this.tuning.obstacleLossPct));
+      this.stats = clampStats({ ...this.stats, N: this.stats.N - loss });
+      this.shieldT = this.tuning.hitFlashS;
+      this.events.push({ kind: 'obstacleHit', obstacle: o, x: o.cx, loss });
+      if (this.stats.N <= 0) this.#fail('obstacle');
     }
   }
 

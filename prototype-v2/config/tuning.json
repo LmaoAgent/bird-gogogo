@@ -54,6 +54,10 @@
   "releaseBatchSize": 6,
   "breakBoostS": 1.0,
   "breakBoostSpeedMul": 1.5,
+  "obstacleLossPct": 0.18,
+  "obstacleHitHalfW": 2.0,
+  "rollerAmp": 4.5,
+  "rollerPeriod": 3.2,
   "maxWaveFx": 30,
   "maxHitFx": 5
 }

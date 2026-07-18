@@ -38,6 +38,14 @@ export class Game {
     this.centerX = 0;
     this.targetX = 0;
 
+    // 分离力的邻域网格(见 #separate)。窗口跟着大军走,覆盖接触线到生成点。
+    const cell = tuning.gridCell;
+    this.gw = Math.ceil((this.track.width + 8) / cell);
+    this.gh = Math.ceil((tuning.spawnAhead + 16) / cell);
+    this.gHead = new Int32Array(this.gw * this.gh);
+    this.gNext = new Int32Array(tuning.maxEnemies);
+    this.gCell = new Int32Array(tuning.maxEnemies);
+
     this.spawnAcc = {};       // 每段怪流的生成累加器
     this.fireAcc = 0;         // 视觉子弹节奏
     this.leakAcc = 0;         // 漏怪累积:每 enemiesPerLoss 只才掉 1 兵(§7 宽容度的唯一旋钮)
@@ -94,6 +102,7 @@ export class Game {
     this.#checkBarrier();
 
     this.#moveEnemies(dt);
+    this.#separate();
     this.#shoot(dt);
     this.#updateBullets(dt);
     this.#contact(dt);
@@ -209,6 +218,81 @@ export class Game {
     }
   }
 
+  /**
+   * 邻接分离(§4.6)：重叠的怪沿连线互推开,挤而不叠 —— 素材里那片铺满赛道的红色海洋。
+   *
+   * 用位置直接修正(推开重叠量的一半)而不是加速度:门后两百多只全被钉在同一个 z 上,
+   * 力式松弛要几十帧才铺得开,玩家看到的是"先穿模再慢慢散";直接改位置一帧就挤实。
+   *
+   * 邻域查询用固定网格 + 链表桶(gHead 存每格的首个下标,gNext 串起同格其余的),每帧零分配。
+   * 300 只约 4000 次距离比较,O(n²) 则是 45000 次。格边长必须 ≥ 2×enemyRadius,
+   * 否则相邻 9 格盖不住作用域,会漏判成穿模。
+   *
+   * 红线:这里只改 x/z。击杀仍由 #shoot 按 F 结算、漏怪仍由 #contact 按 contactZ 判定 ——
+   * 分离力是堆叠形态,不是新的判定口径。
+   */
+  #separate() {
+    const n = this.enemies.length;
+    if (n < 2) return;
+    const { enemyRadius, separationForce, gridCell } = this.tuning;
+    const { gw, gh, gHead, gNext, gCell } = this;
+    const ox = this.track.width / 2 + 4;   // x 原点左移到赛道外沿,挤到边界的也有格可落
+    const oz = this.z - 10;                // z 窗口起点,跟着大军走
+
+    gHead.fill(-1);
+    for (let i = 0; i < n; i++) {
+      const e = this.enemies[i];
+      const cx = clamp((e.x + ox) / gridCell | 0, 0, gw - 1);
+      const cz = clamp((e.z - oz) / gridCell | 0, 0, gh - 1);
+      const c = cz * gw + cx;
+      gCell[i] = c;
+      gNext[i] = gHead[c];
+      gHead[c] = i;
+    }
+
+    const dmin = enemyRadius * 2;
+    for (let i = 0; i < n; i++) {
+      const a = this.enemies[i];
+      const cx = gCell[i] % gw, cz = (gCell[i] / gw) | 0;
+      const gx0 = cx > 0 ? cx - 1 : 0, gx1 = cx < gw - 1 ? cx + 1 : gw - 1;
+      const gz1 = cz < gh - 1 ? cz + 1 : gh - 1;
+      for (let gz = cz > 0 ? cz - 1 : 0; gz <= gz1; gz++) {
+        for (let gx = gx0; gx <= gx1; gx++) {
+          for (let j = gHead[gz * gw + gx]; j >= 0; j = gNext[j]) {
+            if (j <= i) continue;                     // 每对只解一次
+            const b = this.enemies[j];
+            const dx = b.x - a.x, dz = b.z - a.z;
+            const d2 = dx * dx + dz * dz;
+            if (d2 >= dmin * dmin) continue;
+            if (d2 > 0) {
+              const d = Math.sqrt(d2);
+              const push = (dmin - d) * 0.5 * separationForce / d;   // 各让一半
+              a.x -= dx * push; a.z -= dz * push;
+              b.x += dx * push; b.z += dz * push;
+            }
+            // 同层(dz≈0)的一对,连线是水平的 → 上面那一推全落在 x 上。赛道宽度一饱和就锁死:
+            // 挤不开也退不了,只剩穿模(实测门后 90 只叠进同一层)。让排在后面的那只向后让一步,
+            // 队伍才会一层层往后长成墙。
+            // 靠下标定"谁在后面"两种情形都成立:打门时数组是生成序(先生成的先到门口),
+            // 平时上一帧 #shoot 已按 z 升序排过(近的在前),j > i 都意味着 b 在 a 后面。
+            if (dz < enemyRadius && dz > -enemyRadius) {
+              b.z += (enemyRadius - (dz < 0 ? -dz : dz)) * separationForce;
+            }
+          }
+        }
+      }
+    }
+
+    // 硬约束放在分离之后:推挤不能把怪挤出赛道,也不能挤穿立着的闸门。
+    // 两侧路沿成了墙,堆积才会向后长成一层层的厚墙,而不是从两边漏掉。
+    const lim = this.track.width / 2;
+    const bz = this.barrier ? this.barrier.posZ : null;
+    for (const e of this.enemies) {
+      e.x = clamp(e.x, -lim, lim);
+      if (bz !== null && e.z < bz) e.z = bz;
+    }
+  }
+
   // —— 射击结算(§2.2)：L 条弹道各锁一个目标,每个目标每秒吃 单目标DPS ——
   #shoot(dt) {
     // 闸门是横跨赛道的单一大目标,L 条弹道全打得上 → 吃总火力 F。
@@ -295,17 +379,18 @@ export class Game {
   // —— 接触掉兵(§7 宽容:掉兵不立死,掉后给无敌) ——
   #contact(dt) {
     const line = this.z + this.tuning.contactZ;
-    let hit = 0;
+    const xs = [];               // 撞击点,给表现层做大军推挤(§V2-3)
     for (const e of this.enemies) {
-      if (e.z <= line) { e.dead = true; hit++; }
+      if (e.z <= line) { e.dead = true; xs.push(e.x); }
     }
+    const hit = xs.length;
     if (hit) {
       this.enemies = this.enemies.filter(e => !e.dead);
       // 突破冲刺期:撞上来的怪被碾碎而不是撞掉兵。打穿门的奖励是"冲出去",不是"被埋住"。
       // 这里是无敌窗口而非全局宽容,所以不会重蹈「护盾期漏怪全免费」的覆辙。
       if (this.boostT > 0) {
         this.killCount += hit;
-        this.events.push({ kind: 'trample', count: hit });
+        this.events.push({ kind: 'trample', count: hit, xs });
       } else {
         this.leakCount += hit;
         // 掉兵与漏怪数成正比。早期版本用「掉兵后无敌 N 秒」,结果护盾期漏掉的怪全免费,
@@ -313,10 +398,11 @@ export class Game {
         this.leakAcc += hit;
         let loss = 0;
         while (this.leakAcc >= this.tuning.enemiesPerLoss) { this.leakAcc -= this.tuning.enemiesPerLoss; loss++; }
+        // loss 可能为 0(还没凑够掉兵):照样报事件,撞击手感由表现层决定,红闪飘字仍只在真掉兵时给
+        this.events.push({ kind: 'leak', count: hit, loss, xs });
         if (loss) {
           this.stats = clampStats({ ...this.stats, N: this.stats.N - loss });
           this.shieldT = this.tuning.hitFlashS;
-          this.events.push({ kind: 'leak', count: hit, loss });
           if (this.stats.N <= 0) this.#fail('overrun');
         }
       }

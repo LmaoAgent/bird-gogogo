@@ -21,6 +21,9 @@ const INK = '#2B2420';
 const DIM_COLOR = { N: '#3E8FE0', L: '#9B5DE5', R: '#F49D1A', D: '#E5484D' };
 const TRAP_COLOR = '#3A2B2B';
 
+// 撞击推挤(纯表现):怪撞进大军时把附近的兵顶开,弹簧拉回原位
+const KICK = 7, KICK_R = 2.6, SPRING = 120, DAMP = 13;
+
 const HORIZON_Y = H * 0.30;
 const ARMY_Y = H * 0.78;
 const PERSP = 0.030;
@@ -41,6 +44,9 @@ export class Renderer {
     this.fx = [];        // 击杀/穿门的一次性特效
     this.floats = [];    // 飘字
     this.waves = [];     // 突破冲击波的扩散环
+    this.impacts = [];   // 本帧撞进大军的怪的 x,给 #army 做推挤
+    this.units = [];     // 大军每个位置的推挤偏移(ox/oz + 速度)
+    this.zsort = [];     // 怪的绘制序,复用免得 300 只时每帧新建数组
     this.shake = 0;
     this.flash = 0;      // 全屏闪:掉兵红 / 突破金
     this.flashRGB = '229,72,77';
@@ -48,20 +54,23 @@ export class Renderer {
 
   consume(game) {
     const waveKills = [];
+    this.impacts.length = 0;
     for (const ev of game.events) {
+      if (ev.xs) for (const x of ev.xs) this.impacts.push(x);   // 撞击点:leak / trample 都带
       if (ev.kind === 'kill') {
         if (ev.by === 'wave') { waveKills.push(ev); continue; }
         this.fx.push({ x: ev.x, rel: ev.z - game.z, t: 0, life: 0.25, kind: 'kill', type: ev.type });
       } else if (ev.kind === 'trample') {
         for (let i = 0; i < Math.min(ev.count, 6); i++) {
-          this.fx.push({ x: (Math.random() * 2 - 1) * 5, rel: this.tuning.contactZ, t: 0, life: 0.3, kind: 'kill', type: 'wave' });
+          this.fx.push({ x: ev.xs[i], rel: this.tuning.contactZ, t: 0, life: 0.3, kind: 'kill', type: 'wave' });
         }
       } else if (ev.kind === 'gate') {
         const e = ev.effect;
         const txt = `${e.dim}${e.op === 'mul' ? '×' : '+'}${e.value}`;
         this.floats.push({ x: 0, rel: 2, t: 0, life: 0.9, txt, color: isBuff(e) ? DIM_COLOR[e.dim] : TRAP_COLOR });
         this.shake = Math.max(this.shake, isBuff(e) ? 0.18 : 0.3);
-      } else if (ev.kind === 'leak') {
+      } else if (ev.kind === 'leak' && ev.loss) {
+        // loss 为 0 的接触只推挤大军,不给红闪飘字 —— 那是"撞上了",还不是"死人了"
         this.flash = 0.35;
         this.flashRGB = '229,72,77';
         this.shake = Math.max(this.shake, 0.35);
@@ -117,7 +126,7 @@ export class Renderer {
     this.#enemies(game);
     if (game.barrier) this.#barrier(game);
     if (game.bossActive && game.boss) this.#boss(game);
-    this.#army(game);
+    this.#army(game, dt);
     this.#bullets(game);
     this.#effects(dt);
     this.#waves(game, dt);   // 画在死亡特效之上,否则冲击环会被那片爆开的粒子埋掉
@@ -203,13 +212,20 @@ export class Renderer {
 
   #enemies(game) {
     const g = this.ctx;
-    const sorted = [...game.enemies].sort((a, b) => b.z - a.z);
-    for (const e of sorted) {
+    // 先剔掉画不到的再排序:300 只时省掉大半比较,也省掉每帧新建一个数组
+    const list = this.zsort;
+    list.length = 0;
+    for (const e of game.enemies) {
       const rel = e.z - game.z;
-      if (rel > 62 || rel < -6) continue;
+      if (rel <= 62 && rel >= -6) list.push(e);
+    }
+    list.sort((a, b) => b.z - a.z);   // 远的先画、近的压在上面 —— 堆积时的前后层次全靠这一下
+    for (const e of list) {
+      const rel = e.z - game.z;
       const p = proj(e.x, rel);
       const thick = e.type === 'thick';
-      const s = (thick ? 84 : 58) * p.d;
+      // 远处怪按透视会缩成一颗颗小点、看着稀疏。放大一档让它们互相压住,读出来才是"海量"
+      const s = (thick ? 84 : 58) * p.d * (1 + Math.min(rel / 62, 1) * 0.55);
       g.fillStyle = thick ? THICK : MOLD;
       g.fillRect(p.sx - s / 2, p.sy - s, s, s);
       g.fillStyle = thick ? '#5C4520' : MOLD_DARK;
@@ -283,7 +299,7 @@ export class Renderer {
     g.fillText(`BOSS  ${Math.max(0, Math.ceil(b.hp))}`, W / 2, by + 17);
   }
 
-  #army(game) {
+  #army(game, dt) {
     const g = this.ctx;
     const n = game.stats.N;
     if (n <= 0) return;
@@ -296,7 +312,19 @@ export class Renderer {
     const slots = [];
     for (let i = 0; i < shown; i++) {
       const s = unitFormationSlot(i, shown);
-      slots.push({ x: game.centerX + s.x * R, rel: 1.2 + s.z * R * 0.5, i });
+      const x = game.centerX + s.x * R;
+      const u = this.units[i] || (this.units[i] = { ox: 0, oz: 0, vx: 0, vz: 0 });
+      // 撞击推挤:只吃最近那一下(一排怪同时撞上来,逐个叠加会把兵顶飞)
+      let w = 0, dir = 1;
+      for (const hx of this.impacts) {
+        const d = Math.abs(x - hx);
+        if (d < KICK_R && KICK * (1 - d / KICK_R) > w) { w = KICK * (1 - d / KICK_R); dir = x >= hx ? 1 : -1; }
+      }
+      if (w) { u.vx += w * dir; u.vz -= w; }        // 让开 + 后退
+      u.vx -= (u.ox * SPRING + u.vx * DAMP) * dt;   // 弹簧拉回原位,阻尼收住余震
+      u.vz -= (u.oz * SPRING + u.vz * DAMP) * dt;
+      u.ox += u.vx * dt; u.oz += u.vz * dt;
+      slots.push({ x: x + u.ox, rel: 1.2 + s.z * R * 0.5 + u.oz, i });
     }
     slots.sort((a, b) => b.rel - a.rel);
     for (const s of slots) {

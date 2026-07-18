@@ -16,7 +16,10 @@
   "maxBulletLanes": 10,
   "enemySpeed": 7,
   "spawnAhead": 44,
-  "maxEnemies": 260,
+  "maxEnemies": 300,
+  "enemyRadius": 0.6,
+  "separationForce": 0.7,
+  "gridCell": 1.6,
   "contactZ": 3.0,
   "bossStandZ": 14,
   "track": {

@@ -730,7 +730,7 @@
         "reward": {
           "dim": "N",
           "op": "add",
-          "value": 6
+          "value": 2
         }
       },
       {

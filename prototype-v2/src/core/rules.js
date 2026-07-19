@@ -168,6 +168,13 @@ export function rewardGain(stats, r) {
 export const BARREL_REWARD_CAP = 0.15;
 
 /**
+ * 单桶收益下限。分走 45% 火力、还要横向离开本来的道,换来的东西必须看得见 ——
+ * 低于这条线的桶不是"取舍"而是"陷阱",玩家学到的是「别理桶」。
+ * V6 关 8 的 z=72 桶按起手 N=15 配成 N+2,实跑拾取时 N 已经 77,收益 2.6%,就是踩了这条线。
+ */
+export const BARREL_REWARD_FLOOR = 0.08;
+
+/**
  * 怪潮压上脸的位置比 `wave.from` 晚多少(以大军推进的纵深计)。
  *
  * 怪在 spawnAhead 之外生成,双方相向而行,要 (spawnAhead - contactZ) / (前进 + 怪速) 秒才咬上,
@@ -189,8 +196,13 @@ export function arrivalLag(tuning) {
  *    火力分走了也没人漏,那不是取舍是路边捡钱(V5 任务书 §3 点名要的就是这条)。
  * 2. **不能够不着**:落在闸门停机区(posZ 前 barrierStopZ 之内)的桶永远打不到,
  *    那几秒火力全钉在门上。配了等于摆个假选项。
- * 3. **收益不过线**:`mul` 的收益与 stats 无关,静态就能判死;`add` 的收益是 value/dim,
- *    只能给出「该维至少多大才不过线」的门槛 —— 实际值由 barrelBreak 事件里的 gain 兜底(那是实测的)。
+ * 3. **收益落在 [FLOOR, CAP] 之间**:量的是**拾取那一刻**的收益率,基准取 `b.pickStats` ——
+ *    参考最优路线实跑到这个桶时的属性快照,由 `tools/rebalance.mjs` 写回配置。
+ *
+ * 为什么非得是实跑快照(V7 修):`add` 类奖励的收益率是 value/dim,与拾取时该维多大**成反比**。
+ * 早先只对 `mul` 判 over(`add` 的 mulGain 恒 null → over 恒 false),`add` 类根本没进 ok,
+ * 只在 msg 里写一句"该维 ≥ N 才不过线" —— 于是拿起手 N=15 当基准,N+6 被读成 40% 砍到 N+2;
+ * 而实跑到那个桶时 N 已经 77,N+2 只值 2.6%,白配。同一个奖励差 5 倍,静态估不出来,只能实测。
  *
  * 打不打得穿不在这里判:它要的是拾取时的 F,静态算不出来,交给仿真。这里只给「窗口内打穿所需火力」。
  */
@@ -205,19 +217,21 @@ export function barrelCost(level, tuning) {
     const blocked = (level.barriers || []).some(x => b.posZ > x.posZ - tuning.barrierStopZ && b.posZ <= x.posZ);
     const fNeed = b.hp / (tuning.barrelShare * windowS);
     const r = b.reward;
-    const mulGain = r.op === 'mul' ? r.value - 1 : null;
-    const over = mulGain !== null && mulGain > BARREL_REWARD_CAP;
+    // 限时 buff 不进 stats 也就不进 fPeak,收益率恒 0,两条线都不适用(理由见 rewardGain)。
+    const gain = r.buff ? null : b.pickStats ? rewardGain(b.pickStats, r) : NaN;
+    const over = gain > BARREL_REWARD_CAP, weak = gain !== null && gain < BARREL_REWARD_FLOOR;
     return {
-      id: b.id, pressure, blocked, fNeed, ok: pressure > 0 && !blocked && !over,
+      id: b.id, pressure, blocked, fNeed, gain,
+      ok: pressure > 0 && !blocked && !over && !weak && !Number.isNaN(gain),
       msg: `${b.id}(z=${b.posZ} x=${b.x} hp=${b.hp} → ${rewardLabel(r)}) `
         + `窗口 z${Math.round(z0)}~${b.posZ} `
         + (pressure > 0 ? `挨怪压力 ${Math.round(pressure)}` : '**空窗,白送**')
         + (blocked ? ' **在闸门停机区,够不着**' : '')
         + ` / 窗口 ${windowS.toFixed(1)}s 内打穿需火力 ${Math.round(fNeed)}`
-        + (mulGain !== null
-          ? ` / 收益恒 ${(mulGain * 100).toFixed(0)}%${over ? ` **超 ${BARREL_REWARD_CAP * 100}% 线**` : ''}`
-          : r.buff ? ' / 限时 buff,不进 fPeak'
-            : ` / 收益 ${r.value}/${r.dim},拾取时 ${r.dim} ≥ ${(r.value / BARREL_REWARD_CAP).toFixed(0)} 才不过线`),
+        + (gain === null ? ' / 限时 buff,不进 fPeak'
+          : Number.isNaN(gain) ? ' / **缺 pickStats,未配平**'
+            : ` / 拾取时 ${JSON.stringify(b.pickStats)} → 收益 ${(gain * 100).toFixed(1)}%`
+              + (over ? ` **超 ${BARREL_REWARD_CAP * 100}% 线**` : weak ? ` **低于 ${BARREL_REWARD_FLOOR * 100}% 线,没有拾取价值**` : '')),
     };
   });
 }

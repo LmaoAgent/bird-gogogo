@@ -1,16 +1,16 @@
 [
   {
     "level": 1,
-    "note": "教学·左侧 N+2 长龙墙 vs 右侧 L+1。中段一道闸门,火力够就撕开",
-    "trackLength": 245,
-    "targetF": 504,
+    "note": "教学·中路 N+2 长龙墙 vs 右侧 L+1/R+1。墙摆在中路是为了红线「教学关必过」:一路不动也能顺着墙走完全程,但只拿得到 1★ —— 3★ 只给敢在 z40 / z180 横跳出去接边道门再回来的人。中段一道闸门,火力够就撕开。",
+    "trackLength": 259,
+    "targetF": 732,
     "gates": [
       {
-        "id": "l1_wall_l",
+        "id": "l1_wall_c",
         "dim": "N",
         "op": "add",
         "value": 2,
-        "side": "left",
+        "side": "center",
         "posZ": 28,
         "repeat": {
           "count": 14,
@@ -26,11 +26,11 @@
         "posZ": 40
       },
       {
-        "id": "l1_wall_l2",
+        "id": "l1_wall_c2",
         "dim": "N",
         "op": "add",
         "value": 2,
-        "side": "left",
+        "side": "center",
         "posZ": 168,
         "repeat": {
           "count": 10,
@@ -50,49 +50,50 @@
       {
         "id": "l1_b1",
         "posZ": 128,
-        "hp": 645
+        "hp": 664
       }
     ],
     "waves": [
       {
-        "from": 25,
-        "to": 93,
-        "lambda": 1.33,
+        "from": 26,
+        "to": 98,
+        "lambda": 1.2,
         "rowSize": 7,
         "hp": 10,
         "type": "moldling"
       },
       {
-        "from": 103,
-        "to": 167,
-        "lambda": 1.84,
+        "from": 109,
+        "to": 176,
+        "lambda": 1.58,
         "rowSize": 7,
         "hp": 10,
         "type": "moldling"
       },
       {
-        "from": 172,
-        "to": 240,
-        "lambda": 3.49,
+        "from": 181,
+        "to": 254,
+        "lambda": 3.14,
         "rowSize": 7,
         "hp": 10,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 732 / 30.1s / 杀 329 漏 0 / 3★ | 不躲障碍 732(0%) | 次优(只吃门) 通关 732=3★ | 一路不动 通关"
   },
   {
     "level": 2,
-    "note": "弹道墙首秀·右侧 L×2 与左侧 N 长龙二选一。两道闸门,中间那道逼你先把火力堆起来",
-    "trackLength": 240,
+    "note": "弹道墙首秀·中路 N+2 长龙 vs 右侧 L×2,横跳一次换整局的弹道数。同样为教学关保底把墙留在中路。两道闸门,末闸 z248 就横在终点线上 —— 火力不够连线都过不了。",
+    "trackLength": 248,
     "targetF": 1328,
     "gates": [
       {
-        "id": "l2_wall_l",
+        "id": "l2_wall_c",
         "dim": "N",
         "op": "add",
         "value": 2,
-        "side": "left",
+        "side": "center",
         "posZ": 25,
         "repeat": {
           "count": 16,
@@ -132,47 +133,48 @@
       {
         "id": "l2_b1",
         "posZ": 118,
-        "hp": 1410
+        "hp": 1015
       },
       {
         "id": "l2_b2",
         "posZ": 248,
-        "hp": 3320
+        "hp": 2390
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 91,
-        "lambda": 2.36,
+        "from": 25,
+        "to": 94,
+        "lambda": 1.38,
         "rowSize": 8,
         "hp": 16,
         "type": "moldling"
       },
       {
-        "from": 101,
-        "to": 163,
-        "lambda": 3.17,
+        "from": 104,
+        "to": 169,
+        "lambda": 1.85,
         "rowSize": 8,
         "hp": 16,
         "type": "moldling"
       },
       {
-        "from": 168,
-        "to": 235,
-        "lambda": 5.58,
+        "from": 174,
+        "to": 243,
+        "lambda": 3.41,
         "rowSize": 8,
         "hp": 16,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 1328 / 30.3s / 杀 444 漏 0 / 3★ | 不躲障碍 1328(0%) | 次优(只吃门) 通关 1328=3★ | 一路不动 通关"
   },
   {
     "level": 3,
-    "note": "射速墙 + 同排陷阱·左 L×2 右 N×0.5 并排,贪快走右边直接崩",
-    "trackLength": 250,
-    "targetF": 1818,
+    "note": "射速墙 + 同排陷阱·z170 左 L×2 与右 N×0.5 并排,贪快走右边直接崩。两道墙都不在中路(左墙起手、中墙压到 z205 才出现),一路不动的人撑不到那里。",
+    "trackLength": 254,
+    "targetF": 1836,
     "gates": [
       {
         "id": "l3_wall_l",
@@ -227,49 +229,50 @@
       {
         "id": "l3_b1",
         "posZ": 125,
-        "hp": 1418
+        "hp": 1474
       }
     ],
     "waves": [
       {
         "from": 25,
-        "to": 95,
-        "lambda": 1.8,
+        "to": 97,
+        "lambda": 1.988,
         "rowSize": 9,
         "hp": 22,
         "type": "moldling"
       },
       {
-        "from": 105,
-        "to": 170,
-        "lambda": 2.52,
+        "from": 107,
+        "to": 173,
+        "lambda": 2.608,
         "rowSize": 9,
         "hp": 22,
         "type": "moldling"
       },
       {
-        "from": 175,
-        "to": 245,
-        "lambda": 5.68,
+        "from": 178,
+        "to": 249,
+        "lambda": 6.219,
         "rowSize": 9,
         "hp": 22,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 1836 / 30.3s / 杀 787 漏 5 / 3★ | 不躲障碍 1836(0%) | 次优(只吃门) 通关 1836=3★ | 一路不动 败于 z79"
   },
   {
     "level": 4,
-    "note": "厚皮怪登场·pick 门 L+2 vs D×2,只堆弹道打不穿厚皮",
+    "note": "厚皮怪登场·pick 门 L+2 vs D×2,只堆弹道打不穿 3 倍血的厚皮。右墙起手、左墙收尾,中路全程空着 —— 不动 = 零收益。",
     "trackLength": 255,
-    "targetF": 2080,
+    "targetF": 2112,
     "gates": [
       {
-        "id": "l4_wall_c",
+        "id": "l4_wall_r",
         "dim": "N",
         "op": "add",
         "value": 4,
-        "side": "center",
+        "side": "right",
         "posZ": 25,
         "repeat": {
           "count": 16,
@@ -320,14 +323,14 @@
       {
         "id": "l4_b1",
         "posZ": 155,
-        "hp": 2370
+        "hp": 2465
       }
     ],
     "waves": [
       {
         "from": 26,
         "to": 97,
-        "lambda": 1.16,
+        "lambda": 1.083,
         "rowSize": 10,
         "hp": 30,
         "type": "moldling"
@@ -335,7 +338,7 @@
       {
         "from": 107,
         "to": 173,
-        "lambda": 1.03,
+        "lambda": 0.963,
         "rowSize": 10,
         "hp": 90,
         "type": "thick",
@@ -344,19 +347,20 @@
       {
         "from": 179,
         "to": 250,
-        "lambda": 4.13,
+        "lambda": 3.863,
         "rowSize": 10,
         "hp": 30,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 2112 / 30.4s / 杀 462 漏 8 / 3★ | 不躲障碍 2112(0%) | 次优(只吃门) 通关 2112=3★ | 一路不动 败于 z99"
   },
   {
     "level": 5,
-    "note": "小BOSS·闸门吃总火力、BOSS 只吃单目标 DPS,两种检验连着来",
+    "note": "小 BOSS·闸门吃总火力 F、BOSS 只吃单目标 DPS,两种检验连着来。堆 L 对 BOSS 一点用没有,这一关教的就是这件事。",
     "trackLength": 265,
-    "targetF": 3132,
+    "targetF": 2988,
     "gates": [
       {
         "id": "l5_wall_l",
@@ -399,14 +403,14 @@
       {
         "id": "l5_b1",
         "posZ": 125,
-        "hp": 2610
+        "hp": 2714
       }
     ],
     "waves": [
       {
         "from": 27,
         "to": 111,
-        "lambda": 2.25,
+        "lambda": 2.812,
         "rowSize": 10,
         "hp": 34,
         "type": "moldling"
@@ -414,7 +418,7 @@
       {
         "from": 122,
         "to": 212,
-        "lambda": 1.46,
+        "lambda": 1.835,
         "rowSize": 10,
         "hp": 102,
         "type": "thick",
@@ -422,24 +426,25 @@
       }
     ],
     "boss": {
-      "hp": 6264,
+      "hp": 5481,
       "posZ": 268,
       "dps": 2,
       "type": "rotgarlic_elite"
-    }
+    },
+    "measured": "最优 d1+桶: 通关 fPeak 2988 / 35.8s / 杀 414 漏 16 / 3★ | 不躲障碍 2988(0%) | 次优(只吃门) 通关 2988=3★ | 一路不动 败于 z69"
   },
   {
     "level": 6,
-    "note": "双 pick 真抉择 + 双闸门·末段是全作最密怪潮,选错门必崩",
+    "note": "双 pick 真抉择 + 双闸门·两个 pick 都在两侧,左墙是唯一白拿的收益。末闸 z262 在终点线之后,末段又是全作最密怪潮之一,选错门就冲不过去。",
     "trackLength": 255,
-    "targetF": 3564,
+    "targetF": 4455,
     "gates": [
       {
-        "id": "l6_wall_c",
+        "id": "l6_wall_l",
         "dim": "N",
         "op": "add",
         "value": 5,
-        "side": "center",
+        "side": "left",
         "posZ": 25,
         "repeat": {
           "count": 18,
@@ -497,19 +502,19 @@
       {
         "id": "l6_b1",
         "posZ": 145,
-        "hp": 3150
+        "hp": 3276
       },
       {
         "id": "l6_b2",
         "posZ": 262,
-        "hp": 9450
+        "hp": 12285
       }
     ],
     "waves": [
       {
         "from": 26,
         "to": 97,
-        "lambda": 0.96,
+        "lambda": 1,
         "rowSize": 12,
         "hp": 42,
         "type": "moldling"
@@ -517,7 +522,7 @@
       {
         "from": 107,
         "to": 173,
-        "lambda": 0.9,
+        "lambda": 0.932,
         "rowSize": 12,
         "hp": 126,
         "type": "thick",
@@ -526,19 +531,20 @@
       {
         "from": 179,
         "to": 250,
-        "lambda": 4.05,
+        "lambda": 4.213,
         "rowSize": 12,
         "hp": 42,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d3+桶: 通关 fPeak 4455 / 33.1s / 杀 558 漏 18 / 3★ | 不躲障碍 4455(0%) | 次优(只吃门) 通关 4455=3★ | 一路不动 败于 z93"
   },
   {
     "level": 7,
-    "note": "障碍首秀·教学一次(墙走完撞尖刺)→ 收紧一次(R+1 门后 12 单位就是尖刺,吃完必须立刻闪)→ 动态一次(滚轮)。末段中路墙贪到底就撞刺,是这关唯一的真抉择。障碍不吃火力,只吃走位",
+    "note": "障碍首秀·三拍:教学(左墙 z25~64 走完就撞 z72 尖刺)→ 收紧(z92 的 R+1 门后 12 个身位就是 z104 尖刺,吃完必须立刻闪)→ 动态(z162 roller)。真抉择在 z214 —— 那根刺埋在中路墙 z190~222 的肚子里,贪到底就撞、躲就得丢一两段墙。障碍不吃火力,只吃走位。",
     "trackLength": 265,
-    "targetF": 3675,
+    "targetF": 3616,
     "gates": [
       {
         "id": "l7_wall_l",
@@ -616,7 +622,7 @@
       {
         "id": "l7_o4",
         "type": "spike",
-        "posZ": 232,
+        "posZ": 214,
         "x": 0,
         "width": 4
       },
@@ -634,43 +640,44 @@
       {
         "id": "l7_b1",
         "posZ": 132,
-        "hp": 1800
+        "hp": 1310
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 96,
-        "lambda": 0.62,
+        "from": 27,
+        "to": 101,
+        "lambda": 0.831,
         "rowSize": 12,
         "hp": 46,
         "type": "moldling"
       },
       {
-        "from": 106,
-        "to": 176,
-        "lambda": 0.45,
+        "from": 111,
+        "to": 180,
+        "lambda": 0.367,
         "rowSize": 12,
         "hp": 138,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 182,
-        "to": 258,
-        "lambda": 3.4,
+        "from": 186,
+        "to": 260,
+        "lambda": 4.363,
         "rowSize": 12,
         "hp": 46,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 3616 / 31.6s / 杀 437 漏 14 / 3★ | 不躲障碍 2688(-26%) | 次优(只吃门) 通关 2688=1★ | 一路不动 败于 z104"
   },
   {
     "level": 8,
-    "note": "油桶首秀·打桶得走过去对准,火力当场分走 45%,清怪速率腰斩。教学(z72 就在左墙那条道上,顺路就打穿了)→ 二选一(z150 左 R×1.12 吃长线 / 右 暴击当场兑现,只来得及打一个)→ 真抉择(z240 末段最密处分神换穿透:起始 N=15 该打,漏怪 49→19;N≤12 就别打,56→57 起转负 —— 同一个桶强势该打、弱势是自杀)。最优(该打的都打)fPeak 5197=3★,只走门 4333=0.83=2★,为躲桶连门都不吃 fPeak 1718 全灭",
+    "note": "油桶首秀·打桶得走过去对准,火力当场分走 45%,清怪速率腰斩。三拍:教学(z72 就在左墙那条道上,顺路打穿)→ 二选一(z150 左 R×1.12 吃长线 / 右 暴击当场兑现,窗口只够打一个)→ 真抉择(z240 末段最密处分神换穿透)。桶奖励按**拾取那一刻**的属性配到 15% 线,不是按起手 N —— 起手 N=15 和拾到时 N=70 差 5 倍。",
     "trackLength": 285,
-    "targetF": 5197,
+    "targetF": 5340,
     "gates": [
       {
         "id": "l8_wall_l",
@@ -726,40 +733,64 @@
         "id": "l8_br1",
         "posZ": 72,
         "x": -5,
-        "hp": 243,
+        "hp": 223,
         "reward": {
           "dim": "N",
           "op": "add",
-          "value": 2
+          "value": 10
+        },
+        "pickStats": {
+          "N": 70,
+          "L": 2,
+          "R": 3,
+          "D": 1
         }
       },
       {
         "id": "l8_br2",
         "posZ": 150,
         "x": -5,
-        "hp": 525,
+        "hp": 297,
         "reward": {
           "dim": "R",
           "op": "mul",
           "value": 1.12
+        },
+        "pickStats": {
+          "N": 79,
+          "L": 2,
+          "R": 4,
+          "D": 1
         }
       },
       {
         "id": "l8_br3",
         "posZ": 150,
         "x": 5,
-        "hp": 525,
+        "hp": 297,
         "reward": {
           "buff": "crit"
+        },
+        "pickStats": {
+          "N": 79,
+          "L": 2,
+          "R": 4,
+          "D": 1
         }
       },
       {
         "id": "l8_br4",
         "posZ": 240,
         "x": -5,
-        "hp": 1711,
+        "hp": 1148,
         "reward": {
           "buff": "pierce"
+        },
+        "pickStats": {
+          "N": 149,
+          "L": 4,
+          "R": 4,
+          "D": 1
         }
       }
     ],
@@ -767,43 +798,44 @@
       {
         "id": "l8_b1",
         "posZ": 118,
-        "hp": 1620
+        "hp": 1560
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 92,
-        "lambda": 0.66,
+        "from": 29,
+        "to": 108,
+        "lambda": 1.034,
         "rowSize": 12,
         "hp": 50,
         "type": "moldling"
       },
       {
-        "from": 100,
-        "to": 168,
-        "lambda": 0.48,
+        "from": 120,
+        "to": 194,
+        "lambda": 0.455,
         "rowSize": 12,
         "hp": 150,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 174,
-        "to": 275,
-        "lambda": 4.2,
+        "from": 200,
+        "to": 279,
+        "lambda": 5.336,
         "rowSize": 12,
         "hp": 50,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 5340 / 33.6s / 杀 678 漏 18 / 3★ | 不躲障碍 5340(0%) | 次优(只吃门) 通关 4256=2★ | 一路不动 败于 z95"
   },
   {
     "level": 9,
-    "note": "障碍加压·刺长在收益的路上:z95 L×2 门后 9 个身位是中路刺(吃完立刻闪),z190 右墙十连的尽头贴着 z228 刺(贪到底就撞),z238 R+1 收官摆在刺后 —— 星级的最后一跳只留给闪得干净的人。最优(墙+横跳 R×1.5→L×2→pick D×2→末墙吃满→闪刺收 R+1)fPeak 5808=3★ 漏 4;贪墙到底的撞刺 -24 兵且丢 R+1,fPeak 4752=0.82=2★;怕门后刺连 L×2 都绕开的 F 停在 972,末潮 fMin 2980 碾过来,z230 全灭",
+    "note": "障碍加压·刺长在收益的路上:z104 中路刺贴着 z95 的 L×2 门(吃完立刻闪),z212 刺埋在右墙 z190~222 中段(贪到底就撞),z238 的 R+1 收官摆在刺之后 —— 星级的最后一跳只留给闪得干净的人。",
     "trackLength": 270,
-    "targetF": 5800,
+    "targetF": 6292,
     "gates": [
       {
         "id": "l9_wall_l",
@@ -900,7 +932,7 @@
       {
         "id": "l9_o4",
         "type": "spike",
-        "posZ": 228,
+        "posZ": 212,
         "x": 5,
         "width": 4.5
       },
@@ -918,43 +950,44 @@
       {
         "id": "l9_b1",
         "posZ": 118,
-        "hp": 3000
+        "hp": 4072
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 94,
-        "lambda": 0.7,
+        "from": 27,
+        "to": 103,
+        "lambda": 1.247,
         "rowSize": 12,
         "hp": 54,
         "type": "moldling"
       },
       {
-        "from": 102,
-        "to": 172,
-        "lambda": 0.5,
+        "from": 113,
+        "to": 184,
+        "lambda": 0.834,
         "rowSize": 12,
         "hp": 162,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 178,
-        "to": 262,
-        "lambda": 4.6,
+        "from": 189,
+        "to": 265,
+        "lambda": 8.983,
         "rowSize": 12,
         "hp": 54,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 6292 / 32.1s / 杀 856 漏 27 / 3★ | 不躲障碍 5412(-14%) | 次优(只吃门) 通关 5412=2★ | 一路不动 败于 z86"
   },
   {
     "level": 10,
-    "note": "大 BOSS 三阶段·配置近似:双高血闸门(吃总火力 F)无缝衔接 BOSS 本体(只吃单目标 DPS,dps5 持续掉兵)= 三条血条连打 9 秒无喘息,三阶段的表现包装留给 V7。前 22 秒全维度堆料:中墙 14 连、横跳 D×2、R×1.5、pick 左 D+2 / 右 L×2 —— 两边总火力同为 2700,单目标 DPS 差 4 倍,BOSS 战才见分晓。最优(D 全吃)dps 1350,4200/5600/5800 三段 9s 损 26 兵,fPeak 2700=3★ 34s;pick 错拿 L×2 的 dps 只有 445,掉兵螺旋下总输出上限 4400<5800,磨死在 BOSS 面前;全程中路躺平的撞刺撞轮 pick 空走,更早磨光",
+    "note": "大 BOSS 三阶段·双高血闸门(吃总火力 F)无缝衔接 BOSS 本体(只吃单目标 DPS,dps5 持续掉兵)= 三条血条连打,中间不给喘息;三阶段的表现包装留给后续。前段全维度堆料:中墙 14 连、横跳 D×2、R×1.5、pick 左 D+2 / 右 L×2 ——两边总火力接近,单目标 DPS 差几倍,BOSS 战才见分晓。",
     "trackLength": 234,
-    "targetF": 2700,
+    "targetF": 3168,
     "gates": [
       {
         "id": "l10_wall_c",
@@ -1026,53 +1059,46 @@
       {
         "id": "l10_bA",
         "posZ": 205,
-        "hp": 4200
+        "hp": 9266
       },
       {
         "id": "l10_bB",
         "posZ": 217,
-        "hp": 5600
+        "hp": 9266
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 90,
-        "lambda": 0.72,
+        "from": 23,
+        "to": 98,
+        "lambda": 1.894,
         "rowSize": 12,
         "hp": 58,
         "type": "moldling"
       },
       {
-        "from": 98,
-        "to": 160,
-        "lambda": 0.5,
+        "from": 108,
+        "to": 187,
+        "lambda": 1.15,
         "rowSize": 12,
         "hp": 174,
         "type": "thick",
         "speedMul": 0.7
-      },
-      {
-        "from": 166,
-        "to": 195,
-        "lambda": 3.6,
-        "rowSize": 12,
-        "hp": 58,
-        "type": "moldling"
       }
     ],
     "boss": {
-      "hp": 5800,
+      "hp": 6772,
       "posZ": 223,
       "dps": 5,
       "type": "rotgarlic_king"
-    }
+    },
+    "measured": "最优 d1+桶: 通关 fPeak 3168 / 35.8s / 杀 267 漏 33 / 3★ | 不躲障碍 2376(-25%) | 次优(只吃门) 通关 2376=2★ | 一路不动 败于 z190"
   },
   {
     "level": 11,
-    "note": "油桶加压·桶不再站在安全屋:z70 桶A 贴着 z78 刺(打完立刻闪,温和复习),z168 桶B 站中路而 z184 roller 正扫过来(打得完就赚 R×1.12,打不完就弃),z240 桶C 与 z228 刺同侧(先闪刺再回身,交火窗被压掉一半)。最优(三桶全收+墙+D×2)fPeak 5927=3★ 漏 7;怕刺弃末墙、桶也不打的 F 停在 2484,z262 全灭;同样的火力还贪穿透桶的,45% 分神喂给最密怪潮,z258 死得比不打更早 —— L8 的\"弱势打桶是自杀\"在这里是必修课",
+    "note": "油桶加压·桶不再站在安全屋:z70 桶A 贴着 z78 刺(打完立刻闪,温和复习),z168 桶B 站中路而 z184 roller 正扫过来(打得完就赚 R×1.12,打不完就弃),z214 刺埋在右墙中段、z240 桶C 与它同侧(先闪刺再回身,交火窗被压掉一半)。只吃门、不打桶的过不了这一关。",
     "trackLength": 275,
-    "targetF": 5900,
+    "targetF": 6129,
     "gates": [
       {
         "id": "l11_wall_l",
@@ -1143,7 +1169,7 @@
       {
         "id": "l11_o3",
         "type": "spike",
-        "posZ": 228,
+        "posZ": 214,
         "x": 5,
         "width": 4.5
       },
@@ -1162,31 +1188,49 @@
         "id": "l11_br1",
         "posZ": 70,
         "x": -5,
-        "hp": 280,
+        "hp": 517,
         "reward": {
           "dim": "N",
           "op": "add",
-          "value": 6
+          "value": 11
+        },
+        "pickStats": {
+          "N": 75,
+          "L": 4,
+          "R": 3,
+          "D": 1
         }
       },
       {
         "id": "l11_br2",
         "posZ": 168,
         "x": 0,
-        "hp": 1500,
+        "hp": 1550,
         "reward": {
           "dim": "R",
           "op": "mul",
           "value": 1.12
+        },
+        "pickStats": {
+          "N": 92,
+          "L": 4,
+          "R": 4.5,
+          "D": 2
         }
       },
       {
         "id": "l11_br3",
         "posZ": 240,
         "x": 5,
-        "hp": 2100,
+        "hp": 2976,
         "reward": {
           "buff": "pierce"
+        },
+        "pickStats": {
+          "N": 152,
+          "L": 4,
+          "R": 5.04,
+          "D": 2
         }
       }
     ],
@@ -1194,43 +1238,44 @@
       {
         "id": "l11_b1",
         "posZ": 125,
-        "hp": 3200
+        "hp": 4072
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 94,
-        "lambda": 0.68,
+        "from": 28,
+        "to": 105,
+        "lambda": 1.403,
         "rowSize": 13,
         "hp": 62,
         "type": "moldling"
       },
       {
-        "from": 102,
-        "to": 176,
-        "lambda": 0.5,
+        "from": 116,
+        "to": 187,
+        "lambda": 1.403,
         "rowSize": 13,
         "hp": 186,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 182,
-        "to": 266,
-        "lambda": 4.8,
+        "from": 193,
+        "to": 270,
+        "lambda": 8.054,
         "rowSize": 13,
         "hp": 62,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 6129 / 32.4s / 杀 1032 漏 31 / 3★ | 不躲障碍 4798(-22%) | 次优(只吃门) 败 4284=1★ | 一路不动 败于 z77"
   },
   {
     "level": 12,
-    "note": "毕业考·无新机制,全要素混排:横跳墙、门后刺(z104)、墙尾刺(z224)、双 roller、双桶、双 pick、双闸门、λ5.2×14 全作最密末潮。z224 中路刺把人从墙上赶下来 —— 往左顺势接桶B(穿透)再接 pick2 N×2,一笔连成;终闸 13000 破门后末潮未歇,冲线 33 个身位仍在漏怪,火力不足者死在胜利前最后一段。最优 fPeak 8784=3★ 35s 漏 15;弃 L×2 + pick1 错拿 R+1 + 怕刺弃整段中墙的,贴左走线还会撞进桶B对准带被动分神 45%,z236 到不了终闸就全灭;贪墙撞双刺(-28/-23)丢 pick2 的能苟活,fPeak 5544=0.63=1★",
-    "trackLength": 285,
-    "targetF": 8800,
+    "note": "毕业考·无新机制,全要素混排:横跳墙、门后刺(z104)、双 roller、双桶、双 pick、双闸门、全作最密末潮。z210 中路刺把人从中墙 z185~217 上赶下来 —— 往左顺势接 z232 桶B(穿透)再接 z238 的 pick2,一笔连成。终闸 z252 破门后末潮未歇,冲线还有 23 个身位在漏怪,火力不足者死在胜利前最后一段。",
+    "trackLength": 275,
+    "targetF": 11880,
     "gates": [
       {
         "id": "l12_wall_l",
@@ -1338,14 +1383,14 @@
       {
         "id": "l12_o4",
         "type": "spike",
-        "posZ": 224,
+        "posZ": 210,
         "x": 0,
         "width": 4
       },
       {
         "id": "l12_o5",
         "type": "roller",
-        "posZ": 276,
+        "posZ": 264,
         "x": 0,
         "width": 4.5,
         "amp": 5,
@@ -1357,20 +1402,32 @@
         "id": "l12_br1",
         "posZ": 70,
         "x": -5,
-        "hp": 300,
+        "hp": 588,
         "reward": {
           "dim": "N",
           "op": "add",
-          "value": 8
+          "value": 12
+        },
+        "pickStats": {
+          "N": 85,
+          "L": 4,
+          "R": 3,
+          "D": 1
         }
       },
       {
         "id": "l12_br2",
         "posZ": 232,
         "x": -5,
-        "hp": 2600,
+        "hp": 3190,
         "reward": {
           "buff": "pierce"
+        },
+        "pickStats": {
+          "N": 173,
+          "L": 4,
+          "R": 4.5,
+          "D": 2
         }
       }
     ],
@@ -1378,41 +1435,42 @@
       {
         "id": "l12_b1",
         "posZ": 120,
-        "hp": 4200
+        "hp": 4633
       },
       {
         "id": "l12_b2",
         "posZ": 252,
-        "hp": 13000
+        "hp": 33509
       }
     ],
     "waves": [
       {
-        "from": 24,
-        "to": 92,
-        "lambda": 0.7,
+        "from": 28,
+        "to": 105,
+        "lambda": 1.537,
         "rowSize": 14,
         "hp": 66,
         "type": "moldling"
       },
       {
-        "from": 100,
-        "to": 172,
-        "lambda": 0.52,
+        "from": 116,
+        "to": 187,
+        "lambda": 1.537,
         "rowSize": 14,
         "hp": 198,
         "type": "thick",
         "speedMul": 0.7
       },
       {
-        "from": 178,
-        "to": 282,
-        "lambda": 5.2,
+        "from": 193,
+        "to": 270,
+        "lambda": 8.306,
         "rowSize": 14,
         "hp": 66,
         "type": "moldling"
       }
     ],
-    "boss": null
+    "boss": null,
+    "measured": "最优 d1+桶: 通关 fPeak 11880 / 34.7s / 杀 1261 漏 31 / 3★ | 不躲障碍 4644(-61%) | 次优(只吃门) 通关 4644=1★ | 一路不动 败于 z74"
   }
 ]

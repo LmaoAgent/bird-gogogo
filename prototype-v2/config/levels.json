@@ -798,5 +798,621 @@
       }
     ],
     "boss": null
+  },
+  {
+    "level": 9,
+    "note": "障碍加压·刺长在收益的路上:z95 L×2 门后 9 个身位是中路刺(吃完立刻闪),z190 右墙十连的尽头贴着 z228 刺(贪到底就撞),z238 R+1 收官摆在刺后 —— 星级的最后一跳只留给闪得干净的人。最优(墙+横跳 R×1.5→L×2→pick D×2→末墙吃满→闪刺收 R+1)fPeak 5808=3★ 漏 4;贪墙到底的撞刺 -24 兵且丢 R+1,fPeak 4752=0.82=2★;怕门后刺连 L×2 都绕开的 F 停在 972,末潮 fMin 2980 碾过来,z230 全灭",
+    "trackLength": 270,
+    "targetF": 5800,
+    "gates": [
+      {
+        "id": "l9_wall_l",
+        "dim": "N",
+        "op": "add",
+        "value": 6,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 12,
+          "stepZ": 3.5
+        }
+      },
+      {
+        "id": "l9_r1",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "right",
+        "posZ": 34
+      },
+      {
+        "id": "l9_l1",
+        "dim": "L",
+        "op": "mul",
+        "value": 2,
+        "side": "center",
+        "posZ": 95
+      },
+      {
+        "id": "l9_pick",
+        "type": "pick",
+        "posZ": 150,
+        "options": [
+          {
+            "dim": "D",
+            "op": "mul",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "R",
+            "op": "mul",
+            "value": 1.5,
+            "side": "right"
+          }
+        ]
+      },
+      {
+        "id": "l9_wall_r",
+        "dim": "N",
+        "op": "add",
+        "value": 7,
+        "side": "right",
+        "posZ": 190,
+        "repeat": {
+          "count": 10,
+          "stepZ": 3.6
+        }
+      },
+      {
+        "id": "l9_r2",
+        "dim": "R",
+        "op": "add",
+        "value": 1,
+        "side": "left",
+        "posZ": 238
+      }
+    ],
+    "obstacles": [
+      {
+        "id": "l9_o1",
+        "type": "spike",
+        "posZ": 72,
+        "x": -5,
+        "width": 4.5
+      },
+      {
+        "id": "l9_o2",
+        "type": "spike",
+        "posZ": 104,
+        "x": 0,
+        "width": 4
+      },
+      {
+        "id": "l9_o3",
+        "type": "roller",
+        "posZ": 160,
+        "x": 0,
+        "width": 4,
+        "amp": 4.5,
+        "period": 3
+      },
+      {
+        "id": "l9_o4",
+        "type": "spike",
+        "posZ": 228,
+        "x": 5,
+        "width": 4.5
+      },
+      {
+        "id": "l9_o5",
+        "type": "roller",
+        "posZ": 252,
+        "x": 0,
+        "width": 4.5,
+        "amp": 5,
+        "period": 2.8
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l9_b1",
+        "posZ": 118,
+        "hp": 3000
+      }
+    ],
+    "waves": [
+      {
+        "from": 24,
+        "to": 94,
+        "lambda": 0.7,
+        "rowSize": 12,
+        "hp": 54,
+        "type": "moldling"
+      },
+      {
+        "from": 102,
+        "to": 172,
+        "lambda": 0.5,
+        "rowSize": 12,
+        "hp": 162,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 178,
+        "to": 262,
+        "lambda": 4.6,
+        "rowSize": 12,
+        "hp": 54,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  },
+  {
+    "level": 10,
+    "note": "大 BOSS 三阶段·配置近似:双高血闸门(吃总火力 F)无缝衔接 BOSS 本体(只吃单目标 DPS,dps5 持续掉兵)= 三条血条连打 9 秒无喘息,三阶段的表现包装留给 V7。前 22 秒全维度堆料:中墙 14 连、横跳 D×2、R×1.5、pick 左 D+2 / 右 L×2 —— 两边总火力同为 2700,单目标 DPS 差 4 倍,BOSS 战才见分晓。最优(D 全吃)dps 1350,4200/5600/5800 三段 9s 损 26 兵,fPeak 2700=3★ 34s;pick 错拿 L×2 的 dps 只有 445,掉兵螺旋下总输出上限 4400<5800,磨死在 BOSS 面前;全程中路躺平的撞刺撞轮 pick 空走,更早磨光",
+    "trackLength": 234,
+    "targetF": 2700,
+    "gates": [
+      {
+        "id": "l10_wall_c",
+        "dim": "N",
+        "op": "add",
+        "value": 6,
+        "side": "center",
+        "posZ": 25,
+        "repeat": {
+          "count": 14,
+          "stepZ": 3.4
+        }
+      },
+      {
+        "id": "l10_d1",
+        "dim": "D",
+        "op": "mul",
+        "value": 2,
+        "side": "left",
+        "posZ": 34
+      },
+      {
+        "id": "l10_r1",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "right",
+        "posZ": 95
+      },
+      {
+        "id": "l10_pick",
+        "type": "pick",
+        "posZ": 150,
+        "options": [
+          {
+            "dim": "D",
+            "op": "add",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "L",
+            "op": "mul",
+            "value": 2,
+            "side": "right"
+          }
+        ]
+      }
+    ],
+    "obstacles": [
+      {
+        "id": "l10_o1",
+        "type": "spike",
+        "posZ": 78,
+        "x": 0,
+        "width": 4
+      },
+      {
+        "id": "l10_o2",
+        "type": "roller",
+        "posZ": 130,
+        "x": 0,
+        "width": 4,
+        "amp": 4.5,
+        "period": 3
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l10_bA",
+        "posZ": 205,
+        "hp": 4200
+      },
+      {
+        "id": "l10_bB",
+        "posZ": 217,
+        "hp": 5600
+      }
+    ],
+    "waves": [
+      {
+        "from": 24,
+        "to": 90,
+        "lambda": 0.72,
+        "rowSize": 12,
+        "hp": 58,
+        "type": "moldling"
+      },
+      {
+        "from": 98,
+        "to": 160,
+        "lambda": 0.5,
+        "rowSize": 12,
+        "hp": 174,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 166,
+        "to": 195,
+        "lambda": 3.6,
+        "rowSize": 12,
+        "hp": 58,
+        "type": "moldling"
+      }
+    ],
+    "boss": {
+      "hp": 5800,
+      "posZ": 223,
+      "dps": 5,
+      "type": "rotgarlic_king"
+    }
+  },
+  {
+    "level": 11,
+    "note": "油桶加压·桶不再站在安全屋:z70 桶A 贴着 z78 刺(打完立刻闪,温和复习),z168 桶B 站中路而 z184 roller 正扫过来(打得完就赚 R×1.12,打不完就弃),z240 桶C 与 z228 刺同侧(先闪刺再回身,交火窗被压掉一半)。最优(三桶全收+墙+D×2)fPeak 5927=3★ 漏 7;怕刺弃末墙、桶也不打的 F 停在 2484,z262 全灭;同样的火力还贪穿透桶的,45% 分神喂给最密怪潮,z258 死得比不打更早 —— L8 的\"弱势打桶是自杀\"在这里是必修课",
+    "trackLength": 275,
+    "targetF": 5900,
+    "gates": [
+      {
+        "id": "l11_wall_l",
+        "dim": "N",
+        "op": "add",
+        "value": 6,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 12,
+          "stepZ": 3.5
+        }
+      },
+      {
+        "id": "l11_l1",
+        "dim": "L",
+        "op": "mul",
+        "value": 2,
+        "side": "right",
+        "posZ": 34
+      },
+      {
+        "id": "l11_r1",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "center",
+        "posZ": 100
+      },
+      {
+        "id": "l11_d1",
+        "dim": "D",
+        "op": "mul",
+        "value": 2,
+        "side": "left",
+        "posZ": 138
+      },
+      {
+        "id": "l11_wall_r",
+        "dim": "N",
+        "op": "add",
+        "value": 8,
+        "side": "right",
+        "posZ": 190,
+        "repeat": {
+          "count": 10,
+          "stepZ": 3.6
+        }
+      }
+    ],
+    "obstacles": [
+      {
+        "id": "l11_o1",
+        "type": "spike",
+        "posZ": 78,
+        "x": -5,
+        "width": 4.5
+      },
+      {
+        "id": "l11_o2",
+        "type": "roller",
+        "posZ": 184,
+        "x": 0,
+        "width": 4,
+        "amp": 4.5,
+        "period": 3
+      },
+      {
+        "id": "l11_o3",
+        "type": "spike",
+        "posZ": 228,
+        "x": 5,
+        "width": 4.5
+      },
+      {
+        "id": "l11_o4",
+        "type": "roller",
+        "posZ": 256,
+        "x": 0,
+        "width": 4.5,
+        "amp": 5,
+        "period": 2.8
+      }
+    ],
+    "barrels": [
+      {
+        "id": "l11_br1",
+        "posZ": 70,
+        "x": -5,
+        "hp": 280,
+        "reward": {
+          "dim": "N",
+          "op": "add",
+          "value": 6
+        }
+      },
+      {
+        "id": "l11_br2",
+        "posZ": 168,
+        "x": 0,
+        "hp": 1500,
+        "reward": {
+          "dim": "R",
+          "op": "mul",
+          "value": 1.12
+        }
+      },
+      {
+        "id": "l11_br3",
+        "posZ": 240,
+        "x": 5,
+        "hp": 2100,
+        "reward": {
+          "buff": "pierce"
+        }
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l11_b1",
+        "posZ": 125,
+        "hp": 3200
+      }
+    ],
+    "waves": [
+      {
+        "from": 24,
+        "to": 94,
+        "lambda": 0.68,
+        "rowSize": 13,
+        "hp": 62,
+        "type": "moldling"
+      },
+      {
+        "from": 102,
+        "to": 176,
+        "lambda": 0.5,
+        "rowSize": 13,
+        "hp": 186,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 182,
+        "to": 266,
+        "lambda": 4.8,
+        "rowSize": 13,
+        "hp": 62,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
+  },
+  {
+    "level": 12,
+    "note": "毕业考·无新机制,全要素混排:横跳墙、门后刺(z104)、墙尾刺(z224)、双 roller、双桶、双 pick、双闸门、λ5.2×14 全作最密末潮。z224 中路刺把人从墙上赶下来 —— 往左顺势接桶B(穿透)再接 pick2 N×2,一笔连成;终闸 13000 破门后末潮未歇,冲线 33 个身位仍在漏怪,火力不足者死在胜利前最后一段。最优 fPeak 8784=3★ 35s 漏 15;弃 L×2 + pick1 错拿 R+1 + 怕刺弃整段中墙的,贴左走线还会撞进桶B对准带被动分神 45%,z236 到不了终闸就全灭;贪墙撞双刺(-28/-23)丢 pick2 的能苟活,fPeak 5544=0.63=1★",
+    "trackLength": 285,
+    "targetF": 8800,
+    "gates": [
+      {
+        "id": "l12_wall_l",
+        "dim": "N",
+        "op": "add",
+        "value": 7,
+        "side": "left",
+        "posZ": 25,
+        "repeat": {
+          "count": 12,
+          "stepZ": 3.5
+        }
+      },
+      {
+        "id": "l12_l1",
+        "dim": "L",
+        "op": "mul",
+        "value": 2,
+        "side": "right",
+        "posZ": 34
+      },
+      {
+        "id": "l12_r1",
+        "dim": "R",
+        "op": "mul",
+        "value": 1.5,
+        "side": "center",
+        "posZ": 95
+      },
+      {
+        "id": "l12_pick1",
+        "type": "pick",
+        "posZ": 150,
+        "options": [
+          {
+            "dim": "D",
+            "op": "mul",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "R",
+            "op": "add",
+            "value": 1,
+            "side": "right"
+          }
+        ]
+      },
+      {
+        "id": "l12_wall_c",
+        "dim": "N",
+        "op": "add",
+        "value": 8,
+        "side": "center",
+        "posZ": 185,
+        "repeat": {
+          "count": 10,
+          "stepZ": 3.6
+        }
+      },
+      {
+        "id": "l12_pick2",
+        "type": "pick",
+        "posZ": 238,
+        "options": [
+          {
+            "dim": "N",
+            "op": "mul",
+            "value": 2,
+            "side": "left"
+          },
+          {
+            "dim": "D",
+            "op": "add",
+            "value": 2,
+            "side": "right"
+          }
+        ]
+      }
+    ],
+    "obstacles": [
+      {
+        "id": "l12_o1",
+        "type": "spike",
+        "posZ": 72,
+        "x": -5,
+        "width": 4.5
+      },
+      {
+        "id": "l12_o2",
+        "type": "spike",
+        "posZ": 104,
+        "x": 0,
+        "width": 4
+      },
+      {
+        "id": "l12_o3",
+        "type": "roller",
+        "posZ": 162,
+        "x": 0,
+        "width": 4,
+        "amp": 4.5,
+        "period": 2.8
+      },
+      {
+        "id": "l12_o4",
+        "type": "spike",
+        "posZ": 224,
+        "x": 0,
+        "width": 4
+      },
+      {
+        "id": "l12_o5",
+        "type": "roller",
+        "posZ": 276,
+        "x": 0,
+        "width": 4.5,
+        "amp": 5,
+        "period": 2.6
+      }
+    ],
+    "barrels": [
+      {
+        "id": "l12_br1",
+        "posZ": 70,
+        "x": -5,
+        "hp": 300,
+        "reward": {
+          "dim": "N",
+          "op": "add",
+          "value": 8
+        }
+      },
+      {
+        "id": "l12_br2",
+        "posZ": 232,
+        "x": -5,
+        "hp": 2600,
+        "reward": {
+          "buff": "pierce"
+        }
+      }
+    ],
+    "barriers": [
+      {
+        "id": "l12_b1",
+        "posZ": 120,
+        "hp": 4200
+      },
+      {
+        "id": "l12_b2",
+        "posZ": 252,
+        "hp": 13000
+      }
+    ],
+    "waves": [
+      {
+        "from": 24,
+        "to": 92,
+        "lambda": 0.7,
+        "rowSize": 14,
+        "hp": 66,
+        "type": "moldling"
+      },
+      {
+        "from": 100,
+        "to": 172,
+        "lambda": 0.52,
+        "rowSize": 14,
+        "hp": 198,
+        "type": "thick",
+        "speedMul": 0.7
+      },
+      {
+        "from": 178,
+        "to": 282,
+        "lambda": 5.2,
+        "rowSize": 14,
+        "hp": 66,
+        "type": "moldling"
+      }
+    ],
+    "boss": null
   }
 ]

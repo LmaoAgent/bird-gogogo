@@ -9,3 +9,14 @@ cocos/temp/
 cocos/build/
 cocos/profiles/
 node_modules/
+
+# 凭据与私有配置 —— 绝不能进版本库。
+# 注意:微信 AppID(wx...)是公开标识符,客户端包里本来就有,不在此列;
+# 真正要命的是 AppSecret(32 位十六进制,服务端调微信 API 用),接云开发/服务端时会出现。
+**/project.private.config.json
+*.key
+*.pem
+.env
+.env.*
+**/secret*.json
+**/credentials*.json

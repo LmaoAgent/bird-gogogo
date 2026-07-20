@@ -1,14 +1,11 @@
-// 关卡内 HUD —— 兵力大字 / 关卡进度条 / 敌方与 BOSS 血条 / 暂停按钮。
-// 只读 game 的字段做呈现:兵力与血量在对撞期间按 smash.progress 插值(纯演出插值,不改判定)。
+// 关卡内 HUD(v2)—— 兵力大字 / 关卡进度条 / 闸门与 BOSS 血条 / 暂停按钮。
+// 只读 game 的字段做呈现,不含任何玩法规则。HUD 的正式改造是 T14,这里只把 v1 对撞字段换成 v2。
 
 import { Label, Node } from 'cc';
 import { HALF_H, SAFE_HALF_W, UI_C, UiBar, UiButton, uiIcon, uiLabel, uiNode } from './UiKit';
 import type { Game } from '../core/game';
 
-/** 敌人进到这个纵深内才亮血条,与 ArenaView 的显示距离同值。 */
-const REVEAL_Z = 70;
-
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x);
 
 export class HudScreen {
   readonly node: Node;
@@ -75,15 +72,10 @@ export class HudScreen {
   hide(): void { this.node.active = false; }
 
   tick(game: Game, dt: number): void {
-    const smashing = game.state === 'smashing';
-
     this.lbLevel.string = `第 ${game.level.level} 关`;
     this.barProgress.set(game.progress);
 
-    // 对撞期间兵力从 nBefore 平滑落到 nAfter,和血条同步下降
-    const n = smashing
-      ? Math.round(lerp(game.smash.nBefore, game.smash.nAfter, game.smash.progress))
-      : game.n;
+    const n = game.stats.N;
     if (n !== this.lastN) {
       if (this.lastN >= 0) this.pop = 1;
       this.lastN = n;
@@ -93,25 +85,29 @@ export class HudScreen {
     const s = 1 + this.pop * 0.25;
     this.lbArmy.node.setScale(s, s, 1);
 
-    this.tickEnemy(game);
+    this.tickCheckpoint(game);
   }
 
-  private tickEnemy(game: Game): void {
-    const wave = game.currentWave;
-    if (!wave || wave.posZ - game.z > REVEAL_Z) { this.enemyGroup.active = false; return; }
+  /**
+   * v2 血条只给两个火力检验点:闸门(吃总火力 F)与 BOSS(吃单目标 DPS)。
+   * 怪潮是连续流、按 F 结算,没有单条血条可画(那是 T14 的 ArenaView 表现),这里不显示。
+   */
+  private tickCheckpoint(game: Game): void {
+    const barrier = game.barrier;
+    const boss = game.bossActive ? game.boss : null;
+    if (!barrier && !boss) { this.enemyGroup.active = false; return; }
     this.enemyGroup.active = true;
 
-    // 认 smash 快照而不是 state：撞输时 core 会留着快照,血条得停在残血而不是弹回满血
-    const hp = game.smash && game.smash.wave === wave
-      ? lerp(game.smash.hBefore, game.smash.hAfter, game.smash.progress)
-      : wave.H;
-
-    this.barEnemy.setColor(wave.isBoss ? UI_C.barBoss : UI_C.barEnemy);
-    this.barEnemy.set(hp / wave.H);
-    // BOSS 多阶段:core 已把每段展开成独立波次,这里直接显示它给的 phase / phaseCount
-    this.lbEnemy.string = wave.isBoss
-      ? (wave.phaseCount > 1 ? `烂蒜魔王  第 ${wave.phase}/${wave.phaseCount} 段` : '烂蒜魔王')
-      : '霉烂军团';
-    this.lbEnemyHp.string = `${Math.max(0, Math.round(hp))} / ${wave.H}`;
+    if (barrier) {
+      this.barEnemy.setColor(UI_C.barEnemy);
+      this.barEnemy.set(clamp01(barrier.hp / barrier.maxHp));
+      this.lbEnemy.string = '闸门 · 火力打穿';
+      this.lbEnemyHp.string = `${Math.max(0, Math.round(barrier.hp))} / ${barrier.maxHp}`;
+    } else if (boss) {
+      this.barEnemy.setColor(UI_C.barBoss);
+      this.barEnemy.set(clamp01(boss.hp / boss.maxHp));
+      this.lbEnemy.string = '烂蒜魔王';
+      this.lbEnemyHp.string = `${Math.max(0, Math.round(boss.hp))} / ${boss.maxHp}`;
+    }
   }
 }

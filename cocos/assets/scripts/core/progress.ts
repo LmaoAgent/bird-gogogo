@@ -1,6 +1,6 @@
 // 局外成长与存档 —— 引擎无关,零 DOM / 零平台 API。存储走注入的 adapter(load/save)。
-// 由 prototype/src/core/progress.js 原样迁入(只补 TS 类型与字段声明,规则一行未改)。
-// 对应 PRD §5 轻养成(首发单货币＝金币,无钻石)与《玩法数值与关卡设计》§2 起始兵力 / §4.2 单兵 DPS / §6 星级。
+// 存档 / 迁移 / 金币 / 星级 / 升级框架沿用 T3(§9「Progress 全套复用」),v2 只替换养成项:
+// 起始兵力单条曲线 → 起始四维各一条曲线 N0/L0/R0/D0(《玩法数值与关卡设计v2》§9)。
 // 数值全部来自 config/upgrade.json,此处只实现规则。
 // 纯函数吃的 save 均为 migrate() 的产物;config 为 upgrade.json 解析后的对象(core 不会自己去读文件)。
 
@@ -20,7 +20,7 @@ export function createSave(): SaveData {
     maxLevel: 0,
     coins: 0,
     skinFrag: 0,
-    upgrades: { startArmy: 1, unitPower: 1 },
+    upgrades: { N0: 1, L0: 1, R0: 1, D0: 1 },
     stars: {},
   };
 }
@@ -40,8 +40,10 @@ export function migrate(raw: any): SaveData {
     coins: intAtLeast(raw.coins, 0),
     skinFrag: intAtLeast(raw.skinFrag, 0),
     upgrades: {
-      startArmy: intAtLeast(upgrades.startArmy, 1),
-      unitPower: intAtLeast(upgrades.unitPower, 1),
+      N0: intAtLeast(upgrades.N0, 1),
+      L0: intAtLeast(upgrades.L0, 1),
+      R0: intAtLeast(upgrades.R0, 1),
+      D0: intAtLeast(upgrades.D0, 1),
     },
     stars: migrateStars(raw.stars),
   };
@@ -132,14 +134,21 @@ export function applyUpgrade(save: SaveData, kind: UpgradeKind, config: UpgradeC
   };
 }
 
-/** 起始兵力 N0(§2)：Game 构造时替代 tuning.startArmy。 */
-export function getStartArmy(save: SaveData, tuning: Tuning, config: UpgradeConfig): number {
-  return curveValue(save, 'startArmy', config, tuning.startArmy);
+/** 起始四维(§9)：Game 构造时覆写 tuning.start。曲线 level 1 即 tuning 基线,未升级与 tuning 一致。 */
+export function getStartN(save: SaveData, tuning: Tuning, config: UpgradeConfig): number {
+  return curveValue(save, 'N0', config, tuning.start.N);
 }
 
-/** 单兵 DPS d(§4.2)：只影响对撞演出时长,不改胜负结果。 */
-export function getUnitPower(save: SaveData, tuning: Tuning, config: UpgradeConfig): number {
-  return curveValue(save, 'unitPower', config, tuning.combat.dps);
+export function getStartL(save: SaveData, tuning: Tuning, config: UpgradeConfig): number {
+  return curveValue(save, 'L0', config, tuning.start.L);
+}
+
+export function getStartR(save: SaveData, tuning: Tuning, config: UpgradeConfig): number {
+  return curveValue(save, 'R0', config, tuning.start.R);
+}
+
+export function getStartD(save: SaveData, tuning: Tuning, config: UpgradeConfig): number {
+  return curveValue(save, 'D0', config, tuning.start.D);
 }
 
 // —— 存档门面 ——
@@ -203,6 +212,8 @@ export class Progress {
     return true;
   }
 
-  getStartArmy(tuning: Tuning): number { return getStartArmy(this.data, tuning, this.config); }
-  getUnitPower(tuning: Tuning): number { return getUnitPower(this.data, tuning, this.config); }
+  getStartN(tuning: Tuning): number { return getStartN(this.data, tuning, this.config); }
+  getStartL(tuning: Tuning): number { return getStartL(this.data, tuning, this.config); }
+  getStartR(tuning: Tuning): number { return getStartR(this.data, tuning, this.config); }
+  getStartD(tuning: Tuning): number { return getStartD(this.data, tuning, this.config); }
 }

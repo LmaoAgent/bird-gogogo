@@ -5,8 +5,9 @@ import { _decorator, Component, EventTouch, JsonAsset, Node, resources } from 'c
 import { adManager } from '../core/AdManager';
 import { track } from '../core/Analytics';
 import { Game } from '../core/game';
+import { starRating, fMin } from '../core/rules';
 import { Progress } from '../core/progress';
-import type { AdConfig, AdScene, LevelConfig, Tuning, UpgradeConfig } from '../defs/types';
+import type { AdConfig, AdScene, LevelConfig, LevelResult, Tuning, UpgradeConfig } from '../defs/types';
 import { Systems } from '../systems/Systems';
 import type { DailyConfig } from '../systems/Systems';
 import { UiRoot } from '../ui/UiRoot';
@@ -52,6 +53,11 @@ export class GameController extends Component {
   private dragging = false;
   private lastTouchX = 0;
   private unitPx = 0;
+  /** 本局星级,结算时算一次(§8 starRating(fPeak,targetF)),翻倍刷新结算页时复用。 */
+  private star = 0;
+  /** wave_result 埋点用:每段怪流进入时的漏怪基线(下标＝waves 下标),越过 wave.to 时结一条。 */
+  private waveEnterLeak: number[] = [];
+  private waveReported: boolean[] = [];
 
   start(): void {
     this.bindPlatform();
@@ -134,9 +140,6 @@ export class GameController extends Component {
       homeData: () => this.homeData(),
       onRankBoard: (board) => { track('rank_open', { board }); this.rank.render(board); },
     });
-    // ArenaView 的文字 HUD 是 T5 的调试占位,正式 UI 接上后关掉,免得两套兵力数字叠着显示
-    const debugHud = this.node.getChildByName('Hud');
-    if (debugHud) debugHud.active = false;
 
     // 屏幕像素 → 世界坐标的换算系数,与 prototype/src/input.js 同式
     this.unitPx = (DESIGN_W * 0.90) / tuning.track.width;
@@ -183,17 +186,21 @@ export class GameController extends Component {
   }
 
   private startLevel(): void {
-    // ⚠️ 养成接线：起始兵力与单兵 DPS 取自存档曲线,覆写进 tuning 后再交给 Game。
+    // ⚠️ 养成接线(§9)：起始四维 N0/L0/R0/D0 取自存档曲线,覆写进 tuning.start 后再交给 Game。
     // 这样 core/game.ts 仍然只吃配置、不认存档(引擎无关且无需为养成改规则)。
-    // getUnitPower 只进 smashDuration(演出时长);resolveSmash 不看 dps,故不影响胜负。
-    const tuned: Tuning = {
-      ...this.tuning,
-      startArmy: this.progress.getStartArmy(this.tuning),
-      combat: { ...this.tuning.combat, dps: this.progress.getUnitPower(this.tuning) },
+    const start = {
+      N: this.progress.getStartN(this.tuning),
+      L: this.progress.getStartL(this.tuning),
+      R: this.progress.getStartR(this.tuning),
+      D: this.progress.getStartD(this.tuning),
     };
+    const tuned: Tuning = { ...this.tuning, start };
 
     this.game = new Game(tuned, this.levels[this.levelIndex]);
-    track('level_start', { level: this.game.level.level });
+    // §11 level_start:level + 起始四维
+    track('level_start', { level: this.game.level.level, N0: start.N, L0: start.L, R0: start.R, D0: start.D });
+    this.waveEnterLeak = [];
+    this.waveReported = [];
     this.settled = false;
     this.paused = false;
     this.dragging = false;
@@ -227,8 +234,8 @@ export class GameController extends Component {
     if (this.game && !this.paused) {
       this.game.update(Math.min(dt, MAX_DT));
       this.view.consume(this.game);
-      this.feedGates();
-      this.trackPlay();
+      this.pumpEvents();
+      this.trackWaves();
       this.view.draw(this.game, dt);
 
       if (!this.settled && (this.game.state === 'win' || this.game.state === 'fail')) this.settle();
@@ -240,76 +247,97 @@ export class GameController extends Component {
   private settle(): void {
     this.settled = true;
     const r = this.game.result;
-    const level = this.game.level.level;
+    const level = this.game.level;
+    // §8 星级:core 只给 fPeak,分母 level.targetF、阈值 level.star || tuning.star。core 不算星级,接线层算。
+    this.star = r.win ? starRating(r.fPeak, level.targetF, level.star || this.tuning.star) : 0;
+    const fPeak = Math.round(r.fPeak);
 
-    // §10 埋点。挑战局也照发 —— level_start 那边不分家,这里分了漏斗就对不上账
+    // §11 埋点。挑战局也照发 —— level_start 那边不分家,这里分了漏斗就对不上账
     // (挑战局另有 challenge_result,要剔除按那个 join)。
-    if (r.win) track('level_win', { level, N_peak: r.nPeak, N_end: r.nEnd, star: r.star });
-    else track('level_fail', { level, N_peak: r.nPeak, N_end: r.nEnd, star: r.star, failWave: r.failWave ?? -1 });
+    if (r.win) track('level_win', { level: level.level, F_peak: fPeak, targetF: level.targetF, star: this.star });
+    else track('level_fail', { level: level.level, F_peak: fPeak, targetF: level.targetF, star: 0, reason: r.reason ?? '' });
 
-    // 挑战局:只比胜负,不写档不发币(见 startChallenge)。兵力纪录还是照记 ——
-    // maxLevel 传 0 就只可能推动 max_troop,不会让分享链接把关卡进度顶上去。
+    // 挑战局:只比胜负,不写档不发币(见 startChallenge)。战绩纪录照记 ——
+    // maxLevel 传 0 就只可能推动 max_troop(v2 分数维度＝fPeak),不会让分享链接把关卡进度顶上去。
     if (this.challenge) {
       this.gain = { coins: 0, unlocked: false };
-      if (r.win) this.rank.submit(0, r.nPeak);
+      if (r.win) this.rank.submit(0, fPeak);
       this.view.showResult(this.game, this.gain, this.progress.coins);
-      this.ui.showPkResult(judge(this.challenge, r.nPeak), r.nPeak, this.challenge);
+      this.ui.showPkResult(judge(this.challenge, fPeak), fPeak, this.challenge);
       return;
     }
 
-    // ⚠️ 结算落盘：通关才写档给币,失败时 applyLevelResult 内部原样返回(不写档)。
-    this.gain = this.progress.applyLevelResult(this.game.level.level, this.game.result);
+    // ⚠️ 结算落盘:星级回填进 result 后交给 Progress(§8 换了分母,金币/星级框架照旧复用)。
+    // 通关才写档给币,失败时 applyLevelResult 内部原样返回(不写档)。
+    const scored: LevelResult = { ...r, star: this.star };
+    this.gain = this.progress.applyLevelResult(level.level, scored);
     if (r.win) {
-      this.systems.feed('level_win', { level: this.game.level.level, star: r.star, nPeak: r.nPeak });
-      this.rank.submit(this.progress.maxLevel, r.nPeak);   // R01 刷新纪录才写托管数据
-      this.rank.beat(r.nPeak);                             // R04 让子域画"本局击败了 X 位好友"
+      this.systems.feed('level_win', { level: level.level, star: this.star, fPeak });
+      this.rank.submit(this.progress.maxLevel, fPeak);   // R01 刷新纪录才写托管数据
+      this.rank.beat(fPeak);                             // R04 让子域画"本局击败了 X 位好友"
     }
     this.view.showResult(this.game, this.gain, this.progress.coins);
     this.showResultUi();
   }
 
   /**
-   * 吃门喂给每日任务(设计文档 §2 的 gate_pick)。玩法代码一行没动 —— 事件本来就在
-   * game.events 里,这里顺手转一道;加减任务只改 config/daily.json。
+   * 玩法事件泵(§11 埋点 + §2 任务进度)。玩法代码一行没动 —— 事件本来就在 game.events 里,
+   * 这里顺手把每条转成埋点(track)与任务进度(systems.feed)。加减任务只改 config/daily.json。
+   * 连排门(repeat)展开后一门一条 —— "这排吃到几个"正是要调的数,合并了就没这数了。
    */
-  private feedGates(): void {
+  private pumpEvents(): void {
+    const level = this.game.level.level;
     for (const e of this.game.events) {
-      if (e.kind === 'gate') this.systems.feed('gate_pick', { type: e.effect.type, after: e.after });
+      if (e.kind === 'gate') {
+        // §11 gate_pick:level / gateId / dim(N-L-R-D) / op(add-mul) / choice
+        track('gate_pick', {
+          level, gateId: e.gate.id, dim: e.effect.dim, op: e.effect.op,
+          choice: `${e.effect.dim}${e.effect.op === 'mul' ? '×' : '+'}${e.effect.value}@${e.effect.side}`,
+        });
+        this.systems.feed('gate_pick', { dim: e.effect.dim, op: e.effect.op });
+      } else if (e.kind === 'obstacleHit') {
+        track('obstacle_hit', { level, type: e.obstacle.type, lossN: e.loss });
+        this.systems.feed('obstacle_hit', { type: e.obstacle.type, lossN: e.loss });
+      } else if (e.kind === 'barrelHit') {
+        // hit/break 成对才有意义:hit 是"多少人选择去打"、break 是"多少人打成了",落差即分神却没换到的那批。
+        track('barrel_hit', { level, rewardDim: (e.barrel.reward.buff || e.barrel.reward.dim) as string });
+      } else if (e.kind === 'barrelBreak') {
+        track('barrel_break', { level, rewardDim: (e.reward.buff || e.reward.dim) as string, gain: +e.gain.toFixed(3) });
+        this.systems.feed('barrel_break', { rewardDim: (e.reward.buff || e.reward.dim) as string });
+      }
     }
   }
 
   /**
-   * 玩法埋点(《玩法数值与关卡设计.md》§10)。字段名照文档原样(N_before / N_after),
-   * 换真上报通道时只改 core/Analytics.ts 一处,调用点不动。
-   * 连排门(repeat)展开后一个一条 —— "这排 10 个吃到几个"正是要调的数,合并了就没这数了。
+   * wave_result 埋点(§11 数值调优核心指标)。core 不发这条(v2 怪流是连续的,没有离散"波次结束"),
+   * 由接线层在大军越过每段 wave.to 时补一条:leaked = 该段区间内 game.leakCount 的增量。
+   * 纯埋点,不影响玩法/对拍。
    */
-  private trackPlay(): void {
+  private trackWaves(): void {
     const level = this.game.level.level;
-    for (const e of this.game.events) {
-      if (e.kind === 'gate') {
-        track('gate_pick', {
-          level,
-          gateId: e.gate.id,
-          choice: `${e.effect.type}${e.effect.value}@${e.effect.side}`,
+    const waves = this.game.level.waves || [];
+    for (let i = 0; i < waves.length; i++) {
+      const w = waves[i];
+      if (this.waveEnterLeak[i] === undefined && this.game.z >= w.from) {
+        this.waveEnterLeak[i] = this.game.leakCount;
+      }
+      if (!this.waveReported[i] && this.waveEnterLeak[i] !== undefined && this.game.z > w.to) {
+        this.waveReported[i] = true;
+        const leaked = this.game.leakCount - this.waveEnterLeak[i];
+        track('wave_result', {
+          level, waveIdx: i, F: Math.round(this.game.F), F_min: Math.round(fMin(w)),
+          leaked, lossN: Math.floor(leaked / this.tuning.enemiesPerLoss),
         });
-      } else if (e.kind === 'smashEnd') {
-        // 反查下标而不是读 game.waveIndex:事件是在 core 自增 waveIndex 之前压进去的,
-        // 等我们这一帧消费时它已经指向下一波了。
-        track('wave_smash', {
-          level,
-          waveIndex: this.game.waves.indexOf(e.smash.wave),
-          N_before: e.smash.nBefore,
-          N_after: e.smash.nAfter,
-        });
+        this.systems.feed('wave_result', { waveIdx: i, leaked });
       }
     }
   }
 
   // —— 广告(《广告接入spec.md》§7 接线:结算页翻倍 / 失败页复活) ——
 
-  /** 结算页每次刷新都重算广告按钮三态:发完奖、配额用尽后按钮自己收掉。 */
+  /** 结算页每次刷新都重算广告按钮三态:发完奖、配额用尽后按钮自己收掉。星级本局算一次(this.star)。 */
   private showResultUi(): void {
-    this.ui.showResult(this.game, this.gain, this.progress.coins, this.adState(this.adScene()));
+    this.ui.showResult(this.game, this.gain, this.progress.coins, this.adState(this.adScene()), this.star);
   }
 
   /** 通关页是金币翻倍位,失败页是复活位。 */

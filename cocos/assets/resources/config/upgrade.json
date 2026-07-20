@@ -1,38 +1,51 @@
 {
-  "note": "局外轻养成(PRD §5)。首发单货币＝金币,无钻石。曲线 level 1 即 tuning 基线(startArmy=10 / combat.dps=6),未升级时与 tuning 完全一致;cost＝升到该级所需金币,level 从 1 连续升序。",
+  "note": "局外轻养成(PRD §5 / v2 §9)。首发单货币＝金币,无钻石。v2 把养成拆成起始四维各一条曲线(N0/L0/R0/D0),曲线 level 1 即 tuning.start 基线(N=15 / L=2 / R=3 / D=1),未升级时与 tuning 完全一致;cost＝升到该级所需金币,level 从 1 连续升序。约束(§9):满级也不能让玩家不吃门就过后段关卡,故各线上限克制。",
   "rewards": {
     "note": "通关结算金币 = coinBase × 关卡 + starBonus[星级];失败不结算。重复通关照给,越后面的关越值钱。",
     "coinBase": 8,
     "starBonus": { "1": 0, "2": 15, "3": 40 }
   },
   "curves": {
-    "startArmy": {
-      "note": "起始兵力 N0(§2)。上限 40:一个门不吃只过得了教学关 1-4(关5 要 62.5、关10 要 227,20 关大 BOSS 更高),不可能靠升级跳过门通关。副作用:满级后一路 center 会白吃中路门,关4-6 因此可无操作通过(老关变简单＝成长的预期收益),关7 起仍须走位。",
+    "N0": {
+      "note": "起始兵力 N0(§2)。既是火力基数也是抗撞的血。上限 39:够把教学段走顺,但清怪/破闸门仍得靠吃门把 L/R/D 堆起来,单靠 N 过不了后段密怪潮。",
       "levels": [
-        { "level": 1, "value": 10, "cost": 0 },
-        { "level": 2, "value": 13, "cost": 100 },
-        { "level": 3, "value": 16, "cost": 180 },
-        { "level": 4, "value": 19, "cost": 300 },
-        { "level": 5, "value": 22, "cost": 460 },
-        { "level": 6, "value": 25, "cost": 660 },
-        { "level": 7, "value": 28, "cost": 900 },
-        { "level": 8, "value": 31, "cost": 1200 },
-        { "level": 9, "value": 34, "cost": 1600 },
-        { "level": 10, "value": 37, "cost": 2100 },
-        { "level": 11, "value": 40, "cost": 2700 }
+        { "level": 1, "value": 15, "cost": 0 },
+        { "level": 2, "value": 18, "cost": 100 },
+        { "level": 3, "value": 21, "cost": 180 },
+        { "level": 4, "value": 24, "cost": 300 },
+        { "level": 5, "value": 27, "cost": 460 },
+        { "level": 6, "value": 30, "cost": 660 },
+        { "level": 7, "value": 33, "cost": 900 },
+        { "level": 8, "value": 36, "cost": 1200 },
+        { "level": 9, "value": 39, "cost": 1600 }
       ]
     },
-    "unitPower": {
-      "note": "单兵 DPS d(§4.2)。d 只进对撞演出时长 T=clamp(H/(N·d),tMin,tMax),不进胜负判定,所以这条线永远不会破坏关卡抉择——买的是节奏,故比 N0 便宜。",
+    "L0": {
+      "note": "起始弹道 L0(§2)。同时能打几个目标,清海量弱怪的关键。clampStats 会把 L 取整,故只配整数档;上限 4——再高教学关会失去「看到弹幕翻倍」的成长空间。",
       "levels": [
-        { "level": 1, "value": 6, "cost": 0 },
-        { "level": 2, "value": 8, "cost": 80 },
-        { "level": 3, "value": 10, "cost": 150 },
-        { "level": 4, "value": 12, "cost": 260 },
-        { "level": 5, "value": 14, "cost": 420 },
-        { "level": 6, "value": 16, "cost": 650 },
-        { "level": 7, "value": 18, "cost": 950 },
-        { "level": 8, "value": 20, "cost": 1350 }
+        { "level": 1, "value": 2, "cost": 0 },
+        { "level": 2, "value": 3, "cost": 300 },
+        { "level": 3, "value": 4, "cost": 900 }
+      ]
+    },
+    "R0": {
+      "note": "起始射速 R0(§2)。每秒发射次数,弹幕密度。",
+      "levels": [
+        { "level": 1, "value": 3, "cost": 0 },
+        { "level": 2, "value": 3.5, "cost": 150 },
+        { "level": 3, "value": 4, "cost": 320 },
+        { "level": 4, "value": 4.5, "cost": 540 },
+        { "level": 5, "value": 5, "cost": 820 }
+      ]
+    },
+    "D0": {
+      "note": "起始伤害 D0(§2)。单发伤害,啃厚皮怪与 BOSS 的单目标 DPS 靠它。",
+      "levels": [
+        { "level": 1, "value": 1, "cost": 0 },
+        { "level": 2, "value": 1.5, "cost": 150 },
+        { "level": 3, "value": 2, "cost": 320 },
+        { "level": 4, "value": 2.5, "cost": 540 },
+        { "level": 5, "value": 3, "cost": 820 }
       ]
     }
   }

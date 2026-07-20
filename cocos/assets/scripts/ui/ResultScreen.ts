@@ -97,13 +97,13 @@ export class ResultScreen {
     this.node.active = false;
   }
 
-  showWin(star: number, nPeak: number, gainCoins: number, totalCoins: number, ad: AdBtnState): void {
+  showWin(star: number, fPeak: number, gainCoins: number, totalCoins: number, ad: AdBtnState): void {
     this.lbTitle.string = '通关!';
     this.lbTitle.node.setPosition(0, 400, 0);
     this.lbLines.node.setPosition(0, 60, 0);
     this.starRow.active = true;
     for (let i = 0; i < STAR_COUNT; i++) this.stars[i].color = i < star ? UI_C.starOn : UI_C.starOff;
-    this.lbLines.string = `本局峰值兵力  ${nPeak}`;
+    this.lbLines.string = `本局峰值火力  ${fPeak}`;
     this.coinRow.active = true;
     this.lbCoins.string = `+${gainCoins}   (共 ${totalCoins})`;
     this.setAd(ad, `看广告 金币翻倍 +${gainCoins}`);
@@ -112,13 +112,13 @@ export class ResultScreen {
     this.node.active = true;
   }
 
-  showFail(reason: string, nPeak: number, ad: AdBtnState): void {
+  showFail(reason: string, fPeak: number, ad: AdBtnState): void {
     this.lbTitle.string = '失败';
     // 没有星星那一行,标题与正文一起下移收掉空档
     this.lbTitle.node.setPosition(0, 320, 0);
     this.lbLines.node.setPosition(0, 110, 0);
     this.starRow.active = false;
-    this.lbLines.string = `${reason}\n本局峰值兵力  ${nPeak}`;
+    this.lbLines.string = `${reason}\n本局峰值火力  ${fPeak}`;
     this.coinRow.active = false;
     this.setAd(ad, '看广告复活 · 原地续冲');
     this.btnGo.setText('重开本关');

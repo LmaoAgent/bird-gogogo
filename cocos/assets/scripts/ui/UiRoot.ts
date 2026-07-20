@@ -37,17 +37,16 @@ export interface UiCallbacks {
   onRankBoard(board: Board): void;
 }
 
-/** 失败原因文案:只把 core 记下的 failWave 与对撞快照翻成人话。 */
+/** 失败原因文案:把 core 记下的 result.reason 翻成人话(v2:trap/obstacle/overrun/boss)。 */
+const FAIL_REASON: Record<string, string> = {
+  trap: '兵力被陷阱门扣光',
+  obstacle: '撞上障碍,兵力耗尽',
+  overrun: '怪潮压垮了大军',
+  boss: '被 BOSS 磨光了兵力',
+};
 function failReason(game: Game): string {
   const r = game.result;
-  if (!r || r.failWave < 0) return '兵力被陷阱耗尽';
-
-  const wave = game.smash ? game.smash.wave : null;
-  const who = wave && wave.isBoss
-    ? (wave.phaseCount > 1 ? `烂蒜魔王第 ${wave.phase}/${wave.phaseCount} 段` : '烂蒜魔王')
-    : `第 ${r.failWave + 1} 波`;
-  const detail = game.smash ? `(撞击时 ${game.smash.nBefore} 兵)` : '';
-  return `撞不动${who}${detail}`;
+  return (r && FAIL_REASON[r.reason || '']) || '兵力耗尽';
 }
 
 export class UiRoot {
@@ -152,17 +151,20 @@ export class UiRoot {
     this.hud.setChallenge(invite);
   }
 
-  /** gain / coins 直接取 Progress.applyLevelResult 的返回值与存档余额;ad 三态由 GameController 算。 */
-  showResult(game: Game, gain: { coins: number; unlocked: boolean }, coins: number, ad: AdBtnState): void {
+  /**
+   * gain / coins 直接取 Progress.applyLevelResult 的返回值与存档余额;ad 三态与星级由 GameController 算。
+   * v2 战绩维度＝峰值火力 fPeak(§8),分享分与榜单分都用它。
+   */
+  showResult(game: Game, gain: { coins: number; unlocked: boolean }, coins: number, ad: AdBtnState, star: number): void {
     const r = game.result;
     this.shareLv = game.level.level;
-    this.shareScore = r.nPeak;
+    this.shareScore = Math.round(r.fPeak);
     if (r.win) {
-      this.result.showWin(r.star, r.nPeak, gain.coins, coins, ad);
+      this.result.showWin(star, this.shareScore, gain.coins, coins, ad);
       // "本局击败了 X 位好友"——那个数只有子域算得出来(主域读不到好友数据),所以整条横幅都是它画的
       this.rankCanvas.showBeat(this.result.node);
     } else {
-      this.result.showFail(failReason(game), r.nPeak, ad);
+      this.result.showFail(failReason(game), this.shareScore, ad);
     }
   }
 

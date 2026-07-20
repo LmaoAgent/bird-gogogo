@@ -1,24 +1,70 @@
 {
-  "startArmy": 10,
+  "note": "v2 手感参数。单局目标 30 秒 → forwardSpeed 9 × 30 ≈ trackLength 270。",
+  "start": {
+    "N": 15,
+    "L": 2,
+    "R": 3,
+    "D": 1
+  },
   "forwardSpeed": 9,
   "dragSensitivity": 1.0,
   "followSmooth": 0.15,
-  "formationRadiusK": 0.6,
-  "nRender": 130,
-  "combat": {
-    "dps": 6,
-    "tMin": 0.6,
-    "tMax": 2.5
-  },
-  "fx": {
-    "smashShakeAmp": 8,
-    "smashShakeDuration": 0.2,
-    "bossHitStop": 0.06
-  },
+  "formationRadiusK": 0.72,
+  "formationRadiusMax": 6.2,
+  "formationDepthK": 0.45,
+  "unitSize": 60,
+  "nRender": 60,
+  "bulletSpeed": 55,
+  "maxBullets": 300,
+  "maxBulletLanes": 14,
+  "focusLanesMin": 12,
+  "bulletFanW": 9,
+  "focusFanMul": 1.4,
+  "bulletTargetDepth": 32,
+  "bulletSize": 34,
+  "bulletTrailK": 1.3,
+  "enemySpeed": 7,
+  "spawnAhead": 44,
+  "maxEnemies": 300,
+  "enemyRadius": 0.6,
+  "separationForce": 0.7,
+  "gridCell": 1.6,
+  "contactZ": 3.0,
+  "bossStandZ": 14,
   "track": {
     "width": 16,
-    "laneX": { "left": -5, "center": 0, "right": 5 },
+    "laneX": {
+      "left": -5,
+      "center": 0,
+      "right": 5
+    },
     "gateHalfWidth": 2.2
   },
-  "star": { "3": 0.95, "2": 0.75 }
+  "star": {
+    "3": 0.95,
+    "2": 0.75
+  },
+  "enemiesPerLoss": 3,
+  "hitFlashS": 0.25,
+  "bulletRateMul": 16,
+  "barrierStopZ": 9,
+  "breakWaveRange": 18,
+  "breakWaveDamage": 0.15,
+  "releaseBatchInterval": 0.15,
+  "releaseBatchSize": 6,
+  "breakBoostS": 1.0,
+  "breakBoostSpeedMul": 1.5,
+  "obstacleLossPct": 0.25,
+  "obstacleHitHalfW": 2.0,
+  "rollerAmp": 4.5,
+  "rollerPeriod": 3.2,
+  "barrelShare": 0.45,
+  "barrelRangeZ": 24,
+  "barrelAimHalfW": 2.2,
+  "buffCritS": 3,
+  "buffCritMul": 1.6,
+  "buffPierceS": 7,
+  "buffPierceFalloff": 0.25,
+  "maxWaveFx": 30,
+  "maxHitFx": 5
 }

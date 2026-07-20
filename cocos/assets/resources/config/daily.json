@@ -14,13 +14,14 @@
     ]
   },
   "task": {
-    "note": "§2 每日抽 dailyCount 个:fixed 的必出,其余按日期做确定性洗牌补满(同一天重进抽到的一样)。ev 是埋点事件名;带 field 的按「单局最好成绩」记(取 max),不带的按次数累加。spec 里 field 写作 N_peak,这里对齐代码里 LevelResult 的实际字段名 nPeak。",
+    "note": "§2 每日抽 dailyCount 个:fixed 的必出,其余按日期做确定性洗牌补满(同一天重进抽到的一样)。ev 是埋点事件名;带 field 的按「单局最好成绩」记(取 max),不带的按次数累加。v2 分数维度从兵力改火力:field 用 fPeak(对齐 GameController 喂给 level_win 的字段)。gate_pick / barrel_break 是 v2 玩法事件,GameController 逐帧从 game.events 转发到 Systems,故加减这类任务只动本文件、玩法代码不用改。",
     "dailyCount": 4,
     "allClearReward": { "coin": 200, "skinFrag": 3 },
     "pool": [
       { "id": "clear3", "desc": "通关 3 关", "ev": "level_win", "target": 3, "fixed": true, "reward": { "coin": 150 } },
-      { "id": "troop500", "desc": "单局兵力达 500", "ev": "level_win", "field": "nPeak", "target": 500, "reward": { "coin": 120 } },
+      { "id": "power3000", "desc": "单局峰值火力达 3000", "ev": "level_win", "field": "fPeak", "target": 3000, "reward": { "coin": 120 } },
       { "id": "gate50", "desc": "吃门 50 次", "ev": "gate_pick", "target": 50, "reward": { "coin": 100 } },
+      { "id": "barrel5", "desc": "打爆 5 个油桶", "ev": "barrel_break", "target": 5, "reward": { "coin": 100 } },
       { "id": "ad1", "desc": "看 1 次广告", "ev": "ad_reward", "target": 1, "reward": { "skinFrag": 2 } },
       { "id": "share1", "desc": "分享 1 次", "ev": "share_click", "target": 1, "reward": { "coin": 80 } },
       { "id": "star3", "desc": "打出 1 次三星", "ev": "level_win", "field": "star", "target": 3, "reward": { "coin": 120 } }
